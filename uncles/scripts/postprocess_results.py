@@ -1,0 +1,186 @@
+import numpy as np
+import datastructures as ds
+import sklearn.metrics.pairwise as skdists
+import numeric as nu
+
+
+def reorderClusters(B, X, GDM, returnOrderIndices = False):
+    Bloc = np.array(B)
+    Xloc = ds.listofarrays2arrayofarrays(X)
+
+    Bloc = Bloc[:, np.any(Bloc, axis=0)]  # Only keep non-empty clusters
+
+    B_ordered = np.zeros(Bloc.shape, dtype=bool)
+    K = Bloc.shape[1]  # Number of clusters
+    L = Xloc.shape[0]  # Number of datasets
+
+    # Find Cmeans and distances between clusters
+    Cmeans = np.array([None] * L, dtype=object)
+    D = np.zeros([K, K, L])  # KxKxL
+    for l in range(L):
+        Cmeans[l] = np.zeros([K, Xloc[l].shape[1]], dtype=float)  # (K) x (X[l] samples)
+        for k in range(K):
+            Cmeans[l][k] = np.mean(Xloc[l][Bloc[GDM[:, l], k], :], axis=0)
+        D[:, :, l] = skdists.euclidean_distances(Cmeans[l])  # KxK
+    D = np.median(D, axis=2)  # KxK
+
+    # Set first cluster as first, then find closest by closest
+    B_ordered[:, 0] = Bloc[:, 0]
+    I = np.zeros(K, dtype=int)
+    I[0] = 0
+    clustersDone = np.zeros(K, dtype=bool)
+    clustersDone[0] = True
+    for k in range(1,K):
+        relevantD = D[I[k-1], ~clustersDone]
+        clustersLeft = np.nonzero(~clustersDone)[0]
+        nextCluster = np.argmin(relevantD)
+        nextCluster = clustersLeft[nextCluster]
+        B_ordered[:, k] = Bloc[:, nextCluster]
+        I[k] = nextCluster
+        clustersDone[nextCluster] = True
+
+    if returnOrderIndices:
+        return (B_ordered, I)
+    else:
+        return B_ordered
+
+
+def correcterrors_withinworse(B, X, GDM, falsepositivestrimmed=0.01):
+    Bloc = np.array(B)
+    Xloc = ds.listofarrays2arrayofarrays(X)
+
+    [Ng, K] = Bloc.shape  # Ng genes and K clusters
+    L = Xloc.shape[0]  # L datasets
+
+    # Find clusters' means (Cmeans), absolute shifter clusters genes (SCG),
+    # and the emperical CDF functions for them (cdfs)
+    Cmeans = np.array([None] * L, dtype=object)
+    SCG = np.array([None] * L, dtype=object)
+    for l in range(L):
+        Cmeans[l] = np.zeros([K, Xloc[l].shape[1]])  # K clusters x D dimensions
+        SCG[l] = np.zeros([np.sum(np.sum(Bloc[GDM[:, l], :], axis=0)), Xloc[l].shape[1]])  # M* genes x D dimensions ...
+        # (M* are all # genes in any cluster)
+
+        gi = 0
+        for k in range(K):
+            Cmeans[l][k] = np.median(Xloc[l][Bloc[GDM[:, l], k], :], axis=0)
+            csize = np.sum(Bloc[GDM[:, l], k])
+            tmpSCG = nu.subtractaxis(Xloc[l][Bloc[GDM[:, l], k], :], Cmeans[l][k], axis=0)
+            SCG[l][gi:(gi+csize),:] = np.abs(tmpSCG)
+            gi += csize
+        SCG[l] = SCG[l][np.any(SCG[l], axis=1)]  # Remove all zeros genes (rows of SCG[l])
+        SCG[l] = np.sort(SCG[l], axis=0)
+        if falsepositivestrimmed > 0:
+            trimmed = int(falsepositivestrimmed * SCG[l].shape[0])
+            if trimmed > 0:
+                SCG[l] = SCG[l][0:-trimmed]  # trim the lowest (trimmed) rows in SCG
+
+    # Helping function
+    def iswithinworse(ref, x):
+        return x <= np.max(ref)
+
+    # Find who belongs
+    belongs = np.ones([Ng, K, L], dtype=bool)  # Ng genes x K clusters x L datasets
+    for l in range(L):
+        for k in range(K):
+            for d in range(Xloc[l].shape[1]):
+                tmpX = np.abs(Xloc[l][:, d] - Cmeans[l][k, d])
+                belongs[GDM[:, l], k, l] &= iswithinworse(SCG[l][:, d], tmpX)
+
+    # Include in clusters genes which belongs everywhere
+    B_out = np.all(belongs, axis=2)
+
+    # Genes included in two clusters, include them in the closest in terms of its worst distance to any of the clusters
+    # (guarrantee that the worst belongingness of a gene to a cluster is optimised)
+    f = np.nonzero(np.sum(B_out, axis=1) > 1)[0]
+    for fi in f:
+        ficlusts = np.nonzero(B_out[fi])[0]  # Clusters competing over gene fi
+        fidatasets = np.nonzero(GDM[fi])[0]  # Datasets that have gene fi
+        localdists = np.zeros([len(ficlusts), len(fidatasets)])  # (Clusts competing) x (datasets that have fi)
+        for l in range(len(fidatasets)):
+            ll = fidatasets[l]  # Actual dataset index
+            fi_ll = np.sum(GDM[:fi, ll])  # Index of fi in this Xloc[ll]
+            localdists[:, l] = nu.dist_matrices(Cmeans[ll][ficlusts], Xloc[ll][fi_ll]).reshape([len(ficlusts)])
+        localdists = np.max(localdists, axis=1)  # (Clusts competing) x 1
+        ficlosest = np.argmin(localdists)  # Closest cluster
+        B_out[fi] = False
+        B_out[fi, ficlusts[ficlosest]] = True
+
+    return B_out
+
+
+def correcterrors_weighted(B, X, GDM, clustdists=None, falsepositivestrimmed=0.01, smallestClusterSize=11):
+    Bloc = np.array(B)
+    Xloc = ds.listofarrays2arrayofarrays(X)
+
+    [Ng, K] = Bloc.shape  # Ng genes and K clusters
+    L = Xloc.shape[0]  # L datasets
+
+    # Normalise clustdists to provide weights. If not provided, make it unity for all
+    if clustdists is None:
+        clustdistsnorm = np.ones(K)
+    else:
+        clustweights = np.min(clustdists) / clustdists
+
+    # Find clusters' means (Cmeans), absolute shifted clusters genes (SCG),
+    # and the emperical CDF functions for them (cdfs)
+    Cmeans = np.array([None] * L, dtype=object)
+    SCG = np.array([None] * L, dtype=object)
+    for l in range(L):
+        Cmeans[l] = np.zeros([K, Xloc[l].shape[1]])  # K clusters x D dimensions
+        SCG[l] = np.zeros([np.sum(np.sum(Bloc[GDM[:, l], :], axis=0)), Xloc[l].shape[1]])  # M* genes x D dimensions ...
+        # (M* are all # genes in any cluster)
+
+        gi = 0
+        for k in range(K):
+            Cmeans[l][k] = np.median(Xloc[l][Bloc[GDM[:, l], k], :], axis=0)
+            csize = np.sum(Bloc[GDM[:, l], k])
+            tmpSCG = nu.subtractaxis(Xloc[l][Bloc[GDM[:, l], k], :], Cmeans[l][k], axis=0)
+            # MAIN ADDITION (SCG is weighted by clustweights, max clustweight is unity, and it is the best)
+            tmpSCG = tmpSCG * clustweights[k]
+            SCG[l][gi:(gi + csize), :] = np.abs(tmpSCG)
+            gi += csize
+        SCG[l] = SCG[l][np.any(SCG[l], axis=1)]  # Remove all zeros genes (rows of SCG[l])
+        SCG[l] = np.sort(SCG[l], axis=0)
+        if falsepositivestrimmed > 0:
+            trimmed = int(falsepositivestrimmed * SCG[l].shape[0])
+            if trimmed > 0:
+                SCG[l] = SCG[l][0:-trimmed]  # trim the lowest (trimmed) rows in SCG
+
+    # Helping function
+    def iswithinworse(ref, x):
+        return x <= np.max(ref)
+
+    # Find who belongs
+    belongs = np.ones([Ng, K, L], dtype=bool)  # Ng genes x K clusters x L datasets
+    for l in range(L):
+        for k in range(K):
+            for d in range(Xloc[l].shape[1]):
+                tmpX = np.abs(Xloc[l][:, d] - Cmeans[l][k, d])
+                belongs[GDM[:, l], k, l] &= iswithinworse(SCG[l][:, d], tmpX)
+
+    # Include in clusters genes which belongs everywhere
+    B_out = np.all(belongs, axis=2)
+
+    # Genes included in two clusters, include them in the closest in terms of its worst distance to any of the clusters
+    # (guarrantee that the worst belongingness of a gene to a cluster is optimised)
+    f = np.nonzero(np.sum(B_out, axis=1) > 1)[0]
+    for fi in f:
+        ficlusts = np.nonzero(B_out[fi])[0]  # Clusters competing over gene fi
+        fidatasets = np.nonzero(GDM[fi])[0]  # Datasets that have gene fi
+        localdists = np.zeros([len(ficlusts), len(fidatasets)])  # (Clusts competing) x (datasets that have fi)
+        for l in range(len(fidatasets)):
+            ll = fidatasets[l]  # Actual dataset index
+            fi_ll = np.sum(GDM[:fi, ll])  # Index of fi in this Xloc[ll]
+            localdists[:, l] = nu.dist_matrices(Cmeans[ll][ficlusts], Xloc[ll][fi_ll]).reshape([len(ficlusts)])
+        localdists = np.max(localdists, axis=1)  # (Clusts competing) x 1
+        ficlosest = np.argmin(localdists)  # Closest cluster
+        B_out[fi] = False
+        B_out[fi, ficlusts[ficlosest]] = True
+
+    # Remove clusters smaller than minimum cluster size
+    ClusterSizes = np.sum(B_out, axis=0)
+    B_out = B_out[:, ClusterSizes >= smallestClusterSize]
+
+    return B_out
+
