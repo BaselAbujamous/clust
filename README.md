@@ -20,12 +20,12 @@ The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated w
 7. A figure showing the profiles of the generated clusters is provided as an output PDF file.
 
 ## Simplest usage
-- bicopam data_path
+- 'bicopam data_path'
 
 ### Data files
 
 ## Simple usage
-- bicopam data_path -m map_file -n normalisation_file -r replicates_file -t tightness
+- 'bicopam data_path -m map_file -n normalisation_file -r replicates_file -t tightness'
 
 ### Map file
 
