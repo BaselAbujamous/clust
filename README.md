@@ -1,6 +1,6 @@
 # Bi-CoPaM
 The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated with each other across a number of given datasets with minimal need for manual intervention.
-![Clusters](https://github.com/BaselAbujamous/bicopam/blob/master/Clusters.png)
+![Clusters](https://github.com/BaselAbujamous/bicopam/blob/master/Images/Clusters.png)
 *Figure 1: The Bi-CoPaM generates clusters (C0, C1, C2, ...) out of an input of 9,462 objects based on their profiles in three datasets (X0, X1, and X2). The left-hand panel shows the profiles of all 9,462 objects in each one of the three datasets, while the right-hand panel shows the profiles of the objects within each one of the clusters. The objects included in any given cluster are well-correlated with each other in each one of the three datasets. Note that the number of conditions or time points are different amongst the datasets.*
 
 **Features!**
@@ -15,7 +15,7 @@ The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated w
 7. A figure showing the profiles of the generated clusters is provided as an output PDF file.
 
 ## Automatic Bi-CoPaM analysis pipeline
-![Bi-CoPaM workflow](https://github.com/BaselAbujamous/bicopam/blob/master/Workflow_PyPkg.png)
+![Bi-CoPaM workflow](https://github.com/BaselAbujamous/bicopam/blob/master/Images/Workflow_PyPkg.png)
 *Figure 2: Automatic Bi-CoPaM analysis pipeline*
 
 ## Simplest usage
