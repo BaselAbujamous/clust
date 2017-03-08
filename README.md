@@ -1,7 +1,7 @@
 # Bi-CoPaM
 The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated with each other across a number of given datasets with minimal need for manual intervention.
 
-<img src="Images/Clusters.png" width="800" height="600"/>
+![Clusters](Images/Clusters.png)
 
 *Figure 1: The Bi-CoPaM generates clusters (C0, C1, C2, ...) out of an input of 9,462 objects based on their profiles in three datasets (X0, X1, and X2). The left-hand panel shows the profiles of all 9,462 objects in each one of the three datasets, while the right-hand panel shows the profiles of the objects within each one of the clusters. The objects included in any given cluster are well-correlated with each other in each one of the three datasets. Note that the number of conditions or time points are different amongst the datasets.*
 
@@ -23,12 +23,23 @@ The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated w
 ## Simplest usage
 - `bicopam data_path`
 
+This applies the Bi-CoPaM pipeline over the datasets with files included in the data_path directory with default parameters.
+
 #### Data files
+Each dataset is represented in a single TAB delimited (TSV) file in which the first column represents the identifiers
+(IDs) of the objects (e.g. gene names), the first row represents unique labels of the samples (e.g. conditions or time
+points), and the rest of the file includes numerical values of these objects at those samples. Figure 3 shows a screen 
+shot of the first few lines of 3 datasets' files.
 ![Data_simple](Images/Data_simple.png)
+*Figure 3: Snapshots of three data files X0, X1, and X2.*
 
+* When the same object ID appears in different datasets, it is considered to refer to the same object. For example, the
+object ID O01 in the dataset X0 is considered to refer to the same object as O01 in the datasets X1 and X2.
+* If more than one row in the same file had the same identifier, they are automatically summarised by summing up their values.
 
-## Simple usage
+## 2nd level usage (replicates, normalisation, and ID maps (e.g. orthologues))
 - `bicopam data_path -m map_file -n normalisation_file -r replicates_file -t tightness`
+
 
 #### Map file
 
