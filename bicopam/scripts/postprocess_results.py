@@ -162,21 +162,34 @@ def correcterrors_weighted(B, X, GDM, clustdists=None, falsepositivestrimmed=0.0
     # Include in clusters genes which belongs everywhere
     B_out = np.all(belongs, axis=2)
 
-    # Genes included in two clusters, include them in the closest in terms of its worst distance to any of the clusters
-    # (guarrantee that the worst belongingness of a gene to a cluster is optimised)
-    f = np.nonzero(np.sum(B_out, axis=1) > 1)[0]
-    for fi in f:
-        ficlusts = np.nonzero(B_out[fi])[0]  # Clusters competing over gene fi
-        fidatasets = np.nonzero(GDM[fi])[0]  # Datasets that have gene fi
-        localdists = np.zeros([len(ficlusts), len(fidatasets)])  # (Clusts competing) x (datasets that have fi)
-        for l in range(len(fidatasets)):
-            ll = fidatasets[l]  # Actual dataset index
-            fi_ll = np.sum(GDM[:fi, ll])  # Index of fi in this Xloc[ll]
-            localdists[:, l] = nu.dist_matrices(Cmeans[ll][ficlusts], Xloc[ll][fi_ll]).reshape([len(ficlusts)])
-        localdists = np.max(localdists, axis=1)  # (Clusts competing) x 1
-        ficlosest = np.argmin(localdists)  # Closest cluster
-        B_out[fi] = False
-        B_out[fi, ficlusts[ficlosest]] = True
+    # Solve genes included in two clusters:
+    solution = 2
+    if solution == 1:
+        # Genes included in two clusters, include them in the closest in terms of its worst distance to any of the clusters
+        # (guarrantee that the worst belongingness of a gene to a cluster is optimised)
+        f = np.nonzero(np.sum(B_out, axis=1) > 1)[0]
+        for fi in f:
+            ficlusts = np.nonzero(B_out[fi])[0]  # Clusters competing over gene fi
+            fidatasets = np.nonzero(GDM[fi])[0]  # Datasets that have gene fi
+            localdists = np.zeros([len(ficlusts), len(fidatasets)])  # (Clusts competing) x (datasets that have fi)
+            for l in range(len(fidatasets)):
+                ll = fidatasets[l]  # Actual dataset index
+                fi_ll = np.sum(GDM[:fi, ll])  # Index of fi in this Xloc[ll]
+                localdists[:, l] = nu.dist_matrices(Cmeans[ll][ficlusts], Xloc[ll][fi_ll]).reshape([len(ficlusts)])
+            localdists = np.max(localdists, axis=1)  # (Clusts competing) x 1
+            ficlosest = np.argmin(localdists)  # Closest cluster
+            B_out[fi] = False
+            B_out[fi, ficlusts[ficlosest]] = True
+    elif solution == 2:
+        # Genes included in two clusters, include them in the earlier cluster (smallest k)
+        f = np.nonzero(np.sum(B_out, axis=1) > 1)[0]
+        for fi in f:
+            ficlusts = np.nonzero(B_out[fi])[0]  # Clusters competing over gene fi
+            ficlosest = np.argmin(ficlusts)  # earliest cluster (smallest k)
+            B_out[fi] = False
+            B_out[fi, ficlusts[ficlosest]] = True
+
+
 
     # Remove clusters smaller than minimum cluster size
     ClusterSizes = np.sum(B_out, axis=0)

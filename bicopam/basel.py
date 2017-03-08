@@ -1,6 +1,4 @@
 import bicopam
-import subprocess
-
 
 datapath = '/home/basel/PycharmProjects/GE_data_grasses/Data'
 mapfile = '/home/basel/PycharmProjects/GE_data_grasses/Map3000.txt'

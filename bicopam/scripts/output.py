@@ -124,7 +124,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
                        B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1)))
     res += msgformated(tmptxt)
     if Map is not None:
-        tmptxt = '* An OG is a group of synonymous objects within & across different types, as identified by the ' \
+        tmptxt = '\n* An OG is a group of synonymous objects within & across different types, as identified by the ' \
                  'provided map. For example, a group of orthologous genes within and across species represents an OG.'
         res += msgformated(tmptxt)
 

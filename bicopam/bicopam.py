@@ -125,7 +125,7 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
     # Read data
     io.log('Reading datasets')
     (X, replicates, Genes, datafiles) = io.readDatasetsFromDirectory(datapath, delimiter='\t', skiprows=1, skipcolumns=1,
-                                                            returnSkipped=True)
+                                                                     returnSkipped=True)
 
     # Read map, replicates, and normalisation files:
     Map = io.readMap(mapfile)
@@ -156,9 +156,11 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
     io.log('Error correction')
     #B_corrected = mnres.B[:, mn.mnplotsdistancethreshold(mnres.allDists[mnres.I])]
     #B_corrected = ecorr.correcterrors_withinworse(B_corrected, X_summarised_normalised, GDM, falsepositivestrimmed)
+
     B_corrected = ecorr.correcterrors_weighted(mnres.B, X_summarised_normalised, GDM,
                                                mnres.allDists[mnres.I], falsepositivestrimmed)
     B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
+
 
     # Output: Write input parameters:
     io.log('Saving results in {0}'.format(outpath))

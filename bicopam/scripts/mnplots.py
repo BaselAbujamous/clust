@@ -1,13 +1,14 @@
-import math
-import numpy as np
-import datastructures as ds
-import scipy as sp
-import preprocess_data as pp
-import numeric as nu
 import collections
+import math
+
+import numpy as np
+import scipy as sp
 import sklearn.mixture as skmix
+
+import datastructures as ds
 import io
-import glob
+import numeric as nu
+import preprocess_data as pp
 
 
 def mseclustersfuzzy(X, B, donormalise=True):

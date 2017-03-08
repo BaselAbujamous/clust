@@ -1,6 +1,8 @@
-import numpy as np
 import os
 import re
+
+import numpy as np
+
 import datastructures as ds
 import glob
 import output as op

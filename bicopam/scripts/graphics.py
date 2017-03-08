@@ -1,11 +1,11 @@
-import matplotlib
-#matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-import numpy as np
 import math
-import glob
 
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.backends.backend_pdf import PdfPages
+
+import glob
 
 maxrows_per_page = 8
 maxcols_per_page = 8

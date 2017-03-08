@@ -1,14 +1,14 @@
-import numpy as np
-import numeric as nu
-import math
-import preprocess_data as pproc
-import clustering as cl
-import sys
 import collections
+import math
+import sys
+
+import numpy as np
+
+import clustering as cl
 import datastructures as ds
-from copy import deepcopy
 import io
 import mnplots as mn
+import numeric as nu
 
 
 def binarise(U, technique, param=0.0):
