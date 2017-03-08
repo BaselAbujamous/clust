@@ -18,6 +18,7 @@ The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated w
 
 ## Automatic Bi-CoPaM analysis pipeline
 ![Bi-CoPaM workflow](Images/Workflow_PyPkg.png)
+
 *Figure 2: Automatic Bi-CoPaM analysis pipeline*
 
 ## Simplest usage
@@ -31,6 +32,7 @@ Each dataset is represented in a single TAB delimited (TSV) file in which the fi
 points), and the rest of the file includes numerical values of these objects at those samples. Figure 3 shows a screen 
 shot of the first few lines of 3 datasets' files.
 ![Data_simple](Images/Data_simple.png)
+
 *Figure 3: Snapshots of three data files X0, X1, and X2.*
 
 * When the same object ID appears in different datasets, it is considered to refer to the same object. For example, the
@@ -40,17 +42,50 @@ object ID O01 in the dataset X0 is considered to refer to the same object as O01
 ## 2nd level usage (replicates, normalisation, and ID maps (e.g. orthologues))
 - `bicopam data_path  -r replicates_file -n normalisation_file -m map_file`
 
-![Level2_Data_with_Map](Images/Datasets_level2_withMap.png)
+Consider the gene expression datasets shown in Figure 4:
+
+![Level2_Data](Images/Datasets_level2.png)
+
 *Figure 4: Snapshots of three gene expression datasets from two yeast species, X0 and X1 from fission yeast
-(Schizosaccharomyces pombe) and X2 from budding yeast (Saccharomyces cerevisiae).
-A TAB delimited file is provided to map fission and budding yeast genes, i.e. to identify orthologues across
-the two species.*
+(Schizosaccharomyces pombe) and X2 from budding yeast (Saccharomyces cerevisiae).*
+
+These are three datasets from two species, two from fission yeast and one from budding yeast. There are few
+issues in these datasets:
+
+1. **Replicates:** There are multiple replicates for the same conditions. For example, X0 has 18 columns (samples) of
+data, but every three of them represent replicates for a single condition. One does not want the Bi-CoPaM to consider 
+these 18 columns as 18 independent conditions; rather one wants the Bi-CoPaM to summarise the replicates of each
+condition to form a single column. This is done by providing the Replicates file (file format is below).
+2. **Normalisation:** Different datasets require different normalisation procedures to be suitable for cluster analysis.
+X0 and X1 for example have log2 values while X2 does not. By providing a simple normalisation file, one can direct the
+Bi-CoPaM towards proper pre-processing of data. (file format is below).
+3. **Mapping object IDs:** Fission yeast genes are not the same as budding yeast genes and have different gene ID.
+Therefore, it is important to provide the algorithm with a file that maps fission yeast gene IDs to their orthologous
+budding yeast gene IDs. Such mapping is required whenever the datasets objects' IDs are not mutual. For example, if
+one dataset uses Entrez gene IDs while the other dataset uses gene names, a mapping file is required to inform the
+algorithm that this or that Entrez gene ID refers to this or that gene name. (file format is below).
 
 #### Replicates file
 
 #### Normalisation file
 
-#### Map file
+#### Map file (e.g. inter-species orthologues)
+![MapFile](Images/MapFile.png)
+
+*Figure 7: TAB delimited file which maps fission and budding yeast genes, i.e. defines orthologues across the
+two species.*
+
+The first column shows the orthologue/object group (OG) IDs, the second column shows the budding
+yeast gene IDs which belong to these OG IDs while the third column shows the fission yeast gene IDs which
+belong to these IDs. If more than one gene within the same species are orthologues, i.e. belong to the same OG
+ID, they are included next to that OG ID in the column which belongs to that species while being separated by
+commas; for example, the fission yeast genes 2541313 and 2543377 are orthologues to each other and are both
+orthologues to the budding yeast gene 855993; these gene IDs are all included in the OG ID 29; see the sixth
+line in Figure 7. In this case, both fission yeast genes 2541313 and 2543377 in the datasets of fission yeast
+are summarised by summing them up. In other words, the algorithm considers one value for the OG ID 29 at each
+sample in each dataset, and whenever this OG is represented by multiple rows in the same dataset, they are
+summed up to a single row.
+
 
 ## Advanced usage
 
