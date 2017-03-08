@@ -26,7 +26,7 @@ The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated w
 
 This applies the Bi-CoPaM pipeline over the datasets with files included in the data_path directory with default parameters.
 
-#### Data files
+### Data files
 Each dataset is represented in a single TAB delimited (TSV) file in which the first column represents the identifiers
 (IDs) of the objects (e.g. gene names), the first row represents unique labels of the samples (e.g. conditions or time
 points), and the rest of the file includes numerical values of these objects at those samples. Figure 3 shows a screen 
@@ -65,11 +65,11 @@ budding yeast gene IDs. Such mapping is required whenever the datasets objects' 
 one dataset uses Entrez gene IDs while the other dataset uses gene names, a mapping file is required to inform the
 algorithm that this or that Entrez gene ID refers to this or that gene name. (file format is below).
 
-#### Replicates file
+### Replicates file
 
-#### Normalisation file
+### Normalisation file
 
-#### Map file (e.g. inter-species orthologues)
+### Map file (e.g. inter-species orthologues)
 ![MapFile](Images/MapFile.png)
 
 *Figure 7: TAB delimited file which maps fission and budding yeast genes, i.e. defines orthologues across the
