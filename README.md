@@ -40,6 +40,12 @@ object ID O01 in the dataset X0 is considered to refer to the same object as O01
 ## 2nd level usage (replicates, normalisation, and ID maps (e.g. orthologues))
 - `bicopam data_path  -r replicates_file -n normalisation_file -m map_file`
 
+![Level2_Data_with_Map](Images/Datasets_level2_withMap.png)
+*Figure 4: Snapshots of three gene expression datasets from two yeast species, X0 and X1 from fission yeast
+(Schizosaccharomyces pombe) and X2 from budding yeast (Saccharomyces cerevisiae).
+A TAB delimited file is provided to map fission and budding yeast genes, i.e. to identify orthologues across
+the two species.*
+
 #### Replicates file
 
 #### Normalisation file
