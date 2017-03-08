@@ -38,14 +38,13 @@ object ID O01 in the dataset X0 is considered to refer to the same object as O01
 * If more than one row in the same file had the same identifier, they are automatically summarised by summing up their values.
 
 ## 2nd level usage (replicates, normalisation, and ID maps (e.g. orthologues))
-- `bicopam data_path -m map_file -n normalisation_file -r replicates_file -t tightness`
+- `bicopam data_path  -r replicates_file -n normalisation_file -m map_file`
 
-
-#### Map file
+#### Replicates file
 
 #### Normalisation file
 
-#### Replicates file
+#### Map file
 
 ## Advanced usage
 
