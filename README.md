@@ -1,4 +1,16 @@
 # Bi-CoPaM
+### Contents
+* [Automatic Bi-CoPaM analysis pipeline](#Automatic-BiCoPaM-analysis-pipeline)
+* [Simplest usage](#Simplest-usage)
+  * [The tightness parameter](#The-tightness-parameter)
+  * [Data files](#Data-files)
+* [Next level usage](#Next-level-usage-replicates-normalisation-and-id-maps-eg-orthologues)
+  * [Replicates file](#Replicates-file)
+  * [Normalisation file](#Normalisation-file)
+  * [Map file (e.g. for datasets from multiple species)](#map-file-eg-for-datasets-from-multiple-species)
+* [Advanced usage](#Advanced-usage)
+
+# Automatic Bi-CoPaM analysis pipeline
 The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated with each other across a number of given datasets with minimal need for manual intervention.
 
 ![Clusters](Images/Clusters.png)
@@ -16,15 +28,21 @@ The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated w
 6. A table of clusters' members is provided in an output TSV file.
 7. A figure showing the profiles of the generated clusters is provided as an output PDF file.
 
-## Automatic Bi-CoPaM analysis pipeline
 ![Bi-CoPaM workflow](Images/Workflow_PyPkg.png)
 
 *Figure 2: Automatic Bi-CoPaM analysis pipeline*
 
-## Simplest usage
+# Simplest usage
 - `bicopam data_path`
+- `bicopam data_path -t tightness`
 
-This applies the Bi-CoPaM pipeline over the datasets with files included in the data_path directory with default parameters.
+This applies the Bi-CoPaM pipeline over the datasets with files included in the data_path directory with default
+parameters.
+
+### The tightness parameter
+It defines how tight the clusters should be (tighter and smaller clusters versus less tight and larger clusters).
+This is a real positive number with the default value of **1.0**. Values smaller than 1.0 (e.g. 0.5) produce less
+tight clusters, while values larger than 1.0 (e.g. 2.0, 5.0, 10.0, ...) produce tighter clusters.
 
 ### Data files
 Each dataset is represented in a single TAB delimited (TSV) file in which the first column represents the identifiers
@@ -39,8 +57,9 @@ shot of the first few lines of 3 datasets' files.
 object ID O01 in the dataset X0 is considered to refer to the same object as O01 in the datasets X1 and X2.
 * If more than one row in the same file had the same identifier, they are automatically summarised by summing up their values.
 
-## 2nd level usage (replicates, normalisation, and ID maps (e.g. orthologues))
+# Next level usage (replicates, normalisation, and ID maps (e.g. orthologues))
 - `bicopam data_path  -r replicates_file -n normalisation_file -m map_file`
+- `bicopam data_path  -r replicates_file -n normalisation_file -m map_file -t tightness`
 
 Consider the gene expression datasets shown in Figure 4:
 
@@ -124,12 +143,12 @@ Code | Definition
 10|Rank across rows (1 for the lowest, up to *N* for *N* columns; average ranks at ties)
 11|Rank across rows (1 for the lowest, up to *N* for *N* columns; order arbitrarly at ties)
 12|Linear transformation to the [0, 1] range across rows (0.0 for the lowest and 1.0 for the highest)
--|-  
+-|-
 101|Quantile normalisation
 102|Column-wise mean subtraction
 103|Subtract the global mean of the entire dataset
 
-### Map file (e.g. inter-species orthologues)
+### Map file (e.g. for datasets from multiple species)
 ![MapFile](Images/MapFile.png)
 
 *Figure 7: TAB delimited file which maps fission and budding yeast genes, i.e. defines orthologues across the
@@ -147,5 +166,5 @@ sample in each dataset, and whenever this OG is represented by multiple rows in 
 summed up to a single row.
 
 
-## Advanced usage
+# Advanced usage
 
