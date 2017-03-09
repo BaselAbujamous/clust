@@ -32,7 +32,7 @@ The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated w
 2. No need to preset the number of clusters; the algorithm finds it automatically.
 3. The algorithm automatically filters out any objects that do not fit into any cluster.
 4. You can control the tightness of the clusters simply by varying a parameter, which has a default value if you wish not to set it!
-5. You can include heterogeneous datasets (e.g. gene expression datasets from different technologies, different species, different numbers of conditions, etc). Have a look at the **Simple usage** section.
+5. You can include heterogeneous datasets (e.g. gene expression datasets from different technologies, different species, different numbers of conditions, etc).
 5. The package calculates key statistics and provides them in the output.
 6. A table of clusters' members is provided in an output TSV file.
 7. A figure showing the profiles of the generated clusters is provided as an output PDF file.
@@ -212,11 +212,15 @@ summed up to a single row.
 
 # Advanced usage
 
+To be written
 
 ### Filter out objects with low values
 
+To be written
+
 ### Objects missed from some datasets
 
+To be written
 
 # List of all parameters
 Parameter | Definition
@@ -240,7 +244,12 @@ data_directory | The path of the directory including all data files
 # Example datasets
 ### For simplest usage
 
+To be written
+
 ### For next level usage
+
+To be written
 
 ### For advanced usage
 
+To be written
