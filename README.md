@@ -1,14 +1,14 @@
 # Bi-CoPaM
 ### Contents
-* [Automatic Bi-CoPaM analysis pipeline](#Automatic-BiCoPaM-analysis-pipeline)
-* [Simplest usage](#Simplest-usage)
-  * [The tightness parameter](#The-tightness-parameter)
-  * [Data files](#Data-files)
-* [Next level usage](#Next-level-usage-replicates-normalisation-and-id-maps-eg-orthologues)
-  * [Replicates file](#Replicates-file)
-  * [Normalisation file](#Normalisation-file)
+* [Automatic Bi-CoPaM analysis pipeline](#automatic-bi-copam-analysis-pipeline)
+* [Simplest usage](#simplest-usage)
+  * [The tightness parameter](#the-tightness-parameter)
+  * [Data files](#data-files)
+* [Next level usage](#next-level-usage-replicates-normalisation-and-id-maps-eg-orthologues)
+  * [Replicates file](#replicates-file)
+  * [Normalisation file](#normalisation-file)
   * [Map file (e.g. for datasets from multiple species)](#map-file-eg-for-datasets-from-multiple-species)
-* [Advanced usage](#Advanced-usage)
+* [Advanced usage](#advanced-usage)
 
 # Automatic Bi-CoPaM analysis pipeline
 The Bi-CoPaM identifies clusters (groups) of objects which are well-correlated with each other across a number of given datasets with minimal need for manual intervention.
