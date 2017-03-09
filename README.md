@@ -1,8 +1,8 @@
 # Bi-CoPaM
 ### Contents
-* [What does the Bi-CoPaM do?](#what-does-the-bicopam-do)
+* [What does the Bi-CoPaM do?](#what-does-the-bi-copam-do)
   * [In the language of bioinformatics, again, what does it do?](#in-the-language-of-bioinformatics-again-what-does-it-do)
-* [How does the Bi-CoPaM do it?](#how-does-the-bicopam-do-it)
+* [How does the Bi-CoPaM do it?](#how-does-the-bi-copam-do-it)
 * [Simplest usage](#simplest-usage)
   * [The tightness parameter](#the-tightness-parameter)
   * [Data files](#data-files)
