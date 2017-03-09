@@ -66,8 +66,68 @@ one dataset uses Entrez gene IDs while the other dataset uses gene names, a mapp
 algorithm that this or that Entrez gene ID refers to this or that gene name. (file format is below).
 
 ### Replicates file
+![ReplicatesFile](Images/ReplicatesFile.png)
+
+*Figure 5: Replicates file defining the replicates. The right-hand file is the same as the left-hand file but while
+indicating that the Z condition of X1.txt should be ignored in the analysis, as well as the time points 4 and 5 of
+X2.txt. Starting a line with the hash character (#) indicates that it should be ignored.*
+
+Each row of this file lists the replicates of a single condition or time point.
+
+Each line includes these elements in order:
+
+1. The name of the dataset file (e.g. X0.txt)
+2. A name for the condition of time-point; this can be any label that the user chooses
+3. One or more names of the replicates of this condition. These should match column names in the dataset file (e.g.
+if the dataset file is X0.txt, these names must all be names of columns in X0.txt)
+
+* Delimiters between these elements can be spaces, TABs, commas, or semicolons.
 
 ### Normalisation file
+![NormalisationFile](Images/NormalisationFile.png)
+
+*Figure 7: Normalisation file indicating the types of normalisation that should be applied to each of the datasets.*
+
+If datasets need normalisation, this file indicates what techniques of normalisation should be applied to them.
+
+Each line includes these elements in order:
+
+1. The name of the dataset file (e.g. X0.txt)
+2. One or more normalisation techniques' codes (see below). **The order** of these codes defines the order of the
+application of their respective normalisation techniques.
+
+* Delimiters between these elements can be spaces, TABs, commas, or semicolons.
+
+#### Codes suggested for commonly used datasets
+
+* RNA-seq gene expression data: **101 3 4**
+* Log2 RNA-seq gene expression data: **101 4**
+* One-colour microarray gene expression data: **101 3 4**
+* Log2 one-colour microarray gene expression data: **101 4**
+* Two-colour microarray gene expression data: **3 6**
+* Log2 two-colour microarray gene expression data: **6**
+
+#### All codes
+
+Code | Definition
+|:---:|:---|
+0|No normalisation
+1|Divide by the mean value of the row
+2|Divide by the first value of the row
+3|Log2
+4|Subtract the mean of the row and then divide by its standard deviation
+5|Divide by the total (sum) of the row
+6|Subtract the mean value of the row
+7|Divide by the maximum value of the row
+8|2 to the power X
+9|Subtract the minimum value of the row
+10|Rank across rows (1 for the lowest, up to *N* for *N* columns; average ranks at ties)
+11|Rank across rows (1 for the lowest, up to *N* for *N* columns; order arbitrarly at ties)
+12|Linear transformation to the [0, 1] range across rows (0.0 for the lowest and 1.0 for the highest)
+-|-  
+101|Quantile normalisation
+102|Column-wise mean subtraction
+103|Subtract the global mean of the entire dataset
 
 ### Map file (e.g. inter-species orthologues)
 ![MapFile](Images/MapFile.png)
