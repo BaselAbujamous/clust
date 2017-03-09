@@ -9,6 +9,7 @@ import scripts.output as op
 import scripts.graphics as graph
 import scripts.glob as glob
 import numpy as np
+import math
 import os
 import datetime as dt
 import shutil
@@ -50,7 +51,7 @@ parser.add_argument('-K', type=int, nargs='+', help='K values (default: all valu
                     default=[n for n in range(2, 21)])
 parser.add_argument('-t', type=float, help='Cluster tightness versus cluster size weight: '
                                            'a real positive number, where 1.0 means equal weights '
-                                           '(default: 5.0).', default=5.0)
+                                           '(default: 1.0).', default=1.0)
 parser.add_argument('-fp', type=float, help='Percentage of false positives to be trimmed, '
                                             'in the range [0.0-1.0] (default: 0.01)', default=0.01)
 parser.add_argument('-d', type=int, help='Minimum number of datasets that an object has to be included in for '
@@ -60,13 +61,13 @@ parser.add_argument('-d', type=int, help='Minimum number of datasets that an obj
 parser.add_argument('-fil-v', dest='filv', type=float,
                     help='Data value (e.g. gene expression) threshold. Any value lower than this will be set to 0.0. '
                          'If an object never exceeds this value at least in -fil-c conditions in at least -fil-d '
-                         'datasets, it is excluded from the analysis (default: 10.0)', default=10.0)
+                         'datasets, it is excluded from the analysis (default: -inf)', default=-float("inf"))
 parser.add_argument('-fil-c', dest='filc', type=int,
                     help='Minimum number of conditions in a dataset in which an object should exceed the data value '
-                         '-fil-v at least in -fil-d datasets to be included in the analysis (default: 1)', default=1)
+                         '-fil-v at least in -fil-d datasets to be included in the analysis (default: 0)', default=0)
 parser.add_argument('-fil-d', dest='fild', type=int,
                     help='Minimum number of datasets in which an object should exceed the data value -fil-v at least '
-                         'in -fil-c conditions to be included in the analysis (default: 1)', default=1)
+                         'in -fil-c conditions to be included in the analysis (default: 0)', default=0)
 
 parser.add_argument('-cs', type=int, help='Smallest cluster size (default: 11)', default=11)
 
