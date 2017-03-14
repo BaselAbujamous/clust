@@ -11,7 +11,7 @@ import numeric as nu
 import preprocess_data as pp
 
 
-def mseclustersfuzzy(X, B, donormalise=True):
+def mseclustersfuzzy(X, B, donormalise=True, GDM=None):
     Xloc = np.array(X)
     Bloc = np.array(B)
 
@@ -23,8 +23,14 @@ def mseclustersfuzzy(X, B, donormalise=True):
     M = Bloc.shape[0]  # Number of genes
     K = Bloc.shape[1]  # Number of clusters
 
-    if any([True if x.shape[0] != M else False for x in Xloc]):
-        raise ValueError('Unequal number of genes in datasets and partitions')
+    if GDM is None:
+        GDMloc = np.ones([Bloc.shape[0], Nx], dtype=bool)
+    else:
+        GDMloc = np.array(GDM)
+
+    # I commented these two lines after adding GDM
+    #if any([True if x.shape[0] != M else False for x in Xloc]):
+    #    raise ValueError('Unequal number of genes in datasets and partitions')
 
     mseC = np.zeros([Nx, K], dtype=float)
 
@@ -41,16 +47,16 @@ def mseclustersfuzzy(X, B, donormalise=True):
             if Nk[k] == 0:
                 mseC[nx, k] = float('nan')
             else:
-                Cmeanloc = nu.multiplyaxis(Xloc[nx], Bloc[:, k], axis=1) / Nk[k]  # Weighted mean for the cluster
+                Cmeanloc = nu.multiplyaxis(Xloc[nx], Bloc[GDMloc[:, nx], k], axis=1) / Nk[k]  # Weighted mean for the cluster
                 tmp = nu.subtractaxis(Xloc[nx], Cmeanloc, axis=0)  # Errors
-                tmp = nu.multiplyaxis(tmp, Bloc[:, k], axis=1)  # Weighted errors
+                tmp = nu.multiplyaxis(tmp, Bloc[GDMloc[:, nx], k], axis=1)  # Weighted errors
                 tmp = np.sum(np.power(tmp, 2))  # Squared weighted errors
                 mseC[nx, k] = tmp / Nd[nx] / Nk[k]  # Weighted MSE
 
     return np.mean(mseC, axis=0)
 
 
-def mseclusters(X, B, donormalise=True):
+def mseclusters(X, B, donormalise=True, GDM=None):
     Xloc = np.array(X)
     Bloc = np.array(B)
 
@@ -62,8 +68,14 @@ def mseclusters(X, B, donormalise=True):
     M = Bloc.shape[0] # Number of genes
     K = Bloc.shape[1] # Number of clusters
 
-    if any([True if x.shape[0] != M else False for x in Xloc]):
-        raise ValueError('Unequal number of genes in datasets and partitions')
+    if GDM is None:
+        GDMloc = np.ones([Bloc.shape[0], Nx], dtype=bool)
+    else:
+        GDMloc = np.array(GDM)
+
+    # I commented these two lines after adding GDM
+    #if any([True if x.shape[0] != M else False for x in Xloc]):
+    #    raise ValueError('Unequal number of genes in datasets and partitions')
 
     mseC = np.zeros([Nx, K], dtype=float)
 
@@ -80,7 +92,7 @@ def mseclusters(X, B, donormalise=True):
             if not any(Bloc[:,k]):
                 mseC[nx,k] = float('nan')
             else:
-                Xlocloc = Xloc[nx][Bloc[:, k], :]
+                Xlocloc = Xloc[nx][Bloc[GDMloc[:, nx], k], :]
                 tmp = nu.subtractaxis(Xlocloc, np.mean(Xlocloc, axis=0), axis=0)
                 tmp = np.sum(np.power(tmp,2))
                 mseC[nx,k] = tmp / Nd[nx] / Nk[k]

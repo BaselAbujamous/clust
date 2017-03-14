@@ -9,6 +9,7 @@ import datastructures as ds
 import io
 import mnplots as mn
 import numeric as nu
+import preprocess_data as pp
 
 
 def binarise(U, technique, param=0.0):
@@ -207,7 +208,7 @@ def generateCoPaM(U, relabel_technique='minmin', w=None, X=None, distCriterion='
         return np.array(wm)
     def CoPaMsdist(CoPaM1, CoPaM2):
         return np.linalg.norm(CoPaM1 - CoPaM2)
-    def orderpartitions(U, method='rand', X=None):
+    def orderpartitions(U, method='rand', X=None, GDM=None):
         if method == 'rand':
             return np.random.permutation(range(len(U))), None
         elif method == 'mn':
@@ -217,10 +218,10 @@ def generateCoPaM(U, relabel_technique='minmin', w=None, X=None, distCriterion='
             R = len(U)
             mses = np.zeros(R)
             for r in range(R):
-                if isinstance(Uloc[r][0][0], (list, tuple, np.ndarray)):
-                    mses[r] = np.mean(orderpartitions(U[r], method=method, X=X)[1])
+                if isinstance(U[r][0][0], (list, tuple, np.ndarray)):
+                    mses[r] = np.mean(orderpartitions(U[r], method=method, X=X, GDM=GDM)[1])
                 else:
-                    mses[r] = np.mean(mn.mseclustersfuzzy(X, U[r], donormalise=False))
+                    mses[r] = np.mean([mn.mseclustersfuzzy(X, U[r], donormalise=False, GDM=GDM)])
             order = np.argsort(mses)
             return order, mses[order]
 
@@ -228,9 +229,9 @@ def generateCoPaM(U, relabel_technique='minmin', w=None, X=None, distCriterion='
     Uloc = ds.listofarrays2arrayofarrays(U)
     R = len(Uloc)
     if GDM is None:
-        GDM = np.ones([Uloc[0].shape[0], R], dtype=bool)
+        GDMloc = np.ones([Uloc[0].shape[0], R], dtype=bool)
     else:
-        GDM = np.array(GDM)
+        GDMloc = np.array(GDM)
     if w is None or (w is str and w in ['all', 'equal']):
         w = np.ones(R)
     elif ds.numel(w) == 1:
@@ -238,35 +239,38 @@ def generateCoPaM(U, relabel_technique='minmin', w=None, X=None, distCriterion='
     wmeans = calwmeans(w)
 
     # Work!
-    #permR = orderpartitions(Uloc, method='rand', X=X)[0]
-    permR = orderpartitions(Uloc, method='mse', X=X)[0]
+    #permR = orderpartitions(Uloc, method='rand', X=X, GDM=GDM)[0]
+    permR = orderpartitions(Uloc, method='mse', X=X, GDM=GDMloc)[0]
     Uloc = Uloc[permR]
-    GDM = GDM[:,permR]
+    GDMloc = GDMloc[:,permR]
     wmeans = wmeans[permR]
 
     if isinstance(Uloc[0][0][0], (list, tuple, np.ndarray)):
         Uloc[0] = generateCoPaM(Uloc[0], relabel_technique=relabel_technique, w=w[0], X=X, distCriterion=distCriterion,
-                                K=K)
-    CoPaM = np.zeros([GDM.shape[0], Uloc[0].shape[1]], float)
-    CoPaM[GDM[:,0],:] = Uloc[0]
+                                K=K, GDM=GDMloc)
+    #CoPaM = np.zeros([GDMloc.shape[0], Uloc[0].shape[1]], float)
+    CoPaM = np.array(Uloc[0], dtype=float)
     K = CoPaM.shape[1]
-
+    io.log('Sum of Uloc[{0}] = {1}'.format(0, np.sum(Uloc[0])))
     for r in range(1,R):
         if isinstance(Uloc[r][0][0], (list, tuple, np.ndarray)):
             Uloc[r] = generateCoPaM(Uloc[r], relabel_technique=relabel_technique, w=w[r], X=X,
-                                    distCriterion=distCriterion, K=K)
+                                    distCriterion=distCriterion, K=K, GDM=GDMloc)
         if Uloc[r].shape[1] != K:
             raise ValueError('Inequal numbers of clusters in the partition {}.'.format(r))
 
-        Uloc[r] = relabelClusts(CoPaM[GDM[:, r], :], Uloc[r], method=relabel_technique, X=X,
+        io.log('Sum of Uloc[{0}] = {1}'.format(r, np.sum(Uloc[r])))
+
+        Uloc[r] = relabelClusts(CoPaM, Uloc[r], method=relabel_technique, X=X,
                                 distCriterion=distCriterion)
 
-        dotprod = np.dot(GDM[GDM[:, r], 0:r], wmeans[0:r].transpose())
-        CoPaM[GDM[:, r], :] = nu.multiplyaxis(CoPaM[GDM[:, r], :], dotprod, axis=1)
-        CoPaM[GDM[:, r], :] += wmeans[r] * Uloc[r]
-        dotprod = np.dot(GDM[GDM[:, r], 0:(r + 1)], wmeans[0:(r + 1)].transpose())
-        CoPaM[GDM[:, r], :] = nu.divideaxis(CoPaM[GDM[:, r], :], dotprod, axis=1)
+        dotprod = np.dot(GDMloc[:, 0:r], wmeans[0:r].transpose())  # (Mxr) * (rx1) = (Mx1)
+        CoPaM[dotprod > 0] = nu.multiplyaxis(CoPaM[dotprod > 0], dotprod[dotprod > 0], axis=1)
+        CoPaM[dotprod > 0] += wmeans[r] * Uloc[r][dotprod > 0]
+        dotprod = np.dot(GDMloc[:, 0:(r + 1)], wmeans[0:(r + 1)].transpose())
+        CoPaM[dotprod > 0] = nu.divideaxis(CoPaM[dotprod > 0], dotprod[dotprod > 0], axis=1)
 
+    io.log('Sum of CoPaM = {0}'.format(np.sum(CoPaM)))
     return CoPaM
 
 
@@ -309,7 +313,8 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
     Xloc = Xloc[setsPN]
     L = np.shape(Xloc)[0]  # Number of datasets
     #if methods is None: methods = [['k-means'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
-    if methods is None: methods = [['k-means'], ['HC', 'linkage_method', 'ward']]
+    #if methods is None: methods = [['k-means'], ['HC', 'linkage_method', 'ward']]
+    if methods is None: methods = [['HC', 'linkage_method', 'ward']]
     if methodsDetailed is None:
         methodsDetailedloc = np.tile(methods, [L,1])
     else:
@@ -329,6 +334,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         GDMloc = np.ones([Ng, L], dtype='bool')
     else:
         GDMloc = GDM[:, setsPN]
+        Ng = GDMloc.shape[0]
 
     setsPloc = [ii for ii in range(len(setsP))]
     if L > len(setsPloc):
@@ -343,8 +349,12 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         Uloc = np.array([None] * (L * NKs)).reshape([L, NKs])
         for l in range(L):
             for ki in range(NKs):
-                io.log('Dataset {}, K = {}'.format(l, Ks[ki]))
-                Uloc[l,ki] = cl.clusterdataset(Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l])
+                io.log('Cluster dataset {}, K = {}'.format(l, Ks[ki]))
+                Uloc[l, ki] = [np.zeros([Ng,Ks[ki]], dtype=bool)] * len(methodsDetailedloc[l])  # Prepare the U output
+                tmpU = cl.clusterdataset(Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l])  # Obtain U's
+                for cc in range(len(methodsDetailedloc[l])):  # Set U's as per the GDM values
+                    Uloc[l, ki][cc][GDMloc[:, l]] = tmpU[cc]
+                    io.log('Sum of Uloc[{0}, {1}][{2}] = {3}'.format(l, ki, cc, np.sum(Uloc[l, ki][cc])))
     else:
         Uloc = ds.listofarrays2arrayofarrays(U)[setsPN]
 
@@ -354,7 +364,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         for ki in range(NKs):
             if Utype.lower() == 'pm':
                 CoPaMsFineTmp = [generateCoPaM(Uloc[l,ki],relabel_technique=relabel_technique, X=Xloc,
-                                               w=wmethods[l], K=Ks[ki])
+                                               w=wmethods[l], K=Ks[ki], GDM=GDMloc)
                                  for i in range(CoPaMfinetrials)]
             elif Utype.lower() == 'idx':
                 CoPaMsFineTmp = \
@@ -363,7 +373,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
                      for i in range(CoPaMfinetrials)]
             else:
                 raise ValueError('Invalid Utype')
-            CoPaMsFine[l, ki] = generateCoPaM(CoPaMsFineTmp, relabel_technique=relabel_technique, X=Xloc)
+            CoPaMsFine[l, ki] = generateCoPaM(CoPaMsFineTmp, relabel_technique=relabel_technique, X=Xloc, GDM=GDMloc)
 
             if dofuzzystretch:
                 CoPaMsFine[l, ki] = fuzzystretch(CoPaMsFine[l, ki])
@@ -376,6 +386,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         for ki in range(NKs):
             if type == 'A':
                 if Utype.lower() == 'pm':
+                    io.log('CoPaM final t={0}, K={1}'.format(t, Ks[ki]))
                     CoPaMs[t, ki] = generateCoPaM(CoPaMsFine[:, ki], relabel_technique=relabel_technique, w=wsets,
                                                   X=Xloc, GDM=GDMloc)
                 elif Utype.lower() == 'idx':
