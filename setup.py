@@ -7,14 +7,14 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 setup(
-    name='sample',
-    version='1.0.0',
+    name='Clust',
+    version='v1.0',
 
-    description='UNCLES',
+    description='Optimised consensus clustering of multiple heterogenous datasets',
     long_description='',
 
     # The project's main homepage.
-    url='https://github.com/baselabujamous/uncles',
+    url='https://github.com/baselabujamous/clust',
 
     # Author details
     author='Basel Abu-Jamous',
@@ -76,7 +76,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'sample=sample:main',
+            'clust=clust.clust',
         ],
     },
 )
