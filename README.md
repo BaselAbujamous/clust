@@ -5,6 +5,7 @@ Optimised consensus clustering of multiple heterogenous datasets
   * [In the language of bioinformatics, again, what does it do?](#in-the-language-of-bioinformatics-again-what-does-it-do)
 * [How does *Clust* do it?](#how-does-clust-do-it)
 * [Simplest usage](#simplest-usage)
+  * [The results (output) directory](#the-results-output-directory)
   * [The tightness parameter](#the-tightness-parameter)
   * [Data files](#data-files)
 * [Next level usage](#next-level-usage-replicates-normalisation-and-id-maps-eg-orthologues)
@@ -79,10 +80,16 @@ these particular genes (See [Advances usage/Objects missed from some datasets](#
 
 # Simplest usage
 - `clust data_path`
-- `clust data_path -t tightness`
+- `clust data_path -o output_directory [...]`
+- `clust data_path -t tightness [...]`
 
-This applies the *Clust* pipeline over the datasets with files included in the data_path directory with default
-parameters.
+This applies the *Clust* pipeline over the datasets with files included in the data_path
+directory with default parameters.
+
+### The results (output) directory
+The `-o` argument specifies the path of the results (output)
+directory. If it is not provided, *Clust* creates a directory Results_[Date] in the current working
+directory.
 
 ### The tightness parameter
 It defines how tight the clusters should be (tighter and smaller clusters versus less tight and larger clusters).
@@ -103,8 +110,8 @@ object ID O01 in the dataset X0 is considered to refer to the same object as O01
 * If more than one row in the same file had the same identifier, they are automatically summarised by summing up their values.
 
 # Next level usage (replicates, normalisation, and ID maps (e.g. orthologues))
-- `clust data_path  -r replicates_file -n normalisation_file -m map_file`
-- `clust data_path  -r replicates_file -n normalisation_file -m map_file -t tightness`
+- `clust data_path  -r replicates_file -n normalisation_file -m map_file [...]`
+- `clust data_path  -r replicates_file -n normalisation_file -m map_file -t tightness [...]`
 
 Consider the gene expression datasets shown in Figure 4:
 
@@ -245,11 +252,50 @@ data_directory | The path of the directory including all data files
 # Example datasets
 ### For simplest usage
 
-To be written
+Example datasets are available in [ExampleData/1_Simplest](ExampleData/1_Simplest),
+or more specifically in the [Data](ExampleData/1_Simplest/Data) directory therein.
+
+Simply run this command over the directory "Data" by:
+
+* `clust Data/`
+
+Find the results in the Results_[Date] directory that *Clust*
+will have generated in your current working directory.
+
+This runs *Clust* with the default tightness `-t` value of 1.0.
+You may like to make the generated clusters tighter by increase `-t` or less tight
+by decreasing `-t`. For example, try -t = 5.0 or -t = 0.2 by: 
+
+* `clust Data/ -t 5`
+* `clust Data/ -t 0.2`
+
+You may also like to save results in an output directory of your choice by using `-o`:
+
+* `clust Data/ -t 5 -o MyResultsDirectory/`
 
 ### For next level usage
 
-To be written
+Example datasets are available in [ExampleData/2_Next_Level](ExampleData/2_Next_level). These
+are three datasets from two yeast species, two datasets from fission yeast, and one from budding
+yeast.
+
+That directory contains the datasets' files in a [Data](ExampleData/2_Next_level/Data) sub-directory,
+and includes three other files specifying the [replicates](ExampleData/2_Next_level/Replicates.txt),
+the required [normalisation](ExampleData/2_Next_level/Normalisation.txt), and the object
+[mapping](ExampleData/2_Next_level/MapIDs.txt) across the datasets,
+i.e. orthologous genes across the two yeast species.
+
+Run *Clust* over this data by:
+
+* `clust Data/ -r Replicates.txt -n Normalisation.txt -m MapIDs.txt`
+
+You may like to specify a tightness level `-t` other than the default by adding:
+
+* `... -t 5`
+
+You may also specify an output directory other than the default by adding:
+
+* `... -o MyResultsDirectory/`
 
 ### For advanced usage
 

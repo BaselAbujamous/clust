@@ -154,7 +154,7 @@ def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', 
 
             # Add title
             if l == 0 or row == 0:
-                plt.title('C{0}\n({1} {2})'.format(Cs[k], localX.shape[0], glob.object_label_lower))
+                plt.title('C{0}\n({1} {2})'.format(Cs[k], np.sum(B[:, Cs[k]]), glob.object_label_lower))
             # Add datasets names (ylabels)
             if col == 0:
                 plt.ylabel(DatasetsNames[l])
@@ -167,6 +167,6 @@ def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', 
             pdf.savefig(figure=p)
             pdf.attach_note('Page {0}'.format(p + 1))
         info = pdf.infodict()
-        info['Author'] = 'Bi-CoPaM python package'
+        info['Author'] = 'Clust python package'
     plt.close('all')
 
