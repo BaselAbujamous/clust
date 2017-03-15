@@ -5,6 +5,8 @@ import math
 import datastructures as ds
 import numeric as nu
 import re
+import io
+import warnings
 from copy import deepcopy
 
 
@@ -12,12 +14,12 @@ def isnan(X):
     if ds.numel(X) == 1:
         return math.isnan(X)
     elif len(np.shape(X)) == 1:
-        res = np.zeros(np.shape(X))
+        res = np.zeros(np.shape(X), dtype=bool)
         for i in range(len(X)):
                 res[i] = math.isnan(X[i])
         return res
     elif len(np.shape(X)) == 2:
-        res = np.zeros(np.shape(X))
+        res = np.zeros(np.shape(X), dtype=bool)
         for i in range(np.size(X, 0)):
             for j in range(np.size(X, 1)):
                 res[i, j] = math.isnan(X[i, j])
@@ -52,17 +54,19 @@ def fixnans(Xin, method='spline'):
     M = np.size(Xinloc, 1)
     Xout = np.zeros([N, M])
 
-    for i in range(N):
-        sumnans = sum(isnan(Xinloc[i]))
-        notnans = [x for x in Xinloc[i] if not isnan(x)]
-        if sumnans < M - 1:
-            if math.isnan(Xinloc[i, 0]):
-                Xinloc[i, 0] = notnans[0]
-            if math.isnan(Xinloc[i, -1]):
-                Xinloc[i, -1] = notnans[-1]
-            Xout[i] = fixrow(Xinloc[i], method)
-        elif sumnans == M - 1:
-            Xout[i] = [notnans[0] for x in range(M)]
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        for i in range(N):
+            sumnans = sum(isnan(Xinloc[i]))
+            notnans = [x for x in Xinloc[i] if not isnan(x)]
+            if sumnans < M - 1:
+                if math.isnan(Xinloc[i, 0]):
+                    Xinloc[i, 0] = notnans[0]
+                if math.isnan(Xinloc[i, -1]):
+                    Xinloc[i, -1] = notnans[-1]
+                Xout[i] = fixrow(Xinloc[i], method)
+            elif sumnans == M - 1:
+                Xout[i] = [notnans[0] for x in range(M)]
     return Xout
 
 
@@ -326,8 +330,13 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
         normaliseloc = [nor if isinstance(nor, (list, tuple, np.ndarray)) else [nor] for nor in normalise]
         normaliseloc = ds.listofarrays2arrayofarrays(normaliseloc)
 
+    # Get rid of nans by fixing
+    Xproc = Xloc
+    for l in range(L):
+        Xproc[l] = fixnans(Xproc[l])
+
     # Combine replicates and sort out flipped samples
-    Xproc = combineReplicates(Xloc, replicatesIDsloc, flipSamplesloc)
+    Xproc = combineReplicates(Xproc, replicatesIDsloc, flipSamplesloc)
 
     # Filter genes not exceeding the threshold
     (Xproc, GDMnew, Iincluded) = filterlowgenes(Xproc, GDM, expressionValueThreshold, replacementVal,

@@ -9,7 +9,6 @@ import scripts.output as op
 import scripts.graphics as graph
 import scripts.glob as glob
 import numpy as np
-import math
 import os
 import datetime as dt
 import shutil
@@ -18,30 +17,27 @@ from argparse import RawTextHelpFormatter
 
 
 # Parse arguments
-headertxt = '/====================================================================\\\n' \
-            '|                              Bi-CoPaM                              |\n' \
-            '|             Clustering objects from multiple data sets             |\n' \
-            '|                           Version 1.0.0                            |\n' \
-            '|                                                                    |\n' \
-            '|                        By Basel Abu-Jamous                         |\n' \
-            '|                    Department of Plant Sciences                    |\n' \
-            '|                     The University of Oxford                       |\n' \
-            '|                  basel.abujamous@plants.ox.ac.uk                   |\n' \
-            '+--------------------------------------------------------------------+\n' \
-            '|                              Citation                              |\n' \
-            '|                              ~~~~~~~~                              |\n' \
-            '| When publishing work that uses the Bi-CoPaM, please cite these     |\n' \
-            '| two papers:                                                        |\n' \
-            '| 1. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi  |\n' \
-            '|    (2013) Paradigm of tunable clustering using binarisation of     |\n' \
-            '|    consensus partition matrices (Bi-CoPaM) for gene discovery,     |\n' \
-            '|    PLOS ONE, 8(2): e56432.                                         |\n' \
-            '| 2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi  |\n' \
-            '|    (2015) UNCLES: method for the identification of genes           |\n' \
-            '|    differentially consistently co-expressed in a specific subset   |\n' \
-            '|    of datasets, BMC Bioinformatics, 16: 184.                       |\n' \
-            '\\====================================================================/\n'
-parser = argparse.ArgumentParser(description=headertxt,  formatter_class=RawTextHelpFormatter)
+headertxt = '/==========================================================================\\\n' \
+            '|                                  Clust                                   |\n' \
+            '|     Optimised consensus clustering of multiple heterogenous datasets     |\n' \
+            '|                               Version 1.0                                |\n' \
+            '|                                                                          |\n' \
+            '|                            By Basel Abu-Jamous                           |\n' \
+            '|                       Department of Plant Sciences                       |\n' \
+            '|                         The University of Oxford                         |\n' \
+            '|                      basel.abujamous@plants.ox.ac.uk                     |\n' \
+            '+--------------------------------------------------------------------------+\n' \
+            '|                                 Citation                                 |\n' \
+            '|                                 ~~~~~~~~                                 |\n' \
+            '| When publishing work that uses Clust, please include these two citations |\n' \
+            '| 1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.0) [Python   |\n' \
+            '|    package]. Available at https://github.com/BaselAbujamous/clust        |\n' \
+            '| 2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) |\n' \
+            '|    Paradigm of tunable clustering using binarisation of consensus        |\n' \
+            '|    partition matrices (Bi-CoPaM) for gene discovery, PLOS ONE, 8(2):     |\n' \
+            '|    e56432.                                                               |\n' \
+            '\\==========================================================================/\n'
+parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
 parser.add_argument('datapath', help='The path of the data files.')
 parser.add_argument('-m', help='OGs mapping file path', default=None)
 parser.add_argument('-r', help='Replicates file path', default=None)
@@ -55,7 +51,7 @@ parser.add_argument('-t', type=float, help='Cluster tightness versus cluster siz
 parser.add_argument('-fp', type=float, help='Percentage of false positives to be trimmed, '
                                             'in the range [0.0-1.0] (default: 0.01)', default=0.01)
 parser.add_argument('-d', type=int, help='Minimum number of datasets that an object has to be included in for '
-                                         'it to be considered in the Bi-CoPaM analysis. If an object is included '
+                                         'it to be considered in Clust analysis. If an object is included '
                                          'only in fewer datasets than this, it will be excluded from the analysis '
                                          '(default: 1)', default=1)
 parser.add_argument('-fil-v', dest='filv', type=float,
@@ -74,8 +70,8 @@ parser.add_argument('-cs', type=int, help='Smallest cluster size (default: 11)',
 args = parser.parse_args()
 
 
-# Define the bicopam function (and below it towards the end of this file it is called).
-def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
+# Define the clust function (and below it towards the end of this file it is called).
+def clust(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
             Ks=[n for n in range(2, 21)], tightnessweight=5, falsepositivestrimmed=0.01,
             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0,
             atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11):
@@ -89,7 +85,8 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
 
     # Output: Prepare the output directory and the log file
     if outpath is None:
-        outpathbase = os.path.abspath(os.path.join(datapath, '..'))
+        outpathbase = os.getcwd()
+        #outpathbase = os.path.abspath(os.path.join(datapath, '..'))
         outpathbase = '{0}/Results_{1}'.format(outpathbase, dt.datetime.now().strftime('%d_%b_%y'))
         outpath = outpathbase
         trial = 0
@@ -124,9 +121,10 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
     io.log(initialmsg, addextrastick=False)
 
     # Read data
-    io.log('Reading datasets')
+    io.log('1. Reading datasets')
     (X, replicates, Genes, datafiles) = io.readDatasetsFromDirectory(datapath, delimiter='\t', skiprows=1, skipcolumns=1,
                                                                      returnSkipped=True)
+    datafiles_noext = [os.path.splitext(d)[0] for d in datafiles]
 
     # Read map, replicates, and normalisation files:
     Map = io.readMap(mapfile)
@@ -135,7 +133,7 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
 
     # Preprocessing (Mapping then top level preprocessing including summarising replicates, filtering
     # low expression genes, and normalisation)
-    io.log('Data preprocessing')
+    io.log('2. Data pre-processing')
     (X_OGs, GDM, GDMall, OGs, MapNew, MapSpecies) \
         = pp.calculateGDMandUpdateDatasets(X, Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap=';',
                                            OGsIncludedIfAtLeastInDatasets=OGsIncludedIfAtLeastInDatasets)
@@ -148,13 +146,14 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
         MapNew = MapNew[Iincluded]
 
     # UNCLES and M-N plots
-    io.log('Bi-CoPaM clustering')
-    ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params)
+    io.log('3. Clustering (the Bi-CoPaM method)')
+    ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, Xnames=datafiles_noext)
+    io.log('4. Cluster evaluation and selection (the M-N scatter plots technique)')
     mnres = mn.mnplotsgreedy(X_summarised_normalised, ures.B, GDM=GDM, tightnessweight=tightnessweight,
                              params=ures.params, smallestClusterSize=smallestClusterSize)
 
     # Post-processing
-    io.log('Error correction')
+    io.log('5. Error correction and cluster optimisation')
     #B_corrected = mnres.B[:, mn.mnplotsdistancethreshold(mnres.allDists[mnres.I])]
     #B_corrected = ecorr.correcterrors_withinworse(B_corrected, X_summarised_normalised, GDM, falsepositivestrimmed)
 
@@ -164,7 +163,7 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
 
 
     # Output: Write input parameters:
-    io.log('Saving results in {0}'.format(outpath))
+    io.log('6. Saving results in\n{0}\n'.format(outpath))
     inputparams = op.params(mnres.params, falsepositivestrimmed, OGsIncludedIfAtLeastInDatasets,
                             expressionValueThreshold, atleastinconditions, atleastindatasets, MapNew)
     io.writedic('{0}/input_params.tsv'.format(in2out_path), inputparams, delim='\t')
@@ -188,7 +187,6 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
 
     # Output: Save figures to a PDF
     clusts_fig_file_name = '{0}/Clusters_profiles.pdf'.format(outpath)
-    datafiles_noext = [os.path.splitext(d)[0] for d in datafiles]
     graph.plotclusters(X_summarised_normalised, B_corrected, clusts_fig_file_name, datafiles_noext, conditions,
                        GDM, Cs='all', setPageToDefault=True)
 
@@ -202,6 +200,6 @@ def bicopam(datapath, mapfile=None, replicatesfile=None, normalisationfile=None,
     io.log(summarymsg, addextrastick=False)
 
 
-# Call the bicopam function
-bicopam(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
+# Call the clust function
+clust(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
         args.fp, args.d, args.filv, args.filc, args.fild, args.cs)

@@ -61,7 +61,11 @@ def csoms(X, D, params=()):
 def chc(X, K, params=()):
     pnames = ['linkage_method',  'distance']
     dflts  = [          'ward', 'euclidean']
-    (linkage_method, distance) = ds.resolveargumentpairs(pnames, dflts, params)
+    if isinstance(params, np.ndarray):
+        paramsloc = params.tolist()
+    else:
+        paramsloc = params
+    (linkage_method, distance) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
 
     Z = sphc.linkage(X, method=linkage_method, metric=distance)
     C = sphc.fcluster(Z, K, criterion='maxclust')

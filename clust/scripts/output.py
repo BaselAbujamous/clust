@@ -64,22 +64,14 @@ def generateinitialmessage():
     starttime = dt.datetime.now()
 
     res = '\n' + topline()
-    tmptxt = 'Bi-CoPaM (Binarisation of Concensus Partition Matrices)\n' \
+    tmptxt = 'Clust\n' \
+             '(Optimised consensus clustering of multiple heterogenous datasets)\n' \
              'Python package version 1.0 (2017) Basel Abu-Jamous'
     res += msgformated(tmptxt, alignment='^')
     res += midline()
 
-    tmptxt = 'Analysis starting date and time: {0}'.format(starttime.strftime('%A %d %B %Y (%H:%M:%S)'))
+    tmptxt = 'Analysis started at: {0}'.format(starttime.strftime('%A %d %B %Y (%H:%M:%S)'))
     res += msgformated(tmptxt, withnewline=False)
-
-    '''
-    res = '\n' \
-          '/======================================================================\\\n' \
-          '|       Bi-CoPaM (Binarisation of Concensus Partition Matrices)        |\n' \
-          '|         Python package version 1.0 (2017) Basel Abu-Jamous           |\n' \
-          '+----------------------------------------------------------------------+\n' \
-          '| Analysis starting date and time: {0}\n'.format(starttime.strftime('%A %d %B %Y (%H:%M:%S)'))
-    '''
     return res, starttime
 
 
@@ -105,7 +97,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     label0 = 'objects' if Map is None else 'object groups (OGs)*'
     label1 = 'object' if Map is None else 'OG'
 
-    tmptxt = 'Analysis ending date and time: {0}\n' \
+    tmptxt = 'Analysis finished at: {0}\n' \
              'Total time consumed: {1}\n'.format(endtime.strftime('%A %d %B %Y (%H:%M:%S)'), timeConsumedTxt)
     res = msgformated(tmptxt)
     res += bottomline()
@@ -114,7 +106,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += midline()
 
 
-    tmptxt = 'Bi-CoPaM analysed the profiles of {2} {0} in {3} datasets. It generated {4} clusters of {1}s, ' \
+    tmptxt = 'Clust analysed the profiles of {2} {0} in {3} datasets. It generated {4} clusters of {1}s, ' \
              'which in total include {5} {1}s. The smallest cluster includes {6} {1}s, the largest cluster ' \
              'includes {7} {1}s, and the average cluster size is {8} {1}s. {9} {1}s were not included in any ' \
              'cluster at all.' \
@@ -131,14 +123,18 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += midline()
 
     res += msgformated('Citation\n~~~~~~~~', alignment='^')
-    tmptxt = 'When publishing work that uses the Bi-CoPaM, please cite these two papers:\n' \
-             '1. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
+    tmptxt = 'When publishing work that uses Clust, please include these two citations:\n' \
+             '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.0) [Python package]. Available at ' \
+             'https://github.com/BaselAbujamous/clust.\n' \
+             '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
              'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
-             'PLOS ONE, 8(2): e56432.\n' \
+             'PLOS ONE, 8(2): e56432'
+
+    '''
              '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2015) UNCLES: method for the ' \
              'identification of genes differentially consistently co-expressed in a specific subset of datasets, ' \
              'BMC Bioinformatics, 16: 184.'
-
+             '''
     res += msgformated(tmptxt)
     res += midline()
 
@@ -150,50 +146,6 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += msgformated(tmptxt)
     res += bottomline(withnewline=False)
 
-    '''
-    res = '| Analysis ending date and time: {10}\n' \
-          '| Total time consumed: {11}\n' \
-          '/======================================================================\\\n' \
-          '|                           RESULTS SUMMARY                            |\n' \
-          '+----------------------------------------------------------------------+\n' \
-          '| Bi-CoPaM analysed the profiles of {2} {0} in {3} datasets.\n' \
-          '| It generated {4} clusters of {1}s, which in total include {5} {1}s.\n' \
-          '|\n' \
-          '| The smallest cluster includes {6} {1}s, the largest\n' \
-          '| cluster includes {7} {1}s, and the average cluster size\n' \
-          '| is {8} {1}s. {9} {1}s were not included in any\n' \
-          '| cluster at all.\n' \
-          '|\n'.format(label0, label1, B_corrected.shape[0], len(X), B_corrected.shape[1],
-                       np.sum(np.any(B_corrected, axis=1)), np.min(np.sum(B_corrected, axis=0)),
-                       np.max(np.sum(B_corrected, axis=0)), np.mean(np.sum(B_corrected, axis=0)),
-                       B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1)),
-                       endtime.strftime('%A %d %B %Y (%H:%M:%S)'), timeConsumedTxt)
-    if Map is not None:
-        res += '|                                                                    |\n' \
-               '| * An OG is a group of synonymous objects within & across different |\n' \
-               '| types, as identified by the provided map. For example, a group of  |\n' \
-               '| orthologous genes within and across species represents an OG       |\n'
-    res  += '+----------------------------------------------------------------------+\n' \
-            '|                              Citation                              |\n' \
-            '|                              ~~~~~~~~                              |\n' \
-            '| When publishing work that uses the Bi-CoPaM, please cite these     |\n' \
-            '| two papers:                                                        |\n' \
-            '| 1. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi  |\n' \
-            '|    (2013) Paradigm of tunable clustering using binarisation of     |\n' \
-            '|    consensus partition matrices (Bi-CoPaM) for gene discovery,     |\n' \
-            '|    PLOS ONE, 8(2): e56432.                                         |\n' \
-            '| 2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi  |\n' \
-            '|    (2015) UNCLES: method for the identification of genes           |\n' \
-            '|    differentially consistently co-expressed in a specific subset   |\n' \
-            '|    of datasets, BMC Bioinformatics, 16: 184.                       |\n' \
-            '+--------------------------------------------------------------------+\n' \
-            '| For enquiries contact:                                             |\n' \
-            '| Basel Abu-Jamous                                                   |\n' \
-            '| Department of Plant Sciences, University of Oxford                 |\n' \
-            '| basel.abujamous@plants.ox.ac.uk                                    |\n' \
-            '| baselabujamous@gmail.com                                           |\n' \
-            '\\====================================================================/\n'
-    '''
     return res, endtime, timeConsumedTxt
 
 
