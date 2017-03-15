@@ -150,7 +150,7 @@ def clust(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, o
     ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, Xnames=datafiles_noext)
     io.log('4. Cluster evaluation and selection (the M-N scatter plots technique)')
     mnres = mn.mnplotsgreedy(X_summarised_normalised, ures.B, GDM=GDM, tightnessweight=tightnessweight,
-                             params=ures.params, smallestClusterSize=smallestClusterSize)
+                             params=ures.params, smallestClusterSize=smallestClusterSize, Xnames=datafiles_noext)
 
     # Post-processing
     io.log('5. Error correction and cluster optimisation')
