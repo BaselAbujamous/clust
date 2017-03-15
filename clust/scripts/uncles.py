@@ -384,7 +384,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         for ki in range(NKs):
             if type == 'A':
                 if Utype.lower() == 'pm':
-                    io.log('Generate final CoPaM trial={0}, K={1}'.format(t, Ks[ki]))
+                    io.log('Generate consensus K={1}'.format(t, Ks[ki]))
                     CoPaMs[t, ki] = generateCoPaM(CoPaMsFine[:, ki], relabel_technique=relabel_technique, w=wsets,
                                                   X=Xloc, GDM=GDMloc)
                 elif Utype.lower() == 'idx':
