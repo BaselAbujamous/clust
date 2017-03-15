@@ -85,7 +85,8 @@ def clust(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, o
 
     # Output: Prepare the output directory and the log file
     if outpath is None:
-        outpathbase = os.path.abspath(os.path.join(datapath, '..'))
+        outpathbase = os.getcwd()
+        #outpathbase = os.path.abspath(os.path.join(datapath, '..'))
         outpathbase = '{0}/Results_{1}'.format(outpathbase, dt.datetime.now().strftime('%d_%b_%y'))
         outpath = outpathbase
         trial = 0
