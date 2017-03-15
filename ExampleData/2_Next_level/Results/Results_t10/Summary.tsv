@@ -1,0 +1,25 @@
+Starting data and time	Wednesday 15 March 2017 (16:24:44)
+Ending date and time	Wednesday 15 March 2017 (16:25:38)
+Time consumed	0 hours, 0 minutes, and 53 seconds
+Number of datasets	3
+Total number of input OGs	1811
+OGs included in the analysis	1811
+OGs filtered out from the analysis	0
+Number of clusters	3
+Total number of OGs in clusters	76
+OGs not included in any cluster	1735
+Min cluster size	14
+Max cluster size	33
+Average cluster size	25.3333333333
+**********************************
+Number of species	2
+Average number of objects in an OG per type	1.0
+Max number of objects in an OG per type	1
+Number of OGs with at least a single object in each type	1811
+Number of OGs with exactly a single object in each type	1811
+**********************************
+OGs included in all datasets	1673
+OGs missed from 1 dataset	86
+OGs missed from 2 datasets	52
+OGs missed from 3 datasets	0
+OGs missed from more than 3 datasets	0
