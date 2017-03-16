@@ -75,8 +75,6 @@ def clust(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, o
             Ks=[n for n in range(2, 21)], tightnessweight=5, falsepositivestrimmed=0.01,
             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0,
             atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11):
-    io.log('NEW NEW NEW')
-
     # Set the global objects label
     if mapfile is None:
         glob.set_object_label_upper('Object')
