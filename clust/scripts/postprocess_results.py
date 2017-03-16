@@ -14,6 +14,9 @@ def reorderClusters(B, X, GDM, returnOrderIndices = False):
     K = Bloc.shape[1]  # Number of clusters
     L = Xloc.shape[0]  # Number of datasets
 
+    if K == 0:
+        return Bloc
+
     # Find Cmeans and distances between clusters
     Cmeans = np.array([None] * L, dtype=object)
     D = np.zeros([K, K, L])  # KxKxL
