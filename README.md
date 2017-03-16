@@ -20,6 +20,7 @@ Optimised consensus clustering of multiple heterogenous datasets
   * [For simplest usage](#for-simplest-usage)
   * [For next level usage](#for-next-level-usage)
   * [For advanced usage](#for-advanced-usage)
+* [Software dependencies](#software-dependencies)
 
 # What does Clust do?
 *Clust* identifies clusters (groups) of objects which are well-correlated with each other across a number of given datasets with minimal need for manual intervention.
@@ -300,3 +301,14 @@ You may also specify an output directory other than the default by adding:
 ### For advanced usage
 
 To be written
+
+# Software dependencies
+
+*Clust* is a Python package, which requires Python 2.7 or newer and depends on these Python packages:
+* numpy
+* scipy
+* matplotlib
+* sklearn
+* sompy
+
+
