@@ -1,11 +1,11 @@
 import os
 import re
-
 import numpy as np
-
 import datastructures as ds
 import glob
 import output as op
+import sys
+import traceback
 
 
 def getFilesInDirectory(path, extension=None):
@@ -192,7 +192,6 @@ def writedic(filepath, dic, header=None, delim='\t'):
 
 def log(msg=None, addextrastick=True):
     if addextrastick:
-        #msg = '| '+ msg
         msg = op.msgformated(msg, withnewline=False)
     printOnConsole = True
     with open(glob.logfile, mode='a+') as f:
@@ -202,4 +201,10 @@ def log(msg=None, addextrastick=True):
 
     if printOnConsole:
         print(msg)
+
+
+def logerror(exec_info):
+    errstr = traceback.format_exception(exec_info[0], exec_info[1], exec_info[2])
+    errstr = ''.join(errstr)
+    log('Unexpected error:\n{0}\nContinuing execution anyway ...'.format(errstr))
 

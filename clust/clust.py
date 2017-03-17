@@ -12,6 +12,8 @@ import numpy as np
 import os
 import datetime as dt
 import shutil
+import sys
+import traceback
 
 
 # Define the clust function (and below it towards the end of this file it is called).
@@ -98,12 +100,15 @@ def clust(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, o
 
     # Post-processing
     io.log('5. Error correction and cluster optimisation')
-    #B_corrected = mnres.B[:, mn.mnplotsdistancethreshold(mnres.allDists[mnres.I])]
-    #B_corrected = ecorr.correcterrors_withinworse(B_corrected, X_summarised_normalised, GDM, falsepositivestrimmed)
-
-    B_corrected = ecorr.correcterrors_weighted(mnres.B, X_summarised_normalised, GDM,
-                                               mnres.allDists[mnres.I], falsepositivestrimmed)
-    B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
+    try:
+        B_corrected = ecorr.correcterrors_weighted(mnres.B, X_summarised_normalised, GDM,
+                                                   mnres.allDists[mnres.I], falsepositivestrimmed)
+        B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
+    except:
+        io.logerror(sys.exc_info())
+        io.log('\n* Failed to perform error correction and cluster optimisation!\n'
+               '* Skipped error correction and cluster optimisation!\n')
+        B_corrected = mnres.B
 
 
     # Output: Write input parameters:
