@@ -23,17 +23,17 @@ Optimised consensus clustering of multiple heterogenous datasets
 * [Software dependencies](#software-dependencies)
 
 # What does Clust do?
-*Clust* identifies clusters (groups) of objects which are well-correlated with each other across a number of given datasets with minimal need for manual intervention.
+*Clust* is a fully automated method for identification of clusters (groups) of objects that are well-correlated with each in one or more datasets. For example clustering gene expression data accross multiple time series or multiple species.
 
 ![Clusters](Images/Clusters.png)
 
-*Figure 1: Clust generates clusters (C0, C1, C2, ...) out of an input of 9,462 objects based on their profiles in three datasets (X0, X1, and X2). The left-hand panel shows the profiles of all 9,462 objects in each one of the three datasets, while the right-hand panel shows the profiles of the objects within each one of the clusters. The objects included in any given cluster are well-correlated with each other in each one of the three datasets. Note that the number of conditions or time points are different amongst the datasets.*
+*Figure 1: Clust processeses independent quantiative datasets (X0, X1, X2 ... Xn) to identifiy clusters of objects with coordinate behaviour in each of the iunput datasets (C0, C1, C2 ... Cn). The left-hand panel shows the profiles of all objects in each of the input datasets, while the right-hand panel shows the profiles of the objects within each cluster. Note that the number of conditions or time points are different for each dataset.
 
 **Features!**
 
-1. No need to filter your data before submission.
-2. No need to preset the number of clusters; the algorithm finds it automatically.
-3. The algorithm automatically filters out any objects that do not fit into any cluster.
+1. No need to pre-process your data.
+2. No need to preset the number of clusters; the algorithm finds this number automatically.
+3. The algorithm discards objects that do not fit into any cluster.
 4. You can control the tightness of the clusters simply by varying a parameter, which has a default value if you wish not to set it!
 5. You can include heterogeneous datasets (e.g. gene expression datasets from different technologies, different species, different numbers of conditions, etc).
 5. The package calculates key statistics and provides them in the output.
@@ -44,13 +44,13 @@ Optimised consensus clustering of multiple heterogenous datasets
 
 ### In the language of bioinformatics, again, what does it do?
 If you analyse a set of gene expression datasets, Clust identifies the clusters (subsets) of genes that are
-consistently co-expressed in each one of the datasets in an automatic and very accurate manner. Pre-processing
-(e.g. data normalisation) and post-processing (e.g. false-positives and false-negatives error correction) are performed
+consistently co-expressed in each one of the datasets in an automatic and accurate manner. Pre-processing
+(e.g. data normalisation) and post-processing (e.g. false-positive and false-negative error correction) are performed
 automatically by *Clust* and require minimal intervention by the user.
 
-*Clust* generates few intuitively comprehensible output files including:
+*Clust* generates the following output files:
 
-1. Summary table of results' statistics (e.g. number of generated clusters, average, minimum, and maximum
+1. A table of clustering statistics (e.g. number of generated clusters, average, minimum, and maximum
 cluster size, total number of genes included in the experiment, etc.)
 2. A table listing genes included in each cluster
 3. Pre-processed (normalised, summarised, and filtered) datasets' files
