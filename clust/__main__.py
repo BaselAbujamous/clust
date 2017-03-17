@@ -30,10 +30,10 @@ def main(args=None):
                 '|    e56432.                                                               |\n' \
                 '\\==========================================================================/\n'
     parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
-    parser.add_argument('datapath', help='The path of the data files.')
-    parser.add_argument('-m', help='OGs mapping file path', default=None)
+    parser.add_argument('datapath', help='The path of the data files.', default=None)
     parser.add_argument('-r', help='Replicates file path', default=None)
     parser.add_argument('-n', help='Normalisation file path', default=None)
+    parser.add_argument('-m', help='Object-groups (OGs) mapping file path', default=None)
     parser.add_argument('-o', help='Output directory', default=None)
     parser.add_argument('-K', type=int, nargs='+', help='K values (default: all values from 2 to 20 inclusively)',
                         default=[n for n in range(2, 21)])
@@ -60,7 +60,8 @@ def main(args=None):
 
     parser.add_argument('-cs', type=int, help='Smallest cluster size (default: 11)', default=11)
 
-    args = parser.parse_args(args)
+    if len(args) == 0:
+        parser.parse_args(['-h'])
 
     # Call the clust function
     clust.clust(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
