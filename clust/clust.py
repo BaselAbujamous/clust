@@ -18,7 +18,7 @@ import traceback
 
 # Define the clust function (and below it towards the end of this file it is called).
 def clust(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
-            Ks=[n for n in range(2, 21)], tightnessweight=5, falsepositivestrimmed=0.01,
+            Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0,
             atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11):
     # Set the global objects label
@@ -99,21 +99,21 @@ def clust(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, o
                              params=ures.params, smallestClusterSize=smallestClusterSize, Xnames=datafiles_noext)
 
     # Post-processing
-    io.log('5. Error correction and cluster optimisation')
+    io.log('5. Cluster optimisation and completion')
     try:
-        B_corrected = ecorr.correcterrors_weighted(mnres.B, X_summarised_normalised, GDM,
-                                                   mnres.allDists[mnres.I], falsepositivestrimmed)
+        B_corrected = ecorr.correcterrors_weighted_outliers(mnres.B, X_summarised_normalised, GDM,
+                                                   mnres.allDists[mnres.I], stds)
         B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
     except:
         io.logerror(sys.exc_info())
-        io.log('\n* Failed to perform error correction and cluster optimisation!\n'
-               '* Skipped error correction and cluster optimisation!\n')
+        io.log('\n* Failed to perform cluster optimisation and completion!\n'
+               '* Skipped cluster optimisation and completion!\n')
         B_corrected = mnres.B
 
 
     # Output: Write input parameters:
     io.log('6. Saving results in\n{0}\n'.format(outpath))
-    inputparams = op.params(mnres.params, falsepositivestrimmed, OGsIncludedIfAtLeastInDatasets,
+    inputparams = op.params(mnres.params, stds, OGsIncludedIfAtLeastInDatasets,
                             expressionValueThreshold, atleastinconditions, atleastindatasets, MapNew)
     io.writedic('{0}/input_params.tsv'.format(in2out_path), inputparams, delim='\t')
 

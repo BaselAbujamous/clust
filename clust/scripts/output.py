@@ -294,14 +294,14 @@ def processed_X(Xprocessed, conditions, GDM, OGs, Map, MapSpecies):
     return res
 
 
-def params(params, falsepositivestrimmed, OGsIncludedIfAtLeastInDatasets, expressionValueThreshold,
+def params(params, stds, OGsIncludedIfAtLeastInDatasets, expressionValueThreshold,
            atleastinconditions, atleastindatasets, Map=None):
     if Map is None:
         res = collec.OrderedDict(
             [('Methods', params['methods']),
              ('K values (Ks)', params['Ks']),
              ('Tightness weight', params['tightnessweight']),
-             ('False positives trimmed', falsepositivestrimmed),
+             ('Outliers threshold (number of standard deviations)', stds),
              ('Objects included if at least in datasets', OGsIncludedIfAtLeastInDatasets),
              ('Filtering: Data value threshold', expressionValueThreshold),
              ('Filtering: At least in conditions', atleastinconditions),
@@ -312,7 +312,7 @@ def params(params, falsepositivestrimmed, OGsIncludedIfAtLeastInDatasets, expres
             [('Methods', params['methods']),
              ('K values (Ks)', params['Ks']),
              ('Tightness weight', params['tightnessweight']),
-             ('False positives trimmed', falsepositivestrimmed),
+             ('Outliers threshold (number of standard deviations)', stds),
              ('OGs included if at least in datasets', OGsIncludedIfAtLeastInDatasets),
              ('Filtering: Data value threshold', expressionValueThreshold),
              ('Filtering: At least in conditions', atleastinconditions),

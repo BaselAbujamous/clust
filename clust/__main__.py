@@ -40,8 +40,8 @@ def main(args=None):
     parser.add_argument('-t', type=float, help='Cluster tightness versus cluster size weight: '
                                                'a real positive number, where 1.0 means equal weights '
                                                '(default: 1.0).', default=1.0)
-    parser.add_argument('-fp', type=float, help='Percentage of false positives to be trimmed, '
-                                                'in the range [0.0-1.0] (default: 0.01)', default=0.01)
+    parser.add_argument('-s', type=float, help='Number of standard deviations that define an outlier '
+                                                '(default: 3.0)', default=3.0)
     parser.add_argument('-d', type=int, help='Minimum number of datasets that an object has to be included in for '
                                              'it to be considered in Clust analysis. If an object is included '
                                              'only in fewer datasets than this, it will be excluded from the analysis '
@@ -59,13 +59,16 @@ def main(args=None):
                              'least in -fil-c conditions to be included in the analysis (default: 0)', default=0)
 
     parser.add_argument('-cs', type=int, help='Smallest cluster size (default: 11)', default=11)
+    #parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
     if len(args) == 0:
         parser.parse_args(['-h'])
 
+    args = parser.parse_args(args)
+
     # Call the clust function
     clust.clust(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
-          args.fp, args.d, args.filv, args.filc, args.fild, args.cs)
+          args.s, args.d, args.filv, args.filc, args.fild, args.cs)
 
 
 if __name__ == "__main__":

@@ -241,7 +241,7 @@ data_directory | The path of the directory including all data files
 -n normalisation_file | Path of the normalisation file
 -o output_directory | Custom path of the output directory
 -t tightness | (Cluster tightness) versus (cluster size) weight: a real positive number, where 1.0 means equal weights, values smaller than 1.0 means larger and less tight clusters, and values larger than 1.0 produce smaller and tighter clusters (default: 1.0).
--fp false-positives-rate | Percentage of false positives to be trimmed, in the range [0.0-1.0] (default: 0.01)
+-s standard_deviations | Number of standard deviations that define an outlier (default: 3.0)
 -d #datasets | Minimum number of datasets in which an object has to be included for it to be considered in the *Clust* analysis. If an object is included only in fewer datasets than this, it will be excluded from the analysis (default: 1)
 -fil-v FILV | Threshold of data values (e.g. gene expression). Any value lower than this will be set to 0.0. If an object never exceeds this value at least in FILC conditions in at least FILD datasets, it is excluded from the analysis (default: -inf)
 -fil-c FILC | Minimum number of conditions in a dataset in which an object should exceed the data value FILV at least in FILD datasets to be included in the analysis (default: 0)
