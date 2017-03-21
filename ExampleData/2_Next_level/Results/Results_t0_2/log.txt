@@ -4,7 +4,7 @@
 |   (Optimised consensus clustering of multiple heterogenous datasets)   |
 |           Python package version 1.0 (2017) Basel Abu-Jamous           |
 +------------------------------------------------------------------------+
-| Analysis started at: Wednesday 15 March 2017 (16:31:51)                |
+| Analysis started at: Tuesday 21 March 2017 (15:07:13)                  |
 | 1. Reading datasets                                                    |
 | 2. Data pre-processing                                                 |
 | 3. Clustering (the Bi-CoPaM method)                                    |
@@ -88,12 +88,12 @@
 | MSE values for X0 have been calculated.                                |
 | MSE values for X1 have been calculated.                                |
 | MSE values for X2 have been calculated.                                |
-| 5. Error correction and cluster optimisation                           |
+| 5. Cluster optimisation and completion                                 |
 | 6. Saving results in                                                   |
-| Results_t0_2                                                           |
+| Results/Results_t0_2                                                   |
 |                                                                        |
-| Analysis finished at: Wednesday 15 March 2017 (16:32:49)               |
-| Total time consumed: 0 hours, 0 minutes, and 57 seconds                |
+| Analysis finished at: Tuesday 21 March 2017 (15:08:17)                 |
+| Total time consumed: 0 hours, 1 minute, and 3 seconds                  |
 |                                                                        |
 \========================================================================/
 
@@ -101,10 +101,10 @@
 |                            RESULTS SUMMARY                             |
 +------------------------------------------------------------------------+
 | Clust analysed the profiles of 1811 object groups (OGs)* in 3          |
-| datasets. It generated 3 clusters of OGs, which in total include 1647  |
-| OGs. The smallest cluster includes 94 OGs, the largest cluster         |
-| includes 1070 OGs, and the average cluster size is 549.0 OGs. 164 OGs  |
-| were not included in any cluster at all.                               |
+| datasets. It generated 3 clusters of OGs, which in total include 1684  |
+| OGs. The smallest cluster includes 108 OGs, the largest cluster        |
+| includes 1065 OGs, and the average cluster size is 561.333333333 OGs.  |
+| 127 OGs were not included in any cluster at all.                       |
 |                                                                        |
 | * An OG is a group of synonymous objects within & across different     |
 | types, as identified by the provided map. For example, a group of      |

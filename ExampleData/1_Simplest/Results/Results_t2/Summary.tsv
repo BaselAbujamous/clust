@@ -1,16 +1,16 @@
-Starting data and time	Wednesday 15 March 2017 (15:40:28)
-Ending date and time	Wednesday 15 March 2017 (15:40:55)
-Time consumed	0 hours, 0 minutes, and 27 seconds
+Starting data and time	Tuesday 21 March 2017 (15:00:07)
+Ending date and time	Tuesday 21 March 2017 (15:00:38)
+Time consumed	0 hours, 0 minutes, and 30 seconds
 Number of datasets	3
 Total number of input objects	1000
 Objects included in the analysis	1000
 Objects filtered out from the analysis	0
-Number of clusters	4
-Total number of objects in clusters	136
-Objects not included in any cluster	864
-Min cluster size	15
-Max cluster size	84
-Average cluster size	34.0
+Number of clusters	5
+Total number of objects in clusters	137
+Objects not included in any cluster	863
+Min cluster size	12
+Max cluster size	78
+Average cluster size	27.4
 **********************************
 Objects included in all datasets	1000
 Objects missed from 1 dataset	0

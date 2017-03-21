@@ -4,7 +4,7 @@
 |   (Optimised consensus clustering of multiple heterogenous datasets)   |
 |           Python package version 1.0 (2017) Basel Abu-Jamous           |
 +------------------------------------------------------------------------+
-| Analysis started at: Wednesday 15 March 2017 (15:42:21)                |
+| Analysis started at: Tuesday 21 March 2017 (14:57:57)                  |
 | 1. Reading datasets                                                    |
 | 2. Data pre-processing                                                 |
 | 3. Clustering (the Bi-CoPaM method)                                    |
@@ -88,12 +88,12 @@
 | MSE values for X0 have been calculated.                                |
 | MSE values for X1 have been calculated.                                |
 | MSE values for X2 have been calculated.                                |
-| 5. Error correction and cluster optimisation                           |
+| 5. Cluster optimisation and completion                                 |
 | 6. Saving results in                                                   |
 | Results_t0_2                                                           |
 |                                                                        |
-| Analysis finished at: Wednesday 15 March 2017 (15:42:52)               |
-| Total time consumed: 0 hours, 0 minutes, and 30 seconds                |
+| Analysis finished at: Tuesday 21 March 2017 (14:58:25)                 |
+| Total time consumed: 0 hours, 0 minutes, and 28 seconds                |
 |                                                                        |
 \========================================================================/
 
@@ -101,10 +101,10 @@
 |                            RESULTS SUMMARY                             |
 +------------------------------------------------------------------------+
 | Clust analysed the profiles of 1000 objects in 3 datasets. It          |
-| generated 2 clusters of objects, which in total include 501 objects.   |
-| The smallest cluster includes 246 objects, the largest cluster         |
-| includes 255 objects, and the average cluster size is 250.5 objects.   |
-| 499 objects were not included in any cluster at all.                   |
+| generated 2 clusters of objects, which in total include 462 objects.   |
+| The smallest cluster includes 217 objects, the largest cluster         |
+| includes 245 objects, and the average cluster size is 231.0 objects.   |
+| 538 objects were not included in any cluster at all.                   |
 +------------------------------------------------------------------------+
 |                                Citation                                |
 |                                ~~~~~~~~                                |
