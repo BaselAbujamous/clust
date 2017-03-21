@@ -20,7 +20,7 @@ Optimised consensus clustering of multiple heterogenous datasets
   * [For simplest usage](#for-simplest-usage)
   * [For next level usage](#for-next-level-usage)
   * [For advanced usage](#for-advanced-usage)
-* [Software dependencies](#software-dependencies)
+* [Install *Clust*](#install-clust)
 
 # What does Clust do?
 *Clust* is a fully automated method for identification of clusters (groups) of objects that are well-correlated with each in one or more datasets. For example clustering gene expression data accross multiple time series or multiple species.
@@ -302,7 +302,7 @@ You may also specify an output directory other than the default by adding:
 
 To be written
 
-# Software dependencies
+# Install *Clust*
 
 *Clust* is a Python package, which requires Python 2.7 or newer and depends on these Python packages:
 * numpy
@@ -311,4 +311,27 @@ To be written
 * sklearn
 * sompy
 
+### If you have privileges to install (sudo privileges)
+
+If `matplotlib` is not already installed, run this:
+
+* `sudo apt-get install python-matplotlib`
+
+Then install *Clust* by:
+
+* `sudo -H pip install Clust`
+
+You can after than run *Clust* straightforwardly from any place:
+
+* `clust ...`
+
+### If you do not have privileges to install
+
+This works if the five Python packages the *Clust* requires are already installed (listed above).
+
+Download the source code (tar.gz) file from the
+[release tab](https://github.com/BaselAbujamous/clust/releases)
+and run the script `clust.py` that is in the top level directory of the source code by:
+
+* `python clust.py ...`
 

@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='Clust',
-    version='1.0b0',
+    version='1.0b2',
 
     description='Optimised consensus clustering of multiple heterogenous datasets',
     long_description='',
@@ -31,11 +31,11 @@ setup(
         'Development Status :: 3 - Alpha',
 
         # Indicate who your project is intended for
-        'Intended Audience :: Bioinformaticians and biologists',
+        'Intended Audience :: Science/Research',
         'Topic :: Software Development :: Build Tools',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: GNU GPL 3 License',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 
         # Specify the Python versions you support here.
         'Programming Language :: Python :: 3',
