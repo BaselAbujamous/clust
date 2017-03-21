@@ -304,6 +304,8 @@ To be written
 
 # Install *Clust*
 
+### Required Python packages
+
 *Clust* is a Python package, which requires Python 2.7 or newer and depends on these Python packages:
 * numpy
 * scipy
@@ -327,7 +329,7 @@ You can after than run *Clust* straightforwardly from any place:
 
 ### If you do not have privileges to install
 
-This works if the five Python packages the *Clust* requires are already installed (listed above).
+This works if the five Python packages that *Clust* requires are already installed (listed above).
 
 Download the source code (tar.gz) file from the
 [release tab](https://github.com/BaselAbujamous/clust/releases)
