@@ -5,7 +5,7 @@ Optimised consensus clustering of multiple heterogenous datasets
   * [In the language of bioinformatics, again, what does it do?](#in-the-language-of-bioinformatics-again-what-does-it-do)
 * [How does *Clust* do it?](#how-does-clust-do-it)
 * [Install *Clust*](#install-clust)
-* [Simplest usage](#simplest-usage)
+* [Run *Clust*](#run-clust)
 * [Next level usage](#next-level-usage-replicates-normalisation-and-id-maps-eg-orthologues)
 * [Advanced usage](#advanced-usage)
 * [List of all parameters](#list-of-all-parameters)
@@ -107,101 +107,74 @@ and run the script `clust.py` that is in the top level directory of the source c
 
 * `python clust.py ...`
 
-# Simplest usage
+
+### For Windows users
+
+We recommend that you download and install WinPython which provides
+you with many Python packages that *Clust* requires from http://winpython.github.io/
+
+Open `WinPython Powershell Prompt.exe` from the directory in which you installed WinPython.
+
+Run:
+
+* `pip install Clust`
+
+Then you can run *Clust* by:
+
+* `clust ...`
+
+
+# Run *Clust*
+For normalised homogeneous datasets, simply run:
+
 - `clust data_path`
 - `clust data_path -o output_directory [...]`
-- `clust data_path -t tightness [...]`
 
-This applies the *Clust* pipeline over the datasets with files included in the data_path
-directory with default parameters.
+This runs *Clust* over the datasets in the data_path directory with default parameters.
+If the output directory is not provided, *Clust* creates a new directory for the results within the
+current working directory.
 
-### The results (output) directory
-The `-o` argument specifies the path of the results (output)
-directory. If it is not provided, *Clust* creates a directory Results_[Date] in the current working
-directory.
+For raw RNA-seq TPM, FPKM, or RPKM data, consider the [Normalisation](#normalisation) section below.
+Other sections below address handling [replicates](#handling-replicates), handling data from 
+[mulitple species](#data-from-multiple-species), and handling [microarray data](#incorporate-microarray-data)
+(only or mixed with RNA-seq data).
 
-### The tightness parameter
-It defines how tight the clusters should be (tighter and smaller clusters versus less tight and larger clusters).
-This is a real positive number with the default value of **1.0**. Values smaller than 1.0 (e.g. 0.5) produce less
-tight clusters, while values larger than 1.0 (e.g. 2.0, 5.0, 10.0, ...) produce tighter clusters.
+### Data files format
+Each dataset is represented in a single TAB delimited (TSV) file in which the first column represents objects' IDs
+(e.g. gene names), the first row represents unique labels of the samples, and the rest of the file includes numerical
+values.
 
-### Data files
-Each dataset is represented in a single TAB delimited (TSV) file in which the first column represents the identifiers
-(IDs) of the objects (e.g. gene names), the first row represents unique labels of the samples (e.g. conditions or time
-points), and the rest of the file includes numerical values of these objects at those samples. Figure 3 shows a screen 
-shot of the first few lines of 3 datasets' files.
 ![Data_simple](Images/Data_simple.png)
 
-*Figure 3: Snapshots of three data files X0, X1, and X2.*
+*Figure 3: Snapshots of the first few lines of three data files X1.txt, X2.txt, and X3.txt.*
 
-* When the same object ID appears in different datasets, it is considered to refer to the same object. For example, the
-object ID O01 in the dataset X0 is considered to refer to the same object as O01 in the datasets X1 and X2.
-* If more than one row in the same file had the same identifier, they are automatically summarised by summing up their values.
+* When the same object ID appears in different datasets, it is considered to refer to the same object.
+* If more than one row in the same file had the same identifier, they are automatically summarised by
+summing up their values.
 
-# Next level usage (replicates, normalisation, and ID maps (e.g. orthologues))
-- `clust data_path  -r replicates_file -n normalisation_file -m map_file [...]`
-- `clust data_path  -r replicates_file -n normalisation_file -m map_file -t tightness [...]`
 
-Consider the gene expression datasets shown in Figure 4:
+# Normalisation
+If datasets need normalisation (e.g. raw RNA-seq TPM data), include this information in a `normalisation file`
+and provide it to `clust` by:
 
-![Level2_Data](Images/Datasets_level2.png)
+* `clust data_path -n normalisation_file [...]`
 
-*Figure 4: Snapshots of three gene expression datasets from two yeast species, X0 and X1 from fission yeast
-(Schizosaccharomyces pombe) and X2 from budding yeast (Saccharomyces cerevisiae).*
-
-These are three datasets from two species, two from fission yeast and one from budding yeast. There are few
-issues in these datasets:
-
-1. **Replicates:** There are multiple replicates for the same conditions. For example, X0 has 18 columns (samples) of
-data, but every three of them represent replicates for a single condition. One does not want *Clust* to consider 
-these 18 columns as 18 independent conditions; rather one wants *Clust* to summarise the replicates of each
-condition to form a single column. This is done by providing the Replicates file (file format is below).
-2. **Normalisation:** Different datasets require different normalisation procedures to be suitable for cluster analysis.
-X0 and X1 for example have log2 values while X2 does not. By providing a simple normalisation file, one can direct the
-Bi-CoPaM towards proper pre-processing of data. (file format is below).
-3. **Mapping object IDs:** Fission yeast genes are not the same as budding yeast genes and have different gene ID.
-Therefore, it is important to provide the algorithm with a file that maps fission yeast gene IDs to their orthologous
-budding yeast gene IDs. Such mapping is required whenever the datasets objects' IDs are not mutual. For example, if
-one dataset uses Entrez gene IDs while the other dataset uses gene names, a mapping file is required to inform the
-algorithm that this or that Entrez gene ID refers to this or that gene name. (file format is below).
-
-### Replicates file
-![ReplicatesFile](Images/ReplicatesFile.png)
-
-*Figure 5: Replicates file defining the replicates. The right-hand file is the same as the left-hand file but while
-indicating that the Z condition of X1.txt should be ignored in the analysis, as well as the time points 4 and 5 of
-X2.txt. Starting a line with the hash character (#) indicates that it should be ignored.*
-
-Each row of this file lists the replicates of a single condition or time point.
-
-Each line includes these elements in order:
+Each line in the normalisation file includes these elements in order:
 
 1. The name of the dataset file (e.g. X0.txt)
-2. A name for the condition of time-point; this can be any label that the user chooses
-3. One or more names of the replicates of this condition. These should match column names in the dataset file (e.g.
-if the dataset file is X0.txt, these names must all be names of columns in X0.txt)
+2. One or more normalisation codes (see below). **The order** of these codes defines the order of the
+application of normalisation techniques.
 
-* Delimiters between these elements can be spaces, TABs, commas, or semicolons.
-
-### Normalisation file
 ![NormalisationFile](Images/NormalisationFile.png)
 
-*Figure 7: Normalisation file indicating the types of normalisation that should be applied to each of the datasets.*
-
-If datasets need normalisation, this file indicates what techniques of normalisation should be applied to them.
-
-Each line includes these elements in order:
-
-1. The name of the dataset file (e.g. X0.txt)
-2. One or more normalisation techniques' codes (see below). **The order** of these codes defines the order of the
-application of their respective normalisation techniques.
+*Figure 4: Normalisation file indicating the types of normalisation that should be applied to each of the datasets.*
 
 * Delimiters between these elements can be spaces, TABs, commas, or semicolons.
 
 #### Codes suggested for commonly used datasets
 
-* RNA-seq gene expression data: **101 3 4**
-* Log2 RNA-seq gene expression data: **101 4**
+* RNA-seq TPM, FPKM, and RPKM data: **101 3 4**
+* Log2 RNA-seq TPM, FPKM, and RPKM data: **101 4**
 * One-colour microarray gene expression data: **101 3 4**
 * Log2 one-colour microarray gene expression data: **101 4**
 * Two-colour microarray gene expression data: **3 6**
@@ -229,35 +202,123 @@ Code | Definition
 102|Column-wise mean subtraction
 103|Subtract the global mean of the entire dataset
 
-### Map file (e.g. for datasets from multiple species)
+
+# Handling replicates
+If multiple replicates exist for the same condition, include this information in a `replicates file` and provide it
+to `clust` by:
+
+* `clust data_path -r replicates_file [...]`
+
+Each line in the replicates file relates to the replicates of a single condition or time point,
+and includes these elements in order:
+
+1. The name of the dataset file (e.g. X0.txt).
+2. A name for the condition of time-point; this can be any label that the user chooses.
+3. One or more names of the replicates of this condition. These should match column names in the dataset file.
+
+![ReplicatesFile](Images/ReplicatesFile.png)
+
+*Figure 5: Replicates file*
+
+* Delimiters between these elements can be spaces, TABs, commas, or semicolons.
+
+# Data from multiple species
+If your datasets come from multiple species, you can include a `mapping file` that defines gene mapping across species.
+
+* `clust data_path -m map_file [...]`
+
+The mapping file is a TAB delimited file in which the first row shows the names of the species and the first column
+shows the IDs of the orthologue groups (OGs). Each OG includes zero, one, or many orthologous genes in each species'
+column split by commas.
+
 ![MapFile](Images/MapFile.png)
 
-*Figure 7: TAB delimited file which maps fission and budding yeast genes, i.e. defines orthologues across the
-two species.*
+*Figure 6: Mapping fission and budding yeast genes*
 
-The first column shows the orthologue/object group (OG) IDs, the second column shows the budding
-yeast gene IDs which belong to these OG IDs while the third column shows the fission yeast gene IDs which
-belong to these IDs. If more than one gene within the same species are orthologues, i.e. belong to the same OG
-ID, they are included next to that OG ID in the column which belongs to that species while being separated by
-commas; for example, the fission yeast genes 2541313 and 2543377 are orthologues to each other and are both
-orthologues to the budding yeast gene 855993; these gene IDs are all included in the OG ID 29; see the sixth
-line in Figure 7. In this case, both fission yeast genes 2541313 and 2543377 in the datasets of fission yeast
-are summarised by summing them up. In other words, the algorithm considers one value for the OG ID 29 at each
-sample in each dataset, and whenever this OG is represented by multiple rows in the same dataset, they are
-summed up to a single row.
+![MapFile2](Images/MapFile2.png)
+
+*Figure 7: Mapping rice, setaria, and maize genes. Notice that some OGs do not include genes in some species*
+
+* You can use [Orthofinder](#) to identify the OGs across multiple species. Orthofiner's output file `Orthogroups.csv`
+can be provided directly to `clust` as the mapping file.
+
+* If some genes do not exist in some species (e.g. Figure 7), have a look at the section [Genes missing from some
+datasets](#genes-missing-from-some-datasets) below.
 
 
-# Advanced usage
+# Data from other technologies (e.g. microarrays)
 
-To be written
+Incorporating microarray data in the analysed with or without RNA-seq data can be straightforwardly done.
+The main point to be taken care of is to include the correct normalisation codes for microarray data
+as detailed in the [Normalisation](#normalisation) section above.
 
-### Filter out objects with low values
+Also, if the first column of the microarray data file includes probe IDs which are not identical across datasets
+generated by using different microarray/RNA-seq platforms, make sure that probe-gene mapping information is included in
+the map file described [above](#data-from-multiple-species).
 
-To be written
+For example, you may apply *Clust* to tens of human and mouse datasets generated by
+these different technologies / platforms:
 
-### Objects missed from some datasets
+Platform / Format | Technology | Example identifier
+:---|:---|:---
+|Human RNA-seq reads (TPM) | RNA-seq | NM_000014.4
+|Mouse RNA-seq reads (TPM)| RNA-seq | NM_001166382.1
+|Affymetrix Human Genome U133+ 2.0 | Microarray | 1552258_at
+|Illumina Human WG-6 v3.0 |Microarray | ILMN_1825594
+|Illumina Mouse WG-6 v2.0 |Microarray | ILMN_1243094
 
-To be written
+In this case, provide *Clust* with a mapping file (TAB delimited) which looks like this:
+
+OG | H_RNAseq | M_RNAseq | H_U133+ | H_WG6 | M_WG6
+:---|:---|:---|:---|:---|:---|
+OG00001| NM_001105537.2 | NM_001310668.1, NM_001310668.1 | 204474_at, 37586_at | ILMN_1676745 | ILMN_1236966
+...|...|...|...|...|...|
+
+Here, the probes/transcripts that represent the human gene ZNF142 or its mouse orthologue Znf142 from the five
+platforms are mapped to a single unique OrthoGroup (OG) identifier (OG00001).
+
+This mapping file is provided to `clust` by the `-m` option:
+
+* `clust data_path -m map_file [...]`
+
+# Genes missing from some datasets
+
+These are many reasons that result in missing some genes from some datasets:
+
+* Datasets are from multiple species and some genes do not exist in some species (see Figure 7 above for example)
+* Older platforms of microarrays did not include probes for some genes
+* Other reasons
+
+*Clust* allows you to automatically discard genes that do not appear in all (or most) datasets by
+ using the `-d` option. This option specifies the minimum number of datasets in which a gene has to be present
+ for it to be included in the analysis.
+ 
+For example, if you have 20 datasets, you can force *Clust* to discard any gene that is not included at least
+in 17 datasets by:
+
+* `clust data_path -d 17 [...]`
+
+
+# Discarding genes with low expression
+
+*Clust* can automatically filter out genes with low expression values if you provide the three options 
+`fil-v`, `fil-c`, and `fil-d` to `clust`
+
+* `clust data_path -fil-v value  -fil-c conditions -fil-d datasets`
+
+This will discard any gene that does not have at least the value of `value`,
+at least at `conditions` conditions, at least in `datasets`. This is applied before normalisation
+but after summarising replicates and handling gene mapping across multiple species.
+
+# Are you obtaining noisy clusters?
+A tightness parameter `-t` controls how tight the clusters should be
+(tighter and smaller clusters versus less tight and larger clusters).
+This is a real positive number with the default value of **1.0**. Values smaller than 1.0 (e.g. 0.5) produce less
+tight clusters, while values larger than 1.0 (e.g. 2.0, 5.0, 10.0, ...) produce tighter clusters.
+
+Try larger values of `-t` to obtain tighter clusters:
+
+* `clust data_path -t tightness_level`
 
 # List of all parameters
 Parameter | Definition
@@ -279,12 +340,37 @@ data_directory | The path of the directory including all data files
 -h, --help | show the help message and exit
 
 # Example datasets
-### For simplest usage
 
-Example datasets are available in [ExampleData/1_Simplest](ExampleData/1_Simplest),
-or more specifically in the [Data](ExampleData/1_Simplest/Data) directory therein.
+### Raw expression data from multiple species
 
-Simply run this command over the directory "Data" by:
+Example datasets are available in [ExampleData/1_RawData](ExampleData/1_RawData). These
+are three datasets from two yeast species, two datasets from fission yeast, and one from budding
+yeast.
+
+That directory contains the datasets' files in a [Data](ExampleData/1_RawData/Data) sub-directory,
+and includes three other files specifying the [replicates](ExampleData/1_RawData/Replicates.txt),
+the required [normalisation](ExampleData/1_RawData/Normalisation.txt), and the object
+[mapping](ExampleData/1_RawData/MapIDs.txt) across the datasets,
+i.e. orthologous genes across the two yeast species.
+
+Run *Clust* over this data by:
+
+* `clust Data/ -r Replicates.txt -n Normalisation.txt -m MapIDs.txt`
+
+You may like to specify a tightness level `-t` other than the default by adding:
+
+* `... -t 5`
+
+You may also specify an output directory other than the default by adding:
+
+* `... -o MyResultsDirectory/`
+
+### Pre-processed data
+
+Example datasets of datasets taken from one species, have no replicates, and already normalised are available in
+[ExampleData/2_Preprocessed](ExampleData/2_Preprocessed), or more specifically in the
+[Data](ExampleData/2_Preprocessed/Data) directory therein. These datasets require no pre-processing, so you can
+simply run this command over the directory "Data":
 
 * `clust Data/`
 
@@ -301,32 +387,3 @@ by decreasing `-t`. For example, try -t = 5.0 or -t = 0.2 by:
 You may also like to save results in an output directory of your choice by using `-o`:
 
 * `clust Data/ -t 5 -o MyResultsDirectory/`
-
-### For next level usage
-
-Example datasets are available in [ExampleData/2_Next_Level](ExampleData/2_Next_level). These
-are three datasets from two yeast species, two datasets from fission yeast, and one from budding
-yeast.
-
-That directory contains the datasets' files in a [Data](ExampleData/2_Next_level/Data) sub-directory,
-and includes three other files specifying the [replicates](ExampleData/2_Next_level/Replicates.txt),
-the required [normalisation](ExampleData/2_Next_level/Normalisation.txt), and the object
-[mapping](ExampleData/2_Next_level/MapIDs.txt) across the datasets,
-i.e. orthologous genes across the two yeast species.
-
-Run *Clust* over this data by:
-
-* `clust Data/ -r Replicates.txt -n Normalisation.txt -m MapIDs.txt`
-
-You may like to specify a tightness level `-t` other than the default by adding:
-
-* `... -t 5`
-
-You may also specify an output directory other than the default by adding:
-
-* `... -o MyResultsDirectory/`
-
-### For advanced usage
-
-To be written
-

@@ -1,0 +1,8 @@
+We recommend that you download and install WinPython which provides
+you with many Python packages that *Clust* requires from http://winpython.github.io/
+
+Open `WinPython Powershell Prompt.exe` from the directory in which you installed WinPython.
+
+Run:
+
+* `pip install Clust`
