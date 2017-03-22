@@ -1,7 +1,7 @@
 import argparse
 from argparse import RawTextHelpFormatter
 import sys
-import clust
+import clustpipeline
 
 
 def main(args=None):
@@ -67,7 +67,7 @@ def main(args=None):
     args = parser.parse_args(args)
 
     # Call the clust function
-    clust.clust(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
+    clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
           args.s, args.d, args.filv, args.filc, args.fild, args.cs)
 
 

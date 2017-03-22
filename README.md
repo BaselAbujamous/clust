@@ -4,23 +4,12 @@ Optimised consensus clustering of multiple heterogenous datasets
 * [What does *Clust* do?](#what-does-clust-do)
   * [In the language of bioinformatics, again, what does it do?](#in-the-language-of-bioinformatics-again-what-does-it-do)
 * [How does *Clust* do it?](#how-does-clust-do-it)
+* [Install *Clust*](#install-clust)
 * [Simplest usage](#simplest-usage)
-  * [The results (output) directory](#the-results-output-directory)
-  * [The tightness parameter](#the-tightness-parameter)
-  * [Data files](#data-files)
 * [Next level usage](#next-level-usage-replicates-normalisation-and-id-maps-eg-orthologues)
-  * [Replicates file](#replicates-file)
-  * [Normalisation file](#normalisation-file)
-  * [Map file (e.g. for datasets from multiple species)](#map-file-eg-for-datasets-from-multiple-species)
 * [Advanced usage](#advanced-usage)
-  * [Filter out objects with low values](#filter-out-objects-with-low-values)
-  * [Objects missed from some datasets](#objects-missed-from-some-datasets)
 * [List of all parameters](#list-of-all-parameters)
 * [Example datasets](#example-datasets)
-  * [For simplest usage](#for-simplest-usage)
-  * [For next level usage](#for-next-level-usage)
-  * [For advanced usage](#for-advanced-usage)
-* [Install *Clust*](#install-clust)
 
 # What does Clust do?
 *Clust* is a fully automated method for identification of clusters (groups) of objects that are well-correlated with each in one or more datasets. For example clustering gene expression data accross multiple time series or multiple species.
@@ -78,6 +67,45 @@ these particular genes (See [Advances usage/Objects missed from some datasets](#
 ![Clust workflow](Images/Workflow_PyPkg.png)
 
 *Figure 2: Automatic Clust analysis pipeline*
+
+# Install *Clust*
+
+### Required Python packages
+
+*Clust* is a Python package, which requires Python 2.7 or newer and depends on these Python packages:
+* numpy
+* scipy
+* matplotlib
+* sklearn
+* sompy
+
+You can check if you have these packages by:
+
+* `pip freeze`
+
+### If you have privileges to install (sudo privileges)
+
+If `matplotlib` is not already installed, run this:
+
+* `sudo apt-get install python-matplotlib`
+
+Then install *Clust* by:
+
+* `sudo -H pip install Clust`
+
+Then you can run *Clust* straightforwardly from any place:
+
+* `clust ...`
+
+### If you do not have privileges to install
+
+This works if the five Python packages that *Clust* requires are already installed (listed above).
+
+Download the source code (tar.gz) file from the
+[release tab](https://github.com/BaselAbujamous/clust/releases)
+and run the script `clust.py` that is in the top level directory of the source code by:
+
+* `python clust.py ...`
 
 # Simplest usage
 - `clust data_path`
@@ -179,7 +207,7 @@ application of their respective normalisation techniques.
 * Two-colour microarray gene expression data: **3 6**
 * Log2 two-colour microarray gene expression data: **6**
 
-#### All codes
+#### All normalisation codes
 
 Code | Definition
 |:---:|:---|
@@ -301,39 +329,4 @@ You may also specify an output directory other than the default by adding:
 ### For advanced usage
 
 To be written
-
-# Install *Clust*
-
-### Required Python packages
-
-*Clust* is a Python package, which requires Python 2.7 or newer and depends on these Python packages:
-* numpy
-* scipy
-* matplotlib
-* sklearn
-* sompy
-
-### If you have privileges to install (sudo privileges)
-
-If `matplotlib` is not already installed, run this:
-
-* `sudo apt-get install python-matplotlib`
-
-Then install *Clust* by:
-
-* `sudo -H pip install Clust`
-
-You can after than run *Clust* straightforwardly from any place:
-
-* `clust ...`
-
-### If you do not have privileges to install
-
-This works if the five Python packages that *Clust* requires are already installed (listed above).
-
-Download the source code (tar.gz) file from the
-[release tab](https://github.com/BaselAbujamous/clust/releases)
-and run the script `clust.py` that is in the top level directory of the source code by:
-
-* `python clust.py ...`
 
