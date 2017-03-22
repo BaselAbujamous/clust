@@ -6,8 +6,13 @@ Optimised consensus clustering of multiple heterogenous datasets
 * [How does *Clust* do it?](#how-does-clust-do-it)
 * [Install *Clust*](#install-clust)
 * [Run *Clust*](#run-clust)
-* [Next level usage](#next-level-usage-replicates-normalisation-and-id-maps-eg-orthologues)
-* [Advanced usage](#advanced-usage)
+* [Normalisation](#normalisation)
+* [Handling replicates](#handling-replicates)
+* [Data from multiple species](#data-from-multiple species)
+* [Data from multiple technologies (e.g. microarrays)](#data-from-multiple-technologies-eg-microarrays)
+* [Genes missing from some datasets](#genes-missing-from-some-datasets)
+* [Genes with low expression](#genes-with-low-expression)
+* [Are you obtaining noisy clusters?](#are-you-obtaining-noisy-clusters)
 * [List of all parameters](#list-of-all-parameters)
 * [Example datasets](#example-datasets)
 
@@ -246,7 +251,7 @@ can be provided directly to `clust` as the mapping file.
 datasets](#genes-missing-from-some-datasets) below.
 
 
-# Data from other technologies (e.g. microarrays)
+# Data from multiple technologies (e.g. microarrays)
 
 Incorporating microarray data in the analysed with or without RNA-seq data can be straightforwardly done.
 The main point to be taken care of is to include the correct normalisation codes for microarray data
@@ -299,7 +304,7 @@ in 17 datasets by:
 * `clust data_path -d 17 [...]`
 
 
-# Discarding genes with low expression
+# Genes with low expression
 
 *Clust* can automatically filter out genes with low expression values if you provide the three options 
 `fil-v`, `fil-c`, and `fil-d` to `clust`
