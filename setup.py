@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 
 setup(
     name='Clust',
-    version='1.0b3',
+    version='1.0b4',
 
     description='Optimised consensus clustering of multiple heterogenous datasets',
     long_description='',
