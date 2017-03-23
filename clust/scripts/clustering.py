@@ -4,13 +4,14 @@ import sklearn.cluster as skcl
 import scipy.cluster.hierarchy as sphc
 import scipy.spatial.distance as spdist
 import sompy
+import io
 
 
 # Main function
 def clusterdataset(X, K, D, methods=None):
     if methods is None: methods = [['k-means'],['SOMs'],['HC','linkage_method','ward']]
     methodsloc = [n if isinstance(n,(list,tuple,np.ndarray)) else [n] for n in methods]
-
+    #io.log('clusterdataset')
     # Clustering loop
     C = len(methodsloc) # Number of methods
     U = [None] * C
@@ -21,6 +22,8 @@ def clusterdataset(X, K, D, methods=None):
             U[ms] = csoms(X, D, methodsloc[ms][1:])
         elif methodsloc[ms][0].lower() in ['hc', 'hierarchical']:
             U[ms] = chc(X, K, methodsloc[ms][1:])
+
+    io.updateparallelprogress(K * C)
 
     return U
 

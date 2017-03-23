@@ -6,6 +6,8 @@ import glob
 import output as op
 import sys
 import traceback
+import math
+import portalocker
 
 
 def getFilesInDirectory(path, extension=None):
@@ -207,4 +209,60 @@ def logerror(exec_info):
     errstr = traceback.format_exception(exec_info[0], exec_info[1], exec_info[2])
     errstr = ''.join(errstr)
     log('Unexpected error:\n{0}\nContinuing execution anyway ...'.format(errstr))
+
+
+def resetparallelprogress(parallel_total, log_every_percentage=10.0):
+    with open(glob.tmpfile, mode='w+') as f:
+        f.write('{0} {1} {2}'.format(parallel_total, log_every_percentage, 0.0))
+        f.truncate()
+
+
+def updateparallelprogress(added_value):
+    Done = False
+    while (not Done):
+        try:
+            Done = True
+            with open(glob.tmpfile, mode='r+') as f:
+                portalocker.lock(f, portalocker.LOCK_EX)
+                data = f.read().split(" ")
+                parallel_total = float(data[0])
+                log_every_percentage = float(data[1])
+                current_parallel_progress = float(data[2])
+
+                last_log = math.floor(100 * current_parallel_progress
+                                      / parallel_total / log_every_percentage) * log_every_percentage
+                current_parallel_progress += added_value
+                new_log = math.floor(100 * current_parallel_progress
+                                     / parallel_total / log_every_percentage) * log_every_percentage
+
+                #for i in np.arange(last_log+log_every_percentage, new_log + log_every_percentage, log_every_percentage):
+                #    log('{0}%'.format(int(i)))
+                if new_log > last_log:
+                    log('{0}%'.format(int(new_log)))
+
+                f.seek(0)
+                f.write('{0} {1} {2}'.format(parallel_total, log_every_percentage, current_parallel_progress))
+                f.truncate()
+        except:
+            Done = False
+
+
+def getparallelprogress():
+    Done = False
+    while (not Done):
+        try:
+            Done = True
+            with open(glob.tmpfile, mode='r+') as f:
+                data = f.read().split(" ")
+                parallel_total = float(data[0])
+                log_every_percentage = float(data[1])
+                current_parallel_progress = float(data[2])
+
+                return (parallel_total, log_every_percentage, current_parallel_progress)
+        except:
+            Done = False
+
+
+def deletetmpfile():
+    os.remove(glob.tmpfile)
 

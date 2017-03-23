@@ -1,13 +1,19 @@
 logfile = ''
-object_label_upper = 'Object'
-object_label_lower = 'object'
-outputwidth = 70
-version = 'v1.0b8'
+tmpfile = 'tmp'
+object_label_upper = 'Gene'
+object_label_lower = 'gene'
+outputwidth = 80
+version = 'v1.0b9'
 
 
 def set_logfile(val):
     global logfile
     logfile = val
+
+
+def set_tmpfile(val):
+    global tmpfile
+    tmpfile = val
 
 
 def set_object_label_upper(val):

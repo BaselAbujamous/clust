@@ -3,12 +3,13 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+from clust.scripts.glob import version
 
 here = path.abspath(path.dirname(__file__))
 
 setup(
-    name='Clust',
-    version='v1.0b8',
+    name='clust',
+    version=version,
 
     description='Optimised consensus clustering of multiple heterogeneous datasets',
     long_description='Optimised consensus clustering of multiple heterogeneous datasets',
@@ -56,7 +57,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['numpy', 'scipy', 'matplotlib', 'sklearn', 'sompy'],
+    install_requires=['numpy', 'scipy', 'matplotlib', 'sklearn', 'sompy', 'joblib'],
 
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these

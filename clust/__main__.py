@@ -58,35 +58,38 @@ def main(args=None):
                 '\\==========================================================================/\n'.format(version)
     '''
     parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
-    parser.add_argument('datapath', help='The path of the data files.', default=None)
-    parser.add_argument('-r', help='Replicates file path', default=None)
-    parser.add_argument('-n', help='Normalisation file path', default=None)
-    parser.add_argument('-m', help='Object-groups (OGs) mapping file path', default=None)
-    parser.add_argument('-o', help='Output directory', default=None)
-    parser.add_argument('-K', type=int, nargs='+', help='K values (default: all values from 2 to 20 inclusively)',
+    parser.add_argument('datapath', help='The directory that includes the data files.', default=None)
+    parser.add_argument('-n', metavar='<file>', help='Normalisation codes file', default=None)
+    parser.add_argument('-r', metavar='<file>', help='Replicates structure file', default=None)
+    parser.add_argument('-m', metavar='<file>', help='Object-groups (OGs) mapping file path', default=None)
+    parser.add_argument('-o', metavar='<directory>', help='Output directory', default=None)
+    parser.add_argument('-K', metavar='<integer>', type=int, nargs='+',
+                        help='K values as a list of integers, e.g. 2 4 6 10 ... '
+                             '(default: all values from 2 to 20 inclusively)',
                         default=[n for n in range(2, 21)])
-    parser.add_argument('-t', type=float, help='Cluster tightness versus cluster size weight: '
-                                               'a real positive number, where 1.0 means equal weights '
-                                               '(default: 1.0).', default=1.0)
-    parser.add_argument('-s', type=float, help='Number of standard deviations that define an outlier '
-                                               '(default: 3.0)', default=3.0)
-    parser.add_argument('-d', type=int, help='Minimum number of datasets that an object has to be included in for '
-                                             'it to be considered in Clust analysis. If an object is included '
-                                             'only in fewer datasets than this, it will be excluded from the analysis '
-                                             '(default: 1)', default=1)
-    parser.add_argument('-fil-v', dest='filv', type=float,
+    parser.add_argument('-t', metavar='<real number>', type=float,
+                        help='Cluster tightness versus cluster size weight: a real positive number, '
+                             'where 1.0 means equal weights (default: 1.0).', default=1.0)
+    parser.add_argument('-s', metavar='<real number>', type=float,
+                        help='Number of standard deviations that define an outlier (default: 3.0)', default=3.0)
+    parser.add_argument('-d', metavar='<integer>', type=int,
+                        help='Minimum number of datasets that an object has to be included in for it to be considered '
+                             'in Clust analysis. If an object is included only in fewer datasets than this, it will be '
+                             'excluded from the analysis (default: 1)', default=1)
+    parser.add_argument('-fil-v', metavar='<real number>', dest='filv', type=float,
                         help='Data value (e.g. gene expression) threshold. Any value lower than this will be set to '
                              '0.0. If an object never exceeds this value at least in -fil-c conditions in at least '
                              '-fil-d datasets, it is excluded from the analysis (default: -inf)', default=-float("inf"))
-    parser.add_argument('-fil-c', dest='filc', type=int,
+    parser.add_argument('-fil-c', metavar='<integer>', dest='filc', type=int,
                         help='Minimum number of conditions in a dataset in which an object should exceed the data '
                              'value -fil-v at least in -fil-d datasets to be included in the analysis (default: 0)',
                         default=0)
-    parser.add_argument('-fil-d', dest='fild', type=int,
+    parser.add_argument('-fil-d', metavar='<integer>', dest='fild', type=int,
                         help='Minimum number of datasets in which an object should exceed the data value -fil-v at '
                              'least in -fil-c conditions to be included in the analysis (default: 0)', default=0)
-
-    parser.add_argument('-cs', type=int, help='Smallest cluster size (default: 11)', default=11)
+    parser.add_argument('-cs', metavar='<integer>', type=int, help='Smallest cluster size (default: 11)', default=11)
+    parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
+                        default=1)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
     if len(args) == 0:
@@ -96,7 +99,7 @@ def main(args=None):
 
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
-                                args.s, args.d, args.filv, args.filc, args.fild, args.cs)
+                                args.s, args.d, args.filv, args.filc, args.fild, args.cs, args.np)
 
 
 if __name__ == "__main__":

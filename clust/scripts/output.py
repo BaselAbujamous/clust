@@ -6,7 +6,6 @@ from glob import outputwidth, version
 
 
 
-
 def msgformated(msg, alignment='<', withnewline=True):
     # alignment: '<' left, '>' right, '^' centred, and '*^' centred while padding with ******
     msgsplit = msg.split('\n')
@@ -94,12 +93,13 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
                                     s, 'second' if s == 1 else 'seconds')
 
     # Generate the text
-    label0 = 'objects' if Map is None else 'object groups (OGs)*'
-    label1 = 'object' if Map is None else 'OG'
+    label0 = 'genes' if Map is None else 'OrthoGroups (OGs)*'
+    label1 = 'gene' if Map is None else 'OG'
 
     tmptxt = 'Analysis finished at: {0}\n' \
              'Total time consumed: {1}\n'.format(endtime.strftime('%A %d %B %Y (%H:%M:%S)'), timeConsumedTxt)
-    res = msgformated(tmptxt)
+    res = midline()
+    res += msgformated(tmptxt)
     res += bottomline()
     res += '\n' + topline()
     res += msgformated('RESULTS SUMMARY', alignment='^')
@@ -116,8 +116,8 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
                        B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1)))
     res += msgformated(tmptxt)
     if Map is not None:
-        tmptxt = '\n* An OG is a group of synonymous objects within & across different types, as identified by the ' \
-                 'provided map. For example, a group of orthologous genes within and across species represents an OG.'
+        tmptxt = '\n* An OG is a group of orthologous genes within & across different species, as identified by the ' \
+                 'provided map.'
         res += msgformated(tmptxt)
 
     res += midline()
@@ -157,21 +157,21 @@ def summarise_results(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_res,
              ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
              ('Time consumed', timeconsumedtxt),
              ('Number of datasets', len(X)),
-             ('Total number of input objects', GDMall.shape[0]),
-             ('Objects included in the analysis', GDM.shape[0]),
-             ('Objects filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
+             ('Total number of input genes', GDMall.shape[0]),
+             ('Genes included in the analysis', GDM.shape[0]),
+             ('Genes filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
              ('Number of clusters', B_corrected.shape[1]),
-             ('Total number of objects in clusters', np.sum(np.any(B_corrected, axis=1))),
-             ('Objects not included in any cluster', B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1))),
+             ('Total number of genes in clusters', np.sum(np.any(B_corrected, axis=1))),
+             ('Genes not included in any cluster', B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1))),
              ('Min cluster size', np.min(np.sum(B_corrected, axis=0))),
              ('Max cluster size', np.max(np.sum(B_corrected, axis=0))),
              ('Average cluster size', np.mean(np.sum(B_corrected, axis=0))),
              ('nokey0', '**********************************'),
-             ('Objects included in all datasets', np.sum(np.all(GDMall, axis=1))),
-             ('Objects missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
-             ('Objects missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
-             ('Objects missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
-             ('Objects missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
+             ('Genes included in all datasets', np.sum(np.all(GDMall, axis=1))),
+             ('Genes missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
+             ('Genes missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
+             ('Genes missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
+             ('Genes missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
              ])
     else:
         genesOGs = np.array([[len(og_species) for og_species in og] for og in Map]) # Number of genes per OG per species
@@ -191,10 +191,10 @@ def summarise_results(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_res,
              ('Average cluster size', np.mean(np.sum(B_corrected, axis=0))),
              ('nokey0', '**********************************'),
              ('Number of species', Map.shape[1]),
-             ('Average number of objects in an OG per type', np.mean(genesOGs)),
-             ('Max number of objects in an OG per type', np.max(genesOGs)),
-             ('Number of OGs with at least a single object in each type', np.sum(np.all(genesOGs >= 1, axis=1))),
-             ('Number of OGs with exactly a single object in each type', np.sum(np.all(genesOGs == 1, axis=1))),
+             ('Average number of genes in an OG per type', np.mean(genesOGs)),
+             ('Max number of genes in an OG per type', np.max(genesOGs)),
+             ('Number of OGs with at least a single gene in each type', np.sum(np.all(genesOGs >= 1, axis=1))),
+             ('Number of OGs with exactly a single gene in each type', np.sum(np.all(genesOGs == 1, axis=1))),
              ('nokey1', '**********************************'),
              ('OGs included in all datasets', np.sum(np.all(GDMall, axis=1))),
              ('OGs missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
@@ -219,8 +219,8 @@ def clusters_genes_OGs(B, OGs, Map, MapSpecies, delim='; '):
         col = k * (Nsp + 1)
         res[0:Csizes[k], col] = OGs[B[:, k]]
         res[Csizes[k]:, col] = ''
-        header[0, col] = 'C{} ({} {})'.format(k, Csizes[k], 'genes' if Map is None else 'OGs')
-        header[1, col] = 'Objects' if Map is None else 'OGs'
+        header[0, col] = 'C{0} ({1} {2})'.format(k, Csizes[k], 'genes' if Map is None else 'OGs')
+        header[1, col] = 'Genes' if Map is None else 'OGs'
         for sp in range(Nsp):  # Will not get into this if Map is None, as Nsp will be zero in that case
             col = k * (Nsp + 1) + sp + 1
             res[0:Csizes[k], col] = [ds.concatenateStrings(gs, delim) for gs in Map[B[:, k], sp]]
@@ -251,7 +251,7 @@ def clusters_genes_Species(B, OGs, Map, MapSpecies):
         for k in range(K):
             restmp[0:Csizes[sp][k], k] = flatGenesInSpecies[sp][k]
             restmp[Csizes[sp][k]:, k] = ''
-            header[0, k] = 'C{} ({} objects)'.format(k, Csizes[sp][k])
+            header[0, k] = 'C{0} ({1} genes)'.format(k, Csizes[sp][k])
         res[sp] = np.array(np.concatenate((header, restmp), axis=0), dtype=str)
 
     return res
@@ -272,7 +272,7 @@ def processed_X(Xprocessed, conditions, GDM, OGs, Map, MapSpecies):
         #resHeader[l] = [samploc[np.array(SamplesIDs[l]) == s][0] for s in uniqueSamploc]
         resHeader[l] = conditions[l]
         if Map is None:
-            resHeader[l] = np.array([['Objects'] + resHeader[l]])
+            resHeader[l] = np.array([['Genes'] + resHeader[l]])
         else:
             resHeader[l] = np.array([['OGs'] + MapSpecies.tolist() + resHeader[l]])
 
@@ -302,7 +302,7 @@ def params(params, stds, OGsIncludedIfAtLeastInDatasets, expressionValueThreshol
              ('K values (Ks)', params['Ks']),
              ('Tightness weight', params['tightnessweight']),
              ('Outliers threshold (number of standard deviations)', stds),
-             ('Objects included if at least in datasets', OGsIncludedIfAtLeastInDatasets),
+             ('Genes included if at least in datasets', OGsIncludedIfAtLeastInDatasets),
              ('Filtering: Data value threshold', expressionValueThreshold),
              ('Filtering: At least in conditions', atleastinconditions),
              ('Filtering: At least in datasets', atleastindatasets)

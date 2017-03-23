@@ -19,7 +19,7 @@ import sys
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
             Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0,
-            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11):
+            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11, ncores=1):
     # Set the global objects label
     if mapfile is None:
         glob.set_object_label_upper('Object')
@@ -42,6 +42,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         os.makedirs(outpath)
 
     glob.set_logfile(os.path.join(outpath, 'log.txt'))
+    glob.set_tmpfile(os.path.join(outpath, 'tmp.txt'))
 
     # Output: Copy input files to the output
     in2out_path = outpath + '/Input_files_and_params'
@@ -91,11 +92,13 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         MapNew = MapNew[Iincluded]
 
     # UNCLES and M-N plots
-    io.log('3. Clustering (the Bi-CoPaM method)')
-    ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, Xnames=datafiles_noext)
+    io.log('3. Seed clusters production')
+    ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, Xnames=datafiles_noext,
+                      ncores=ncores)
     io.log('4. Cluster evaluation and selection (the M-N scatter plots technique)')
     mnres = mn.mnplotsgreedy(X_summarised_normalised, ures.B, GDM=GDM, tightnessweight=tightnessweight,
-                             params=ures.params, smallestClusterSize=smallestClusterSize, Xnames=datafiles_noext)
+                             params=ures.params, smallestClusterSize=smallestClusterSize, Xnames=datafiles_noext,
+                             ncores=ncores)
 
     # Post-processing
     io.log('5. Cluster optimisation and completion')
@@ -111,7 +114,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
 
     # Output: Write input parameters:
-    io.log('6. Saving results in\n{0}\n'.format(outpath))
+    io.log('6. Saving results in\n{0}'.format(outpath))
     inputparams = op.params(mnres.params, stds, OGsIncludedIfAtLeastInDatasets,
                             expressionValueThreshold, atleastinconditions, atleastindatasets, MapNew)
     io.writedic('{0}/input_params.tsv'.format(in2out_path), inputparams, delim='\t')
@@ -134,9 +137,13 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         np.savetxt('{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), Xprocessed[l], fmt='%s', delimiter='\t')
 
     # Output: Save figures to a PDF
-    clusts_fig_file_name = '{0}/Clusters_profiles.pdf'.format(outpath)
-    graph.plotclusters(X_summarised_normalised, B_corrected, clusts_fig_file_name, datafiles_noext, conditions,
-                       GDM, Cs='all', setPageToDefault=True)
+    try:
+        clusts_fig_file_name = '{0}/Clusters_profiles.pdf'.format(outpath)
+        graph.plotclusters(X_summarised_normalised, B_corrected, clusts_fig_file_name, datafiles_noext, conditions,
+                           GDM, Cs='all', setPageToDefault=True)
+    except:
+        io.log('Error: could not save clusters plots in a PDF file.\n'
+               'Resuming producing the other results files ...')
 
     # Output: Prepare message to standard output and the summary then save the summary to a file and print the message
     summarymsg, endtime, timeconsumedtxt = \
@@ -146,4 +153,6 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                                    ures, mnres, B_corrected, starttime, endtime, timeconsumedtxt)
     io.writedic(outpath + '/Summary.tsv', summary, delim='\t')
     io.log(summarymsg, addextrastick=False)
+
+    io.deletetmpfile()
 

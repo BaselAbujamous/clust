@@ -10,6 +10,9 @@ import io
 import numeric as nu
 import preprocess_data as pp
 
+from joblib import Parallel, delayed
+import warnings
+
 
 def mseclustersfuzzy(X, B, donormalise=True, GDM=None):
     Xloc = np.array(X)
@@ -97,12 +100,14 @@ def mseclusters(X, B, donormalise=True, GDM=None):
                 tmp = np.sum(np.power(tmp,2))
                 mseC[nx,k] = tmp / Nd[nx] / Nk[k]
 
+    #io.updateparallelprogress(Nx * K)
+
     return np.mean(mseC, axis=0)
 
 
 def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, setsP=None, setsN=None, Xtype='data',
                       mseCache=None, wsets=None, GDM=None, msesummary='average', percentageOfClustersKept=30,
-                      smallestClusterSize=11, Xnames=None):
+                      smallestClusterSize=11, Xnames=None, ncores=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     Bloc = ds.reduceToArrayOfNDArraysAsObjects(B, 2)
     L = Xloc.shape[0]  # Number of datasets
@@ -140,6 +145,7 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
     if mseCache is None and allMSE is None:
         # Cache all mse values
         mseCache = np.zeros([NN, L])
+        io.resetparallelprogress(NN * L)
         for l in range(L):
             if Xtype == 'files':
                 # load files here
@@ -148,9 +154,23 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
                 Xtmp = Xloc[l]
             else:
                 raise ValueError('Xtype has to be "files" or "data". The given Xtype is invalid.')
+
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                mseCachetmp = Parallel(n_jobs=ncores)\
+                    (delayed(mseclusters)
+                     (Xtmp, ds.matlablike_index2D(BB, GDMloc[:, l], nn), 0) for nn in range(NN))
+                mseCachetmp = [mm[0] for mm in mseCachetmp]
+                for nn in range(NN):
+                    mseCache[nn, l] = mseCachetmp[nn]
+
+                io.updateparallelprogress(NN)
+
+            '''
             for nn in range(NN):
                 mseCache[nn, l] = mseclusters(Xtmp, ds.matlablike_index2D(BB, GDMloc[:, l], nn), 0)[0]
-            io.log('MSE values for {0} have been calculated.'.format(Xnames[l]))
+            io.log('Done cluster evaluation for {0} have been calculated.'.format(Xnames[l]))
+            '''
 
     # Calculate allMSE if needed (Nx1)
     if allMSE is None:
