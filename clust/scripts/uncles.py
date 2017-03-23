@@ -11,7 +11,9 @@ import mnplots as mn
 import numeric as nu
 
 from joblib import Parallel, delayed
+import joblib
 import warnings
+import gc
 
 
 def binarise(U, technique, param=0.0):
@@ -367,9 +369,12 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
                 Utmp = Parallel(n_jobs=ncores)\
                     (delayed(clustDataset)
                      (Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l], GDMloc[:, l], Ng) for ki in range(NKs))
+
                 Utmp = [u for u in Utmp]
                 for ki in range(NKs):
                     Uloc[l, ki] = Utmp[ki]
+
+                gc.collect()
                 #io.updateparallelprogress(np.sum(Ks) * len(methodsDetailedloc))
 
         '''

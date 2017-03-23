@@ -64,6 +64,8 @@ each dataset.
 * matplotlib
 * sklearn
 * sompy
+* joblib
+* portalocker
 
 You can check if you have these packages by:
 
@@ -85,7 +87,7 @@ Then you can run *Clust* straightforwardly from any place:
 
 ### If you do not have privileges to install
 
-This works if the five Python packages that *Clust* requires are already installed (listed above).
+This works if the Python packages that *Clust* requires are already installed (listed above).
 
 Download the source code (tar.gz) file from the
 [release tab](https://github.com/BaselAbujamous/clust/releases)
