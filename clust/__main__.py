@@ -2,6 +2,8 @@ import argparse
 from argparse import RawTextHelpFormatter
 import sys
 import clustpipeline
+from scripts.glob import version
+import scripts.output as op
 
 
 def main(args=None):
@@ -9,10 +11,35 @@ def main(args=None):
         args = sys.argv[1:]
 
     # Parse arguments
+    headertxt = op.topline()
+    headertxt += op.msgformated('Clust\n'
+                                'Optimised consensus clustering of multiple heterogeneous datasets\n'
+                                'Version {0}\n'
+                                '\n'
+                                'By Basel Abu-Jamous\n'
+                                'Department of Plant Sciences\n'
+                                'The University of Oxford\n'
+                                'basel.abujamous@plants.ox.ac.uk'.format(version), '^')
+    headertxt += op.midline()
+    headertxt += op.msgformated('Citation\n'
+                                '~~~~~~~~', '^')
+    citationtxt = 'When publishing work that uses Clust, please include these two citations:\n' \
+                  '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.0) [Python package]. Available at ' \
+                  'https://github.com/BaselAbujamous/clust.\n' \
+                  '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
+                  'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
+                  'PLOS ONE, 8(2): e56432'
+    headertxt += op.msgformated(citationtxt, '<')
+    headertxt += op.midline()
+    headertxt += op.msgformated('Full description of usage can be found at:\n'
+                                'https://github.com/BaselAbujamous/clust', '<')
+    headertxt += op.bottomline()
+
+    '''
     headertxt = '/==========================================================================\\\n' \
                 '|                                  Clust                                   |\n' \
-                '|     Optimised consensus clustering of multiple heterogenous datasets     |\n' \
-                '|                               Version 1.0                                |\n' \
+                '|     Optimised consensus clustering of multiple heterogeneous datasets    |\n' \
+                '|                              Version {0}                                |\n' \
                 '|                                                                          |\n' \
                 '|                            By Basel Abu-Jamous                           |\n' \
                 '|                       Department of Plant Sciences                       |\n' \
@@ -28,7 +55,8 @@ def main(args=None):
                 '|    Paradigm of tunable clustering using binarisation of consensus        |\n' \
                 '|    partition matrices (Bi-CoPaM) for gene discovery, PLOS ONE, 8(2):     |\n' \
                 '|    e56432.                                                               |\n' \
-                '\\==========================================================================/\n'
+                '\\==========================================================================/\n'.format(version)
+    '''
     parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
     parser.add_argument('datapath', help='The path of the data files.', default=None)
     parser.add_argument('-r', help='Replicates file path', default=None)
@@ -41,7 +69,7 @@ def main(args=None):
                                                'a real positive number, where 1.0 means equal weights '
                                                '(default: 1.0).', default=1.0)
     parser.add_argument('-s', type=float, help='Number of standard deviations that define an outlier '
-                                                '(default: 3.0)', default=3.0)
+                                               '(default: 3.0)', default=3.0)
     parser.add_argument('-d', type=int, help='Minimum number of datasets that an object has to be included in for '
                                              'it to be considered in Clust analysis. If an object is included '
                                              'only in fewer datasets than this, it will be excluded from the analysis '
@@ -59,7 +87,7 @@ def main(args=None):
                              'least in -fil-c conditions to be included in the analysis (default: 0)', default=0)
 
     parser.add_argument('-cs', type=int, help='Smallest cluster size (default: 11)', default=11)
-    #parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
+    # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
     if len(args) == 0:
         parser.parse_args(['-h'])
@@ -68,9 +96,8 @@ def main(args=None):
 
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
-          args.s, args.d, args.filv, args.filc, args.fild, args.cs)
+                                args.s, args.d, args.filv, args.filc, args.fild, args.cs)
 
 
 if __name__ == "__main__":
     main()
-

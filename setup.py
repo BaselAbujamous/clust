@@ -3,15 +3,17 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+import clust.scripts.glob as glob
 
+#glob.set_version('1.0b4')
 here = path.abspath(path.dirname(__file__))
 
 setup(
     name='Clust',
-    version='1.0b4',
+    version=glob.version,
 
-    description='Optimised consensus clustering of multiple heterogenous datasets',
-    long_description='',
+    description='Optimised consensus clustering of multiple heterogeneous datasets',
+    long_description='Optimised consensus clustering of multiple heterogeneous datasets',
 
     # The project's main homepage.
     url='https://github.com/baselabujamous/clust',
