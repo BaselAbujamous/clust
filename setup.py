@@ -3,13 +3,12 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
-import clust.scripts.glob as glob
 
 here = path.abspath(path.dirname(__file__))
 
 setup(
     name='Clust',
-    version=glob.version,
+    version='v1.0b7',
 
     description='Optimised consensus clustering of multiple heterogeneous datasets',
     long_description='Optimised consensus clustering of multiple heterogeneous datasets',
