@@ -5,7 +5,6 @@ from codecs import open
 from os import path
 import clust.scripts.glob as glob
 
-#glob.set_version('1.0b4')
 here = path.abspath(path.dirname(__file__))
 
 setup(

@@ -2,7 +2,7 @@ logfile = ''
 object_label_upper = 'Object'
 object_label_lower = 'object'
 outputwidth = 70
-version = 'v1.0b6'
+version = 'v1.0b7'
 
 
 def set_logfile(val):

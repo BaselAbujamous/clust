@@ -24,11 +24,11 @@ def main(args=None):
     headertxt += op.msgformated('Citation\n'
                                 '~~~~~~~~', '^')
     citationtxt = 'When publishing work that uses Clust, please include these two citations:\n' \
-                  '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.0) [Python package]. Available at ' \
+                  '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version {0}) [Python package]. Available at ' \
                   'https://github.com/BaselAbujamous/clust.\n' \
                   '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
                   'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
-                  'PLOS ONE, 8(2): e56432'
+                  'PLOS ONE, 8(2): e56432'.format(version[1:])
     headertxt += op.msgformated(citationtxt, '<')
     headertxt += op.midline()
     headertxt += op.msgformated('Full description of usage can be found at:\n'

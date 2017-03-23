@@ -2,7 +2,7 @@ import numpy as np
 import datetime as dt
 import collections as collec
 import datastructures as ds
-from glob import outputwidth
+from glob import outputwidth, version
 
 
 
@@ -66,7 +66,7 @@ def generateinitialmessage():
     res = '\n' + topline()
     tmptxt = 'Clust\n' \
              '(Optimised consensus clustering of multiple heterogenous datasets)\n' \
-             'Python package version 1.0 (2017) Basel Abu-Jamous'
+             'Python package version {0} (2017) Basel Abu-Jamous'.format(version[1:])
     res += msgformated(tmptxt, alignment='^')
     res += midline()
 
@@ -124,11 +124,11 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
 
     res += msgformated('Citation\n~~~~~~~~', alignment='^')
     tmptxt = 'When publishing work that uses Clust, please include these two citations:\n' \
-             '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.0) [Python package]. Available at ' \
+             '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version {0}) [Python package]. Available at ' \
              'https://github.com/BaselAbujamous/clust.\n' \
              '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
              'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
-             'PLOS ONE, 8(2): e56432'
+             'PLOS ONE, 8(2): e56432'.format(version[1:])
 
     '''
              '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2015) UNCLES: method for the ' \
