@@ -1,0 +1,16 @@
+X0.txt	A	A_rep1, A_rep2, A_rep3
+X0.txt	B	B_rep1, B_rep2, B_rep3
+X0.txt	C	C_rep1, C_rep2, C_rep3
+X0.txt	D	D_rep1, D_rep2, D_rep3
+X0.txt	E	E_rep1, E_rep2, E_rep3
+X0.txt	F	F_rep1, F_rep2, F_rep3
+X1.txt	W	W_rep1, W_rep2
+X1.txt	X	X_rep1, X_rep2
+X1.txt	Y	Y_rep1, Y_rep2
+X1.txt	Z	Z_rep1, Z_rep2
+X2.txt	time0	time0_rep1, time0_rep2
+X2.txt	time1	time1_rep1, time1_rep2
+X2.txt	time2	time2_rep1, time2_rep2
+X2.txt	time3	time3_rep1, time3_rep2
+X2.txt	time4	time4_rep1, time4_rep2
+X2.txt	time5	time5_rep1, time5_rep2
