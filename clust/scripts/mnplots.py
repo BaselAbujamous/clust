@@ -12,6 +12,7 @@ import preprocess_data as pp
 
 from joblib import Parallel, delayed
 import warnings
+import gc
 
 
 def mseclustersfuzzy(X, B, donormalise=True, GDM=None):
@@ -163,6 +164,8 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
                 mseCachetmp = [mm[0] for mm in mseCachetmp]
                 for nn in range(NN):
                     mseCache[nn, l] = mseCachetmp[nn]
+
+                gc.collect()
 
                 io.updateparallelprogress(NN)
 

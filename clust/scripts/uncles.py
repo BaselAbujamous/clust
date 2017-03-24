@@ -361,7 +361,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
     if U is None:
         Utype = 'PM'
         Uloc = np.array([None] * (L * NKs)).reshape([L, NKs])
-        io.resetparallelprogress(np.sum(Ks) * np.sum([len(meths) for meths in methodsDetailedloc]), 10.0)
+        io.resetparallelprogress(np.sum(Ks) * np.sum([len(meths) for meths in methodsDetailedloc]))
 
         for l in range(L):
             with warnings.catch_warnings():
