@@ -2,8 +2,8 @@ logfile = ''
 tmpfile = 'tmp'
 object_label_upper = 'Gene'
 object_label_lower = 'gene'
-outputwidth = 80
-version = 'v1.0.0'
+outputwidth = 73
+version = 'v1.0.1'
 
 
 def set_logfile(val):

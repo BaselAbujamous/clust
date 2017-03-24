@@ -61,32 +61,24 @@ def main(args=None):
     parser.add_argument('datapath', help='The directory that includes the data files.', default=None)
     parser.add_argument('-n', metavar='<file>', help='Normalisation codes file', default=None)
     parser.add_argument('-r', metavar='<file>', help='Replicates structure file', default=None)
-    parser.add_argument('-m', metavar='<file>', help='Object-groups (OGs) mapping file path', default=None)
+    parser.add_argument('-m', metavar='<file>', help='OrthoGroups (OGs) mapping file', default=None)
     parser.add_argument('-o', metavar='<directory>', help='Output directory', default=None)
     parser.add_argument('-K', metavar='<integer>', type=int, nargs='+',
-                        help='K values as a list of integers, e.g. 2 4 6 10 ... '
-                             '(default: all values from 2 to 20 inclusively)',
+                        help='K values, e.g. 2 4 6 10 ... (default: 2 to 20)',
                         default=[n for n in range(2, 21)])
     parser.add_argument('-t', metavar='<real number>', type=float,
-                        help='Cluster tightness versus cluster size weight: a real positive number, '
-                             'where 1.0 means equal weights (default: 1.0).', default=1.0)
+                        help='Cluster tightness (default: 1.0).', default=1.0)
     parser.add_argument('-s', metavar='<real number>', type=float,
-                        help='Number of standard deviations that define an outlier (default: 3.0)', default=3.0)
+                        help='Outlier standard deviations (default: 3.0)', default=3.0)
     parser.add_argument('-d', metavar='<integer>', type=int,
-                        help='Minimum number of datasets that an object has to be included in for it to be considered '
-                             'in Clust analysis. If an object is included only in fewer datasets than this, it will be '
-                             'excluded from the analysis (default: 1)', default=1)
+                        help='Min datasets in which a gene must exist (default: 1)', default=1)
     parser.add_argument('-fil-v', metavar='<real number>', dest='filv', type=float,
-                        help='Data value (e.g. gene expression) threshold. Any value lower than this will be set to '
-                             '0.0. If an object never exceeds this value at least in -fil-c conditions in at least '
-                             '-fil-d datasets, it is excluded from the analysis (default: -inf)', default=-float("inf"))
+                        help='Filtering: gene expression threshold (default: -inf)', default=-float("inf"))
     parser.add_argument('-fil-c', metavar='<integer>', dest='filc', type=int,
-                        help='Minimum number of conditions in a dataset in which an object should exceed the data '
-                             'value -fil-v at least in -fil-d datasets to be included in the analysis (default: 0)',
+                        help='Filtering: number of conditions (default: 0)',
                         default=0)
     parser.add_argument('-fil-d', metavar='<integer>', dest='fild', type=int,
-                        help='Minimum number of datasets in which an object should exceed the data value -fil-v at '
-                             'least in -fil-c conditions to be included in the analysis (default: 0)', default=0)
+                        help='Filtering: number of datasets (default: 0)', default=0)
     parser.add_argument('-cs', metavar='<integer>', type=int, help='Smallest cluster size (default: 11)', default=11)
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
                         default=1)
