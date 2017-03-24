@@ -171,7 +171,7 @@ def normaliseSampleFeatureMat(X, type):
     return Xout
 
 
-def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap=';'):
+def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap='W+'):
     L = len(Genes)  # Number of datasets (i.e. lists of gene names)
     Maploc = np.array(Map, dtype=object)
     if mapheader:
@@ -224,7 +224,7 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
     return (OGsFiltered, OGsDatasets, Maploc, MapSpecies)
 
 
-def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstColMap=True, delimGenesInMap=';', OGsIncludedIfAtLeastInDatasets=1):
+def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstColMap=True, delimGenesInMap='W+', OGsIncludedIfAtLeastInDatasets=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     Genesloc = deepcopy(Genes)
     if Map is None:
