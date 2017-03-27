@@ -15,6 +15,7 @@ def main(args=None):
     headertxt += op.msgformated('Clust\n'
                                 'Optimised consensus clustering of multiple heterogeneous datasets\n'
                                 'Version {0}\n'
+                                'University of Oxford Academic Use Licence\n'
                                 '\n'
                                 'By Basel Abu-Jamous\n'
                                 'Department of Plant Sciences\n'
