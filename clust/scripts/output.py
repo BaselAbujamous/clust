@@ -65,8 +65,7 @@ def generateinitialmessage():
     res = '\n' + topline()
     tmptxt = 'Clust\n' \
              '(Optimised consensus clustering of multiple heterogenous datasets)\n' \
-             'Python package version {0} (2017) Basel Abu-Jamous\n' \
-             'University of Oxford Academic Use Licence'.format(version[1:])
+             'Python package version {0} (2017) Basel Abu-Jamous'.format(version[1:])
     res += msgformated(tmptxt, alignment='^')
     res += midline()
 

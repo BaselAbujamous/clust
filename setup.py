@@ -28,7 +28,7 @@ def setupmain(args=None):
         author_email='basel.abujamous@plants.ox.ac.uk',
 
         # Choose your license
-        license='GNU GPL 3',
+        license='University of Oxford Academic Use Licence',
 
         classifiers=[
             # How mature is this project? Common values are
