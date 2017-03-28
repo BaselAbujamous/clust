@@ -19,7 +19,7 @@ import sys
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
             Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0,
-            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11, ncores=1):
+            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11, ncores=1, optimisation=True):
     # Set the global objects label
     if mapfile is None:
         glob.set_object_label_upper('Object')
@@ -101,16 +101,19 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                              ncores=ncores)
 
     # Post-processing
-    io.log('5. Cluster optimisation and completion')
-    try:
-        B_corrected = ecorr.correcterrors_weighted_outliers(mnres.B, X_summarised_normalised, GDM,
-                                                   mnres.allDists[mnres.I], stds)
-        B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
-    except:
-        io.logerror(sys.exc_info())
-        io.log('\n* Failed to perform cluster optimisation and completion!\n'
-               '* Skipped cluster optimisation and completion!\n')
-        B_corrected = mnres.B
+    if optimisation:
+        io.log('5. Cluster optimisation and completion')
+        try:
+            B_corrected = ecorr.correcterrors_weighted_outliers(mnres.B, X_summarised_normalised, GDM,
+                                                       mnres.allDists[mnres.I], stds)
+            B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
+        except:
+            io.logerror(sys.exc_info())
+            io.log('\n* Failed to perform cluster optimisation and completion!\n'
+                   '* Skipped cluster optimisation and completion!\n')
+            B_corrected = mnres.B
+    else:
+        io.log('5. Skipping cluster optimisation and completion')
 
 
     # Output: Write input parameters:
