@@ -92,7 +92,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         MapNew = MapNew[Iincluded]
 
     # UNCLES and M-N plots
-    io.log('3. Seed clusters production')
+    io.log('3. Seed clusters production (the Bi-CoPaM method)')
     ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, Xnames=datafiles_noext,
                       ncores=ncores)
     io.log('4. Cluster evaluation and selection (the M-N scatter plots technique)')
@@ -114,6 +114,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
             B_corrected = mnres.B
     else:
         io.log('5. Skipping cluster optimisation and completion')
+        B_corrected = mnres.B
 
 
     # Output: Write input parameters:
