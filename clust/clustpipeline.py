@@ -101,11 +101,18 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                              ncores=ncores)
 
     # Post-processing
+    ppmethod = 'tukey_sqrtSCG'
     if optimisation:
         io.log('5. Cluster optimisation and completion')
         try:
-            B_corrected = ecorr.correcterrors_weighted_outliers(mnres.B, X_summarised_normalised, GDM,
-                                                       mnres.allDists[mnres.I], stds)
+            if ppmethod == 'weighted_outliers':
+                B_corrected = ecorr.correcterrors_weighted_outliers(mnres.B, X_summarised_normalised, GDM,
+                                                                    mnres.allDists[mnres.I], stds, smallestClusterSize)
+            elif ppmethod == 'tukey_sqrtSCG':
+                B_corrected = ecorr.optimise_tukey_sqrtSCG(mnres.B, X_summarised_normalised, GDM,
+                                                                    mnres.allDists[mnres.I], smallestClusterSize)
+            else:
+                raise ValueError('Invalid post processing method (ppmethod): {0}.'.format(ppmethod))
             B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
         except:
             io.logerror(sys.exc_info())

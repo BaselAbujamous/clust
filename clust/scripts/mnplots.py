@@ -107,7 +107,7 @@ def mseclusters(X, B, donormalise=True, GDM=None):
 
 
 def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, setsP=None, setsN=None, Xtype='data',
-                      mseCache=None, wsets=None, GDM=None, msesummary='average', percentageOfClustersKept=30,
+                      mseCache=None, wsets=None, GDM=None, msesummary='average', percentageOfClustersKept=100,
                       smallestClusterSize=11, Xnames=None, ncores=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     Bloc = ds.reduceToArrayOfNDArraysAsObjects(B, 2)
@@ -117,7 +117,7 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
     if params is None: params = {}
     if setsP is None: setsP = [x for x in range(int(math.floor(L / 2)))]
     if setsN is None: setsN = [x for x in range(int(math.floor(L / 2)), L)]
-    setsPN = np.concatenate((setsP, setsN), axis=0)
+    setsPN = np.array(np.concatenate((setsP, setsN), axis=0), dtype=int)
     Xloc = Xloc[setsPN]
     L = Xloc.shape[0]
     if wsets is None:
@@ -270,13 +270,28 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
     return MNResults(B_out, I, allVecs, allDists, allMSE, mseCache, BB, params)
 
 
-def mnplotsdistancethreshold(dists, returnmodel=False):
+def mnplotsdistancethreshold(dists, method='bimodal', returnmodel=False):
     distsloc = np.array(dists).reshape(-1, 1)
-    GM = skmix.GaussianMixture(n_components=2)
-    GM.fit(distsloc)
-    labels = GM.predict(distsloc)
-    labels = np.nonzero(labels == labels[0])[0]
-    if returnmodel:
-        return (labels, GM)
-    else:
+    if method == 'bimodal':
+        GM = skmix.GaussianMixture(n_components=2)
+        GM.fit(distsloc)
+        if len(dists) == 1:
+            labels = [1]
+        else:
+            labels = GM.predict(distsloc)
+            labels = np.nonzero(labels == labels[0])[0]
+        if returnmodel:
+            return (labels, GM)
+        else:
+            return labels
+    elif method == 'largestgap' or method == 'largest_gap':
+        if len(dists) == 1:
+            labels = 1
+        else:
+            gaps = np.subtract(dists[1:], dists[0:-1])
+            wgaps = np.multiply(gaps, np.arange(len(gaps), 0, -1))
+            labels = np.arange(0, np.argmax(wgaps)+1)
         return labels
+    else:
+        raise ValueError('Invalid method submitted to mnplotsdistancethreshold. '
+                         'Use either ''bimodal'' or ''largestgap''')
