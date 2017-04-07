@@ -320,7 +320,6 @@ data_directory | The path of the directory including all data files
 -n \<file> | Path of the normalisation file
 -o \<directory> | Custom path of the output directory
 -t \<real number> | (Cluster tightness) versus (cluster size) weight: a real positive number, where 1.0 means equal weights, values smaller than 1.0 means larger and less tight clusters, and values larger than 1.0 produce smaller and tighter clusters (default: 1.0).
--s \<real number> | Number of standard deviations that define an outlier (default: 3.0)
 -d \<integer> | Minimum number of datasets in which a gene has to be included for it to be considered in the *Clust* analysis. If a gene is included only in fewer datasets than this, it will be excluded from the analysis (default: 1)
 -fil-v \<real number> | Threshold of data values (e.g. gene expression). Any value lower than this will be set to 0.0. If a gene never exceeds this value at least in FILC conditions in at least FILD datasets, it is excluded from the analysis (default: -inf)
 -fil-c \<integer> | Minimum number of conditions in a dataset in which a gene should exceed the data value FILV at least in FILD datasets to be included in the analysis (default: 0)
