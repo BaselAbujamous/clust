@@ -1,5 +1,5 @@
 # Clust
-Optimised consensus clustering of multiple heterogenous datasets
+Optimised consensus clustering of one or more heterogeneous datasets
 ### Contents
 * [What does *Clust* do?](#what-does-clust-do)
 * [How does *Clust* do it?](#how-does-clust-do-it)
@@ -97,6 +97,8 @@ and run the script `clust.py` that is in the top level directory of the source c
 
 
 ### For Windows users
+
+Clust has not been tried in Windows thoroughly. If you try it, your feedback will be much appreciated.
 
 We recommend that you download and install WinPython which provides
 you with many Python packages that *Clust* requires from http://winpython.github.io/

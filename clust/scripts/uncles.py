@@ -234,6 +234,11 @@ def generateCoPaM(U, relabel_technique='minmin', w=None, X=None, distCriterion='
     R = len(Uloc)
     if GDM is None:
         GDMloc = np.ones([Uloc[0].shape[0], R], dtype=bool)
+    elif GDM.shape[1] == 1:
+        if R > 1:
+            GDMloc = np.tile(GDM, [1, R])
+        else:
+            GDMloc = np.array(GDM)
     else:
         GDMloc = np.array(GDM)
     if w is None or (w is str and w in ['all', 'equal']):
@@ -244,9 +249,13 @@ def generateCoPaM(U, relabel_technique='minmin', w=None, X=None, distCriterion='
 
     # Work!
     #permR = orderpartitions(Uloc, method='rand', X=X, GDM=GDM)[0]
-    permR = orderpartitions(Uloc, method='mse', X=X, GDM=GDMloc)[0]
+    if GDM is None:
+        permR = orderpartitions(Uloc, method='mse', X=X, GDM=None)[0]
+    else:
+        permR = orderpartitions(Uloc, method='mse', X=X, GDM=GDMloc)[0]
     Uloc = Uloc[permR]
-    GDMloc = GDMloc[:,permR]
+    if GDMloc.shape[1] > 1:
+        GDMloc = GDMloc[:,permR]
     wmeans = wmeans[permR]
 
     if isinstance(Uloc[0][0][0], (list, tuple, np.ndarray)):
@@ -320,7 +329,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
     if params is None: params = {}
     if setsP is None: setsP = [x for x in range(int(math.floor(L / 2)))]
     if setsN is None: setsN = [x for x in range(int(math.floor(L / 2)), L)]
-    setsPN = np.concatenate((setsP, setsN), axis=0)
+    setsPN = np.array(np.concatenate((setsP, setsN), axis=0), dtype=int)
     Xloc = Xloc[setsPN]
     L = np.shape(Xloc)[0]  # Number of datasets
     if methods is None: methods = [['k-means'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
@@ -397,8 +406,8 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
     for l in range(L):
         for ki in range(NKs):
             if Utype.lower() == 'pm':
-                CoPaMsFineTmp = [generateCoPaM(Uloc[l,ki],relabel_technique=relabel_technique, X=Xloc,
-                                               w=wmethods[l], K=Ks[ki], GDM=GDMloc)
+                CoPaMsFineTmp = [generateCoPaM(Uloc[l,ki],relabel_technique=relabel_technique, X=[Xloc[l]],
+                                               w=wmethods[l], K=Ks[ki], GDM=GDMloc[:,l].reshape([-1,1]))
                                  for i in range(CoPaMfinetrials)]
             elif Utype.lower() == 'idx':
                 CoPaMsFineTmp = \
@@ -407,7 +416,8 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
                      for i in range(CoPaMfinetrials)]
             else:
                 raise ValueError('Invalid Utype')
-            CoPaMsFine[l, ki] = generateCoPaM(CoPaMsFineTmp, relabel_technique=relabel_technique, X=Xloc, GDM=GDMloc)
+            CoPaMsFine[l, ki] = generateCoPaM(CoPaMsFineTmp, relabel_technique=relabel_technique, X=[Xloc[l]],
+                                              GDM=GDMloc[:, l].reshape([-1, 1]))
 
             if dofuzzystretch:
                 CoPaMsFine[l, ki] = fuzzystretch(CoPaMsFine[l, ki])
