@@ -286,7 +286,7 @@ def mnplotsdistancethreshold(dists, method='bimodal', returnmodel=False):
             return labels
     elif method == 'largestgap' or method == 'largest_gap':
         if len(dists) == 1:
-            labels = 1
+            labels = [1]
         else:
             gaps = np.subtract(dists[1:], dists[0:-1])
             wgaps = np.multiply(gaps, np.arange(len(gaps), 0, -1))
