@@ -244,6 +244,8 @@ def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstCo
     IncludedOGs = np.sum(GDMall, axis=1) >= OGsIncludedIfAtLeastInDatasets
     GDM = GDMall[IncludedOGs]
     OGs = OGs[IncludedOGs]
+    if MapNew is not None:
+        MapNew = MapNew[IncludedOGs]
 
     Ngs = np.sum(GDM, axis=0)  # Numbers of unique mapped genes in each dataset
 
