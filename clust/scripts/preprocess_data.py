@@ -171,7 +171,7 @@ def normaliseSampleFeatureMat(X, type):
     return Xout
 
 
-def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap='W+'):
+def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap='\\W+'):
     L = len(Genes)  # Number of datasets (i.e. lists of gene names)
     Maploc = np.array(Map, dtype=object)
     if mapheader:
@@ -197,7 +197,8 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
     # Split Map entries by the delim
     for i in range(Maploc.shape[0]):
         for j in range(Maploc.shape[1]):
-            Maploc[i, j] = re.split(delimGenesInMap, Maploc[i, j])
+            Maploc[i, j] = re.split(delimGenesInMap, Maploc[i, j].replace('.','thisisadot'))
+            Maploc[i, j] = [gg.replace('thisisadot','.') for gg in Maploc[i, j]]
 
     # Generate a flattened version of the Map: FlattenedMap[s] is a 1d list of all genes in the (s)th Map row, i.e.
     # in the (s)th species; this will make FlattenedMap[s1][n] not necessarily corresponding to FlattenedMap[s2][n])
@@ -224,7 +225,7 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
     return (OGsFiltered, OGsDatasets, Maploc, MapSpecies)
 
 
-def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstColMap=True, delimGenesInMap='W+', OGsIncludedIfAtLeastInDatasets=1):
+def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstColMap=True, delimGenesInMap='\\W+', OGsIncludedIfAtLeastInDatasets=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     Genesloc = deepcopy(Genes)
     if Map is None:

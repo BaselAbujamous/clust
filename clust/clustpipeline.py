@@ -81,7 +81,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     # low expression genes, and normalisation)
     io.log('2. Data pre-processing')
     (X_OGs, GDM, GDMall, OGs, MapNew, MapSpecies) \
-        = pp.calculateGDMandUpdateDatasets(X, Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap='W+',
+        = pp.calculateGDMandUpdateDatasets(X, Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap='\\W+',
                                            OGsIncludedIfAtLeastInDatasets=OGsIncludedIfAtLeastInDatasets)
     (X_summarised_normalised, GDM, Iincluded, params) = \
         pp.preprocess(X_OGs, GDM, normalise, replicatesIDs, flipSamples=None,
