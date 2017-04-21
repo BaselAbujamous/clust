@@ -420,12 +420,15 @@ def optimise_tukey_sqrtSCG(B, X, GDM, clustdists=None, smallestClusterSize=11):
                 gi += csize
         SCG[l] = SCG[l][np.any(SCG[l], axis=1)]  # Remove all zeros genes (rows of SCG[l])
 
-        Q1 = np.percentile(np.sqrt(SCG[l]), q=25, axis=0)
-        Q3 = np.percentile(np.sqrt(SCG[l]), q=75, axis=0)
-        IQR = np.subtract(Q3, Q1)
-        thresh = np.add(Q3, 1.5 * IQR)
-        SCGouts = np.sqrt(SCG[l]) > np.array([thresh for ii in range(0, SCG[l].shape[0])])
-        SCG[l][SCGouts] = 0.0  # Set the outlier values to zeros so they do not affect decisions later on
+        if ds.numel(SCG[l] > 0):
+            Q1 = np.percentile(np.sqrt(SCG[l]), q=25, axis=0)
+            Q3 = np.percentile(np.sqrt(SCG[l]), q=75, axis=0)
+            IQR = np.subtract(Q3, Q1)
+            thresh = np.add(Q3, 1.5 * IQR)
+            SCGouts = np.sqrt(SCG[l]) > np.array([thresh for ii in range(0, SCG[l].shape[0])])
+            SCG[l][SCGouts] = 0.0  # Set the outlier values to zeros so they do not affect decisions later on
+        else:
+            SCG[l] = np.zeros((1, SCG[l].shape[1]))
 
     # Helping function
     def iswithinworse(ref, x):
