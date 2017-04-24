@@ -385,7 +385,7 @@ def correcterrors_weighted_outliers2(B, X, GDM, clustdists=None, stds=3, smalles
     return B_out
 
 
-def optimise_tukey_sqrtSCG(B, X, GDM, clustdists=None, smallestClusterSize=11, tails=1):
+def optimise_tukey_sqrtSCG(B, X, GDM, clustdists=None, smallestClusterSize=11, tails=1, Q3s=2):
     Bloc = np.array(B)
     Xloc = ds.listofarrays2arrayofarrays(X)
 
@@ -423,7 +423,7 @@ def optimise_tukey_sqrtSCG(B, X, GDM, clustdists=None, smallestClusterSize=11, t
         if ds.numel(SCG[l] > 0):
             if tails == 1:
                 Q3 = np.percentile(SCG[l], q=75, axis=0)
-                thresh = 2.5 * Q3
+                thresh = Q3s * Q3
                 SCGouts = SCG[l] > np.array([thresh for ii in range(0, SCG[l].shape[0])])
                 SCG[l][SCGouts] = 0.0  # Set the outlier values to zeros so they do not affect decisions later on
             elif tails == 2:

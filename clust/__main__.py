@@ -80,6 +80,8 @@ def main(args=None):
     parser.add_argument('-fil-d', metavar='<integer>', dest='fild', type=int,
                         help='Filtering: number of datasets (default: 0)', default=0)
     parser.add_argument('-cs', metavar='<integer>', type=int, help='Smallest cluster size (default: 11)', default=11)
+    parser.add_argument('-q3s', metavar='<real number>', type=float,
+                        help='Q3''s defining outliers (default: 2.0)', default=2.0)
     parser.add_argument('--no-optimisation', dest='optimisation', action='store_false',
                         help='Skip cluster optimsation & completion')
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
@@ -94,7 +96,8 @@ def main(args=None):
 
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
-                                args.s, args.d, args.filv, args.filc, args.fild, args.cs, args.np, args.optimisation)
+                                args.s, args.d, args.filv, args.filc, args.fild, args.cs, args.np, args.optimisation,
+                                args.q3s)
 
 
 if __name__ == "__main__":

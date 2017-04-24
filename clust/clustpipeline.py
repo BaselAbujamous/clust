@@ -19,7 +19,7 @@ import sys
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
             Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0,
-            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11, ncores=1, optimisation=True):
+            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11, ncores=1, optimisation=True, Q3s=2):
     # Set the global objects label
     if mapfile is None:
         glob.set_object_label_upper('Object')
@@ -110,7 +110,8 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                                                                     mnres.allDists[mnres.I], stds, smallestClusterSize)
             elif ppmethod == 'tukey_sqrtSCG':
                 B_corrected = ecorr.optimise_tukey_sqrtSCG(mnres.B, X_summarised_normalised, GDM,
-                                                                    mnres.allDists[mnres.I], smallestClusterSize)
+                                                                    mnres.allDists[mnres.I], smallestClusterSize,
+                                                           tails=1, Q3s=Q3s)
             else:
                 raise ValueError('Invalid post processing method (ppmethod): {0}.'.format(ppmethod))
             B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
