@@ -332,24 +332,10 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
     setsPN = np.array(np.concatenate((setsP, setsN), axis=0), dtype=int)
     Xloc = Xloc[setsPN]
     L = np.shape(Xloc)[0]  # Number of datasets
-    if methods is None: methods = [['k-means'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
-    #if methods is None: methods = [['k-means'], ['HC', 'linkage_method', 'ward']]
-    #if methods is None: methods = [['HC', 'linkage_method', 'ward']]
-    if methodsDetailed is None:
-        methodsDetailedloc = np.array([methods for l in range(L)])
-        #methodsDetailedloc = np.tile(methods, [L,1])
-    else:
-        methodsDetailedloc = methodsDetailed[setsPN]
     if wsets is None:
         wsets = np.array([1 for x in range(L)])
     else:
         wsets = np.array(wsets)[setsPN]
-    if wmethods is None:
-        wmethods = [[1 for x in m] for m in methodsDetailedloc]
-    elif not isinstance(wmethods[0], (list,tuple,np.ndarray)):
-        wmethods = np.tile(methods,[L,1])
-    else:
-        wmethods = np.array(wmethods)[setsPN]
     if GDM is None:
         Ng = np.shape(Xloc[0])[0]
         GDMloc = np.ones([Ng, L], dtype='bool')
@@ -358,6 +344,30 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         Ng = GDMloc.shape[0]
     if Xnames is None:
         Xnames = ['X{0}'.format(l) for l in range(L)]
+
+    if methods is None:
+        #try:
+        #    i_largest_DS = np.argmax([x.shape[0] for x in Xloc])
+        #    clustDataset(Xloc[i_largest_DS], 2, [1,1], [['HC', 'linkage_method', 'ward']], GDMloc[:,i_largest_DS], Ng)
+        #    methods = [['k-means'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
+        #except:
+        #    io.log("Very large dataset(s) given. Hierarchical clustering will not be used.")
+        #    methods = [['k-means'], ['SOMs']]
+        largest_DS = np.max([x.shape[0] for x in Xloc])
+        if (largest_DS < 10000):
+            methods = [['k-means'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
+        else:
+            methods = [['k-means'], ['SOMs']]
+    if methodsDetailed is None:
+        methodsDetailedloc = np.array([methods for l in range(L)])
+    else:
+        methodsDetailedloc = methodsDetailed[setsPN]
+    if wmethods is None:
+        wmethods = [[1 for x in m] for m in methodsDetailedloc]
+    elif not isinstance(wmethods[0], (list, tuple, np.ndarray)):
+        wmethods = np.tile(methods, [L, 1])
+    else:
+        wmethods = np.array(wmethods)[setsPN]
 
     setsPloc = [ii for ii in range(len(setsP))]
     if L > len(setsPloc):
