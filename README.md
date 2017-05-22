@@ -14,6 +14,7 @@ Optimised consensus clustering of one or more heterogeneous datasets
 * [Are you obtaining noisy clusters?](#are-you-obtaining-noisy-clusters)
 * [List of all parameters](#list-of-all-parameters)
 * [Example datasets](#example-datasets)
+* [Citation](#citation)
 
 # What does Clust do?
 *Clust* is a fully automated method for identification of clusters (groups) of genes that are consistently
@@ -377,3 +378,12 @@ by decreasing `-t`. For example, try -t = 5.0 or -t = 0.2 by:
 You may also like to save results in an output directory of your choice by using `-o`:
 
 * `clust Data/ -t 5 -o MyResultsDirectory/`
+
+
+# Citation
+When publishing work that uses *Clust*, please include these two citations:
+1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.1.5) [Python package]. Available at
+https://github.com/BaselAbujamous/clust.
+2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable
+clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery,
+PLOS ONE, 8(2): e56432 
