@@ -19,7 +19,8 @@ import sys
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
             Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0,
-            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11, ncores=1, optimisation=True, Q3s=2):
+            atleastinconditions=1, atleastindatasets=1, smallestClusterSize=11, ncores=1, optimisation=True, Q3s=2,
+            deterministic=False):
     # Set the global objects label
     if mapfile is None:
         glob.set_object_label_upper('Object')
@@ -94,7 +95,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     # UNCLES and M-N plots
     io.log('3. Seed clusters production (the Bi-CoPaM method)')
     ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, Xnames=datafiles_noext,
-                      ncores=ncores)
+                      ncores=ncores, deterministic=deterministic)
     io.log('4. Cluster evaluation and selection (the M-N scatter plots technique)')
     mnres = mn.mnplotsgreedy(X_summarised_normalised, ures.B, GDM=GDM, tightnessweight=tightnessweight,
                              params=ures.params, smallestClusterSize=smallestClusterSize, Xnames=datafiles_noext,
@@ -127,8 +128,9 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
     # Output: Write input parameters:
     io.log('6. Saving results in\n{0}'.format(outpath))
-    inputparams = op.params(mnres.params, stds, OGsIncludedIfAtLeastInDatasets,
-                            expressionValueThreshold, atleastinconditions, atleastindatasets, MapNew)
+    inputparams = op.params(mnres.params, Q3s, OGsIncludedIfAtLeastInDatasets,
+                            expressionValueThreshold, atleastinconditions, atleastindatasets,
+                            deterministic, ures.params['methods'], MapNew)
     io.writedic('{0}/input_params.tsv'.format(in2out_path), inputparams, delim='\t')
 
     # Output: Generating and saving clusters, and processed data

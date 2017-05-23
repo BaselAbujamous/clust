@@ -307,10 +307,10 @@ def sortclusters(CoPaM, Mc, minGenesinClust = 11):
 
 
 # Clustering helping function for parallel loop
-def clustDataset(X, K, D, methods, GDMcolumn, Ng):
+def clustDataset(X, K, D, methods, GDMcolumn, Ng, datasetID):
     #X, K, D, methods, GDMcolumn, Ng = args
     Uloc = [np.zeros([Ng, K], dtype=bool)] * len(methods)  # Prepare the U output
-    tmpU = cl.clusterdataset(X, K, D, methods)  # Obtain U's
+    tmpU = cl.clusterdataset(X, K, D, methods, datasetID)  # Obtain U's
     for cc in range(len(methods)):  # Set U's as per the GDM values
         Uloc[cc][GDMcolumn] = tmpU[cc]
     return Uloc
@@ -321,7 +321,7 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
            wmethods=None, GDM=None, smallestClusterSize=11, CoPaMfinetrials=1, CoPaMfinaltrials=1,
            binarise_techniqueP='DTB', binarise_paramP=np.arange(0.0,1.1,0.1,dtype='float'), binarise_techniqueN='DTB',
            binarise_paramN=np.concatenate(([sys.float_info.epsilon], np.arange(0.1,1.1,0.1,dtype='float'))),
-           Xnames=None, ncores=1):
+           Xnames=None, deterministic=False, ncores=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     L = len(Xloc)  # Number of datasets
 
@@ -346,18 +346,17 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         Xnames = ['X{0}'.format(l) for l in range(L)]
 
     if methods is None:
-        #try:
-        #    i_largest_DS = np.argmax([x.shape[0] for x in Xloc])
-        #    clustDataset(Xloc[i_largest_DS], 2, [1,1], [['HC', 'linkage_method', 'ward']], GDMloc[:,i_largest_DS], Ng)
-        #    methods = [['k-means'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
-        #except:
-        #    io.log("Very large dataset(s) given. Hierarchical clustering will not be used.")
-        #    methods = [['k-means'], ['SOMs']]
         largest_DS = np.max([x.shape[0] for x in Xloc])
         if (largest_DS < 10000):
-            methods = [['k-means'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
+            if (deterministic):
+                methods = [['k-means', 'init', 'KA'], ['HC', 'linkage_method', 'ward']]
+            else:
+                methods = [['k-means', 'init', 'KA'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
         else:
-            methods = [['k-means'], ['SOMs']]
+            if (deterministic):
+                methods = [['k-means', 'init', 'KA_memorysaver']]
+            else:
+                methods = [['k-means', 'init', 'KA_memorysaver'], ['SOMs']]
     if methodsDetailed is None:
         methodsDetailedloc = np.array([methods for l in range(L)])
     else:
@@ -380,14 +379,24 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
     if U is None:
         Utype = 'PM'
         Uloc = np.array([None] * (L * NKs)).reshape([L, NKs])
-        io.resetparallelprogress(np.sum(Ks) * np.sum([len(meths) for meths in methodsDetailedloc]))
+        totalparallel = np.sum(Ks) * np.sum([len(meths) for meths in methodsDetailedloc])
+        for meths in methodsDetailedloc:
+            for meth in meths:
+                if 'k-means' in meth:
+                    totalparallel += np.max(Ks) * np.max(Ks)
+                    continue
+        io.resetparallelprogress(totalparallel)
 
         for l in range(L):
+            # Cache kmeans initialisations for the dataset once to save time:
+            cl.cache_kmeans_init(Xloc[l], Ks, methodsDetailedloc[l], datasetID=l)
+
+            # Now go to parallel clustering
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 Utmp = Parallel(n_jobs=ncores)\
                     (delayed(clustDataset)
-                     (Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l], GDMloc[:, l], Ng) for ki in range(NKs))
+                     (Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l], GDMloc[:, l], Ng, l) for ki in range(NKs))
 
                 Utmp = [u for u in Utmp]
                 for ki in range(NKs):
@@ -396,18 +405,6 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
                 gc.collect()
                 #io.updateparallelprogress(np.sum(Ks) * len(methodsDetailedloc))
 
-        '''
-    elif U is None:
-        Utype = 'PM'
-        Uloc = np.array([None] * (L * NKs)).reshape([L, NKs])
-        for l in range(L):
-            for ki in range(NKs):
-                io.log('Cluster {0}, K = {1}'.format(Xnames[l], Ks[ki]))
-                Uloc[l, ki] = [np.zeros([Ng,Ks[ki]], dtype=bool)] * len(methodsDetailedloc[l])  # Prepare the U output
-                tmpU = cl.clusterdataset(Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l])  # Obtain U's
-                for cc in range(len(methodsDetailedloc[l])):  # Set U's as per the GDM values
-                    Uloc[l, ki][cc][GDMloc[:, l]] = tmpU[cc]
-        '''
     else:
         Uloc = ds.listofarrays2arrayofarrays(U)[setsPN]
 

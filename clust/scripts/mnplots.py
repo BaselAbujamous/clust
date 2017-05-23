@@ -92,7 +92,13 @@ def mseclusters(X, B, donormalise=True, GDM=None):
 
     # Calculations
     for nx in range(Nx):
+        reportedprogress = 0
         for k in range(K):
+            # Report progress
+            if (k - reportedprogress == 100):
+                io.updateparallelprogress(100)
+                reportedprogress = k
+            # WORK
             if not any(Bloc[:,k]):
                 mseC[nx,k] = float('nan')
             else:
@@ -100,8 +106,9 @@ def mseclusters(X, B, donormalise=True, GDM=None):
                 tmp = nu.subtractaxis(Xlocloc, np.mean(Xlocloc, axis=0), axis=0)
                 tmp = np.sum(np.power(tmp,2))
                 mseC[nx,k] = tmp / Nd[nx] / Nk[k]
-
-    #io.updateparallelprogress(Nx * K)
+        # Report progress
+        if (K > reportedprogress):
+            io.updateparallelprogress(K - reportedprogress)
 
     return np.mean(mseC, axis=0)
 
@@ -167,7 +174,7 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
 
                 gc.collect()
 
-                io.updateparallelprogress(NN)
+                #io.updateparallelprogress(NN)
 
             '''
             for nn in range(NN):

@@ -294,28 +294,32 @@ def processed_X(Xprocessed, conditions, GDM, OGs, Map, MapSpecies):
     return res
 
 
-def params(params, stds, OGsIncludedIfAtLeastInDatasets, expressionValueThreshold,
-           atleastinconditions, atleastindatasets, Map=None):
+def params(params, q3s, OGsIncludedIfAtLeastInDatasets, expressionValueThreshold,
+           atleastinconditions, atleastindatasets, deterministic, methods, Map=None):
     if Map is None:
         res = collec.OrderedDict(
             [('Methods', params['methods']),
              ('K values (Ks)', params['Ks']),
              ('Tightness weight', params['tightnessweight']),
-             ('Outliers threshold (number of standard deviations)', stds),
+             ('Q3s outliers threshold', q3s),
              ('Genes included if at least in datasets', OGsIncludedIfAtLeastInDatasets),
              ('Filtering: Data value threshold', expressionValueThreshold),
              ('Filtering: At least in conditions', atleastinconditions),
-             ('Filtering: At least in datasets', atleastindatasets)
+             ('Filtering: At least in datasets', atleastindatasets),
+             ('Is deterministic?', deterministic),
+             ('Seed methods', methods)
              ])
     else:
         res = collec.OrderedDict(
             [('Methods', params['methods']),
              ('K values (Ks)', params['Ks']),
              ('Tightness weight', params['tightnessweight']),
-             ('Outliers threshold (number of standard deviations)', stds),
+             ('Q3s outliers threshold', q3s),
              ('OGs included if at least in datasets', OGsIncludedIfAtLeastInDatasets),
              ('Filtering: Data value threshold', expressionValueThreshold),
              ('Filtering: At least in conditions', atleastinconditions),
-             ('Filtering: At least in datasets', atleastindatasets)
+             ('Filtering: At least in datasets', atleastindatasets),
+             ('Is deterministic?', deterministic),
+             ('Seed methods', methods)
              ])
     return res

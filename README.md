@@ -382,7 +382,7 @@ You may also like to save results in an output directory of your choice by using
 
 # Citation
 When publishing work that uses *Clust*, please include these two citations:
-1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.1.5) [Python package]. Available at
+1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.1.6) [Python package]. Available at
 https://github.com/BaselAbujamous/clust.
 2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable
 clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery,

@@ -86,7 +86,9 @@ def main(args=None):
                         help='Skip cluster optimsation & completion')
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
                         default=1)
-    parser.set_defaults(optimisation=True)
+    parser.add_argument('--deterministic', dest='deterministic', action='store_true',
+                        help='Use deterministic settings across all steps')
+    parser.set_defaults(optimisation=True, deterministic=False)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
     if len(args) == 0:
@@ -97,7 +99,7 @@ def main(args=None):
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
                                 args.s, args.d, args.filv, args.filc, args.fild, args.cs, args.np, args.optimisation,
-                                args.q3s)
+                                args.q3s, args.deterministic)
 
 
 if __name__ == "__main__":

@@ -7,8 +7,11 @@ import sompy
 import io
 
 
+kmeans_init = {}  # This is to cache the centres of the k-means and reuse them
+
+
 # Main function
-def clusterdataset(X, K, D, methods=None):
+def clusterdataset(X, K, D, methods=None, datasetID=-1):
     if methods is None: methods = [['k-means'],['SOMs'],['HC','linkage_method','ward']]
     methodsloc = [n if isinstance(n,(list,tuple,np.ndarray)) else [n] for n in methods]
     #io.log('clusterdataset')
@@ -17,7 +20,7 @@ def clusterdataset(X, K, D, methods=None):
     U = [None] * C
     for ms in range(C):
         if methodsloc[ms][0].lower() in ['k-means', 'kmeans']:
-            U[ms] = ckmeans(X, K, methodsloc[ms][1:])
+            U[ms] = ckmeans(X, K, datasetID, methodsloc[ms][1:])
         elif methodsloc[ms][0].lower() in ['soms', 'soms-bubble']:
             U[ms] = csoms(X, D, methodsloc[ms][1:])
         elif methodsloc[ms][0].lower() in ['hc', 'hierarchical']:
@@ -29,13 +32,24 @@ def clusterdataset(X, K, D, methods=None):
 
 
 # Clustering functions
-def ckmeans(X, K, params=()):
-    pnames  = [     'init','max_iter', 'n_jobs']
-    dflts   = ['k-means++',       300,       -1]
-    (init, max_iter, n_jobs) = ds.resolveargumentpairs(pnames, dflts, params)
+def ckmeans(X, K, datasetID=-1, params=()):
+    global kmeans_init
 
-    if init == 'KA':
-        init = initclusterKA(X, K, inittype=init)
+    pnames  = [     'init', 'max_iter', 'n_jobs',  'distance']
+    #dflts  = ['k-means++',        300,       -1, 'euclidean']
+    dflts   = [       'KA',        300,       -1, 'euclidean']
+    if isinstance(params, np.ndarray):
+        paramsloc = params.tolist()
+    else:
+        paramsloc = params
+    (init, max_iter, n_jobs, distance) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
+
+    if datasetID in kmeans_init:
+        init = kmeans_init[datasetID][0:K]
+    elif init == 'KA':
+        init = initclusterKA(X, K, distance)
+    elif init == 'KA_memorysaver':
+        init = initclusterKA_memorysaver(X, K, distance)
 
     C = skcl.KMeans(K, init=init, max_iter=max_iter, n_jobs=n_jobs).fit(X).labels_
     return clustVec2partMat(C, K)
@@ -44,7 +58,11 @@ def ckmeans(X, K, params=()):
 def csoms(X, D, params=()):
     pnames = ['neighbour', 'learning_rate', 'input_length_ratio']
     dflts  = [        0.1,             0.2,                   -1]
-    (neighbour, learning_rate, input_length_ratio) = ds.resolveargumentpairs(pnames, dflts, params)
+    if isinstance(params, np.ndarray):
+        paramsloc = params.tolist()
+    else:
+        paramsloc = params
+    (neighbour, learning_rate, input_length_ratio) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
 
     Xloc = np.array(X)
 
@@ -76,8 +94,96 @@ def chc(X, K, params=()):
 
 
 # Other related functions
-def initclusterKA(X, K, distance='euclidean', inittype='KA'):
-    raise NotImplementedError('Kaufman''s initialisation has not been implemented yet.')
+def initclusterKA(X, K, distance='euclidean'):
+    M = X.shape[0]
+    Dist = spdist.pdist(X, metric=distance)  # MxM (condensed)
+    Dist = spdist.squareform(Dist)  # MxM
+    ResultInd = [0 for i in range(K)]
+    Xmean = np.mean(X, axis=0)  # The mean of all rows of X
+    Dmean = spdist.cdist(X, [Xmean])  # Distances between rows of X and the mean of X
+
+    # The first centre is the closest point to the mean:
+    ResultInd[0] = np.argmin(Dmean)
+    io.updateparallelprogress(K)
+
+    for k in range(K-1):
+        D = np.min(Dist[:, ResultInd[0:k+1]], axis=1)  # Mx1
+        C = [0 for m in range(M)]  # M points (e.g. genes)  # Mx1
+        for m in range(M):
+            if m in ResultInd:
+                continue
+            tmp = D - Dist[:, m]  # Mx1 differences
+            tmp[tmp < 0] = 0  # All negatives make them zeros
+            C[m] = np.sum(tmp)
+        ResultInd[k+1] = np.argmax(C)
+        io.updateparallelprogress(K)
+
+
+    Result = X[ResultInd]  # These points are the selected K initial cluster centres
+
+    return Result
+
+
+'''This is the same as initclusterKA, but does not calculate the pdist amongst all objects at once.
+It rather uses loops and therefore saves the memory.'''
+def initclusterKA_memorysaver(X, K, distance='euclidean'):
+    M = X.shape[0]
+    #Dist = spdist.pdist(X, metric=distance)  # MxM (condensed)
+    #Dist = spdist.squareform(Dist)  # MxM
+    ResultInd = [0 for i in range(K)]
+    Xmean = np.mean(X, axis=0)  # The mean of all rows of X
+    Dmean = spdist.cdist(X, [Xmean], metric=distance)  # Distances between rows of X and the mean of X
+
+    # The first centre is the closest point to the mean:
+    ResultInd[0] = np.argmin(Dmean)
+    io.updateparallelprogress(K)
+
+    for k in range(K-1):
+        D = spdist.cdist(X, X[ResultInd[0:k+1]], metric=distance)  # (M)x(k+1) Dists of objects to the selected centres
+        D = np.min(D, axis=1)  # Mx1: Distances of each of the M objects to its closest already selected centre
+        C = [0 for m in range(M)]  # M objects (e.g. genes)  # Mx1
+        for m in range(M):
+            if m in ResultInd:
+                continue
+            Dists_m = spdist.cdist(X, [X[m]])  # Mx1 distances between all M objects and the m_th object
+            tmp = D.reshape(M, 1) - Dists_m  # Mx1 differences
+            tmp[tmp < 0] = 0  # All negatives make them zeros
+            C[m] = np.sum(tmp)
+        ResultInd[k+1] = np.argmax(C)
+        io.updateparallelprogress(K)
+
+    Result = X[ResultInd]  # These objects are the selected K initial cluster centres
+
+    return Result
+
+
+def cache_kmeans_init(X, K, methods, datasetID):
+    global kmeans_init
+
+    if datasetID == -1:
+        return
+
+    # Get the k-means parameters
+    methodsloc = [n if isinstance(n, (list, tuple, np.ndarray)) else [n] for n in methods]
+    kmeansFound = False
+    for ms in range(len(methodsloc)):
+        if methodsloc[ms][0].lower() in ['k-means', 'kmeans']:
+            params = methodsloc[ms][1:]
+            pnames = ['init', 'max_iter', 'n_jobs',  'distance']
+            dflts  = [  'KA',        300,       -1, 'euclidean']
+            if isinstance(params, np.ndarray):
+                paramsloc = params.tolist()
+            else:
+                paramsloc = params
+            (init, max_iter, n_jobs, distance) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
+            kmeansFound = True
+
+    # Perform initialisation over the largest K value and cache it, if k-means was found and init is some 'KA'
+    if kmeansFound:
+        if init == 'KA':
+            kmeans_init[datasetID] = initclusterKA(X, np.max(K), distance)
+        elif init == 'KA_memorysaver':
+            kmeans_init[datasetID] = initclusterKA_memorysaver(X, np.max(K), distance)
 
 
 def clustVec2partMat(C, K=None):
