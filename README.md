@@ -327,6 +327,9 @@ data_directory | The path of the directory including all data files
 -fil-d \<integer> | Minimum number of datasets in which a gene should exceed the data value FILV at least in FILC conditions to be included in the analysis (default: 0)
 -cs \<integer> | Smallest cluster size (default: 11)
 -K \<integer> [\<integer> ...] | K values: refer to the publication for details (default: all values from 2 to 20 inclusively)
+-q3s \<real number> |  Defines the threshold for outliers in terms of the number of Q3's (third quartiles). Smaller values lead to tighter clusters (default: 2.0).
+--no-optimisation | Skip the cluster optimisation step. Not recommended except to compare results before and after optimisation (default: optimisation is performed).
+--deterministic | Use deterministic settings across the steps of *Clust*. Recommended if one requires the same results to be obtained when *Clust* is run multiple times with the same parameters. This is not expected to compensate the quality, and it might become a default setting in future releases.
 -np \<integer> | Number of parallel processes (default: 1) 
 -h, --help | show the help message and exit
 

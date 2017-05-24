@@ -84,10 +84,10 @@ def main(args=None):
                         help='Q3''s defining outliers (default: 2.0)', default=2.0)
     parser.add_argument('--no-optimisation', dest='optimisation', action='store_false',
                         help='Skip cluster optimsation & completion')
-    parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
-                        default=1)
     parser.add_argument('--deterministic', dest='deterministic', action='store_true',
                         help='Use deterministic settings across all steps')
+    parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
+                        default=1)
     parser.set_defaults(optimisation=True, deterministic=False)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
