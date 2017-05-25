@@ -90,7 +90,7 @@ Then you can run *Clust* straightforwardly from any place:
 
 This works if the Python packages that *Clust* requires are already installed (listed above).
 
-Download the source code (tar.gz) file from the
+Download the latest release file (clust-*.*.*.tar.gz) file from the
 [release tab](https://github.com/BaselAbujamous/clust/releases)
 and run the script `clust.py` that is in the top level directory of the source code by:
 
