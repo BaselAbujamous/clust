@@ -3,6 +3,7 @@ import datastructures as ds
 import sklearn.metrics.pairwise as skdists
 import numeric as nu
 import statistical as st
+import sys
 from mnplots import mnplotsdistancethreshold
 
 
@@ -438,22 +439,101 @@ def optimise_tukey_sqrtSCG(B, X, GDM, clustdists=None, smallestClusterSize=11, t
         else:
             SCG[l] = np.zeros((1, SCG[l].shape[1]))
 
-    # Helping function
-    def iswithinworse(ref, x):
-        return x <= np.max(ref)
+    # Clusters mins and maxes (NEW)
+    Cmins = np.array([None] * L, dtype=object)
+    Cmaxes = np.array([None] * L, dtype=object)
+    for l in range(L):
+        Cmins[l] = np.zeros([K, Xloc[l].shape[1]])  # K clusters x D dimensions
+        Cmaxes[l] = np.zeros([K, Xloc[l].shape[1]])  # K clusters x D dimensions
+        for k in range(K):
+            Cmins[l][k] = Cmeans[l][k] - np.max(SCG[l], axis=0)
+            Cmaxes[l][k] = Cmeans[l][k] + np.max(SCG[l], axis=0)
 
-    # Find who belongs
+    # Resolve overlaps between clusters (NEW)
+    for k1 in range(K):
+        for k2 in range(K):
+            # Compare the pair of clusters only once, and don't compare a cluster with itself. This if statement
+            # guarantees that k2 will always be a later cluster than k1.
+            if (k1 >= k2):
+                continue
+            # Value of the smallest overlap between the ranges of the clusters k1 and k2, and ...
+            # the dataset (l) and the dimension (d), at which this overlap is found
+            # t_smallest overlap is the type of the overlap, (-1, 0, 1, or 2). Type (-1) means that the entire (min
+            # to max) range of one cluster is within the range of the other cluster. This is the worse overlap.
+            # Type (0) means that the max of (k1) is within the range of (min to max) of (k2), and type (1) is the other
+            # way around. Type (2) means there is no overlap. This is the best and finding one of it breaks the loop
+            v_smallestoverlap = 0
+            l_smallestoverlap = -1
+            d_smallestoverlap = -1
+            t_smallestoverlap = -1  # Overlap type, read above
+            for l in range(L):
+                Nd = len(Cmins[l][k1])  # Dimensions in this dataset
+                for d in range(Nd):
+                    x1 = Cmaxes[l][k1][d]
+                    x2 = Cmaxes[l][k2][d]
+                    n1 = Cmins[l][k1][d]
+                    n2 = Cmins[l][k2][d]
+                    if (x1 > n2 and x1 <= x2):
+                        if (n1 < n2):
+                            ov = x1 - n2
+                            if (t_smallestoverlap == -1 or ov < v_smallestoverlap):
+                                t_smallestoverlap = 0
+                                v_smallestoverlap = ov
+                                l_smallestoverlap = l
+                                d_smallestoverlap = d
+                    elif (x2 > n1 and x2 <= x1):
+                        if (n2 < n1):
+                            ov = x2 - n1
+                            if (t_smallestoverlap == -1 or ov < v_smallestoverlap):
+                                t_smallestoverlap = 1
+                                v_smallestoverlap = ov
+                                l_smallestoverlap = l
+                                d_smallestoverlap = d
+                    else:
+                        t_smallestoverlap = 2
+                        continue  # Absolutely no overlap at this point, so k1 and k2 are distinct, so continue
+                if (t_smallestoverlap == 2):
+                    continue  # Absolutely no overlap at some point, so k1 and k2 are distinct, so continue
+
+            # Sort out the overlap if exists between k1 and k2
+            if (t_smallestoverlap == -1):
+                # Here one of the two clusters always swallows the other one. So effectively remove the later one (k2).
+                # Cluster removal is by making its minimum larger than its maximum at a single point (at l=0, d=0),
+                # so effectively no gene will ever be mapped to it!
+                Cmins[0][k2][0] = 1
+                Cmaxes[0][k2][0] = 0
+            elif (t_smallestoverlap == 0):
+                Cmins[l_smallestoverlap][k2][d_smallestoverlap] = \
+                    Cmaxes[l_smallestoverlap][k1][d_smallestoverlap] + sys.float_info.epsilon
+            elif (t_smallestoverlap == 1):
+                Cmaxes[l_smallestoverlap][k2][d_smallestoverlap] = \
+                    Cmins[l_smallestoverlap][k1][d_smallestoverlap] - sys.float_info.epsilon
+
+    # Find who belongs (NEW)
     belongs = np.ones([Ng, K, L], dtype=bool)  # Ng genes x K clusters x L datasets
     for l in range(L):
         for k in range(K):
-            for d in range(Xloc[l].shape[1]):
-                tmpX = np.abs(Xloc[l][:, d] - Cmeans[l][k, d])
-                belongs[GDM[:, l], k, l] &= iswithinworse(SCG[l][:, d], tmpX)
+            tmp1 = nu.largerthanaxis(Xloc[l], Cmins[l][k], axis=0, orequal=True)
+            tmp2 = nu.lessthanaxis(Xloc[l], Cmaxes[l][k], axis=0, orequal=True)
+            belongs[GDM[:, l], k, l] = np.all(np.logical_and(tmp1, tmp2), axis=1)
 
-    # Include in clusters genes which belongs everywhere
+
+    # # Helping function (OLD - to be removed)
+    # def iswithinworse(ref, x):
+    #     return x <= np.max(ref)
+    #
+    # # Find who belongs (OLD - to be removed)
+    # belongs = np.ones([Ng, K, L], dtype=bool)  # Ng genes x K clusters x L datasets
+    # for l in range(L):
+    #     for k in range(K):
+    #         for d in range(Xloc[l].shape[1]):
+    #             tmpX = np.abs(Xloc[l][:, d] - Cmeans[l][k, d])
+    #             belongs[GDM[:, l], k, l] &= iswithinworse(SCG[l][:, d], tmpX)
+
+    # Include in clusters genes which belongs everywhere (OLD - to be removed)
     B_out = np.all(belongs, axis=2)
 
-    # Solve genes included in two clusters:
+    # Solve genes included in two clusters (OLD - should not be needed now - TO BE REMOVED)
     solution = 2
     if solution == 1:
         # Genes included in two clusters, include them in the closest in terms of its worst distance to any of the clusters

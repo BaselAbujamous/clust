@@ -123,6 +123,50 @@ def isequaltoaxis(X, V, axis=0):
     raise ValueError('Invalid axis value; it has to be 0 or 1')
 
 
+def lessthanaxis(X, V, axis=0, orequal=False):
+    Xloc = np.array(X)
+    [N,M] = Xloc.shape
+    if axis == 0:
+        if len(V) != M:
+            raise ValueError('The length of the vector V should be equal to the number of columns in the matrix X')
+        Vloc = np.tile(V, [N, 1])
+        if (orequal):
+            return Xloc <= Vloc
+        else:
+            return Xloc < Vloc
+    if axis == 1:
+        if len(V) != N:
+            raise ValueError('The length of the vector V should be equal to the number of rows in the matrix X')
+        Vloc = np.tile(V, [M, 1]).transpose()
+        if (orequal):
+            return Xloc <= Vloc
+        else:
+            return Xloc < Vloc
+    raise ValueError('Invalid axis value; it has to be 0 or 1')
+
+
+def largerthanaxis(X, V, axis=0, orequal=False):
+    Xloc = np.array(X)
+    [N,M] = Xloc.shape
+    if axis == 0:
+        if len(V) != M:
+            raise ValueError('The length of the vector V should be equal to the number of columns in the matrix X')
+        Vloc = np.tile(V, [N, 1])
+        if (orequal):
+            return Xloc >= Vloc
+        else:
+            return Xloc > Vloc
+    if axis == 1:
+        if len(V) != N:
+            raise ValueError('The length of the vector V should be equal to the number of rows in the matrix X')
+        Vloc = np.tile(V, [M, 1]).transpose()
+        if (orequal):
+            return Xloc >= Vloc
+        else:
+            return Xloc > Vloc
+    raise ValueError('Invalid axis value; it has to be 0 or 1')
+
+
 def all_perms(elements):
     def local_all_perms(elements):
         if len(elements) <=1:
