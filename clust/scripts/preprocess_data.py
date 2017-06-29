@@ -338,6 +338,14 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
     for l in range(L):
         Xproc[l] = fixnans(Xproc[l])
 
+    # Quantile normalisation
+    for l in range(L):
+        if 101 in normaliseloc[l]:
+            Xproc[l] = normaliseSampleFeatureMat(Xproc[l], 101)
+            i = np.argwhere(np.array(normaliseloc[l]) == 101)
+            i = i[0][0]
+            normaliseloc[l][i] = 0
+
     # Combine replicates and sort out flipped samples
     Xproc = combineReplicates(Xproc, replicatesIDsloc, flipSamplesloc)
 

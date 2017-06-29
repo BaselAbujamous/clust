@@ -105,15 +105,19 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += msgformated('RESULTS SUMMARY', alignment='^')
     res += midline()
 
-
-    tmptxt = 'Clust analysed the profiles of {2} {0} in {3} datasets. It generated {4} clusters of {1}s, ' \
-             'which in total include {5} {1}s. The smallest cluster includes {6} {1}s, the largest cluster ' \
-             'includes {7} {1}s, and the average cluster size is {8} {1}s. {9} {1}s were not included in any ' \
-             'cluster at all.' \
-             ''.format(label0, label1, B_corrected.shape[0], len(X), B_corrected.shape[1],
-                       np.sum(np.any(B_corrected, axis=1)), np.min(np.sum(B_corrected, axis=0)),
-                       np.max(np.sum(B_corrected, axis=0)), np.mean(np.sum(B_corrected, axis=0)),
-                       B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1)))
+    K = B_corrected.shape[1]
+    if K > 0:
+        tmptxt = 'Clust analysed the profiles of {2} {0} in {3} datasets. It generated {4} clusters of {1}s, ' \
+                 'which in total include {5} {1}s. The smallest cluster includes {6} {1}s, the largest cluster ' \
+                 'includes {7} {1}s, and the average cluster size is {8} {1}s. {9} {1}s were not included in any ' \
+                 'cluster at all.' \
+                 ''.format(label0, label1, B_corrected.shape[0], len(X), K,
+                           np.sum(np.any(B_corrected, axis=1)), np.min(np.sum(B_corrected, axis=0)),
+                           np.max(np.sum(B_corrected, axis=0)), np.mean(np.sum(B_corrected, axis=0)),
+                           B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1)))
+    else:
+        tmptxt = 'Clust analysed the profiles of {0} {1} in {2} datasets. It generated {3} clusters.' \
+            .format(B_corrected.shape[0], label0, len(X), K)
     res += msgformated(tmptxt)
     if Map is not None:
         tmptxt = '\n* An OG is a group of orthologous genes within & across different species, as identified by the ' \
@@ -151,57 +155,101 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
 
 def summarise_results(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_res,
                       B_corrected, starttime, endtime, timeconsumedtxt):
-    if Map is None:
-        res = collec.OrderedDict(
-            [('Starting data and time', starttime.strftime('%A %d %B %Y (%H:%M:%S)')),
-             ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
-             ('Time consumed', timeconsumedtxt),
-             ('Number of datasets', len(X)),
-             ('Total number of input genes', GDMall.shape[0]),
-             ('Genes included in the analysis', GDM.shape[0]),
-             ('Genes filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
-             ('Number of clusters', B_corrected.shape[1]),
-             ('Total number of genes in clusters', np.sum(np.any(B_corrected, axis=1))),
-             ('Genes not included in any cluster', B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1))),
-             ('Min cluster size', np.min(np.sum(B_corrected, axis=0))),
-             ('Max cluster size', np.max(np.sum(B_corrected, axis=0))),
-             ('Average cluster size', np.mean(np.sum(B_corrected, axis=0))),
-             ('nokey0', '**********************************'),
-             ('Genes included in all datasets', np.sum(np.all(GDMall, axis=1))),
-             ('Genes missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
-             ('Genes missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
-             ('Genes missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
-             ('Genes missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
-             ])
+    K = B_corrected.shape[1]
+    if K > 0:
+        if Map is None:
+            res = collec.OrderedDict(
+                [('Starting data and time', starttime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Time consumed', timeconsumedtxt),
+                 ('Number of datasets', len(X)),
+                 ('Total number of input genes', GDMall.shape[0]),
+                 ('Genes included in the analysis', GDM.shape[0]),
+                 ('Genes filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
+                 ('Number of clusters', B_corrected.shape[1]),
+                 ('Total number of genes in clusters', np.sum(np.any(B_corrected, axis=1))),
+                 ('Genes not included in any cluster', B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1))),
+                 ('Min cluster size', np.min(np.sum(B_corrected, axis=0))),
+                 ('Max cluster size', np.max(np.sum(B_corrected, axis=0))),
+                 ('Average cluster size', np.mean(np.sum(B_corrected, axis=0))),
+                 ('nokey0', '**********************************'),
+                 ('Genes included in all datasets', np.sum(np.all(GDMall, axis=1))),
+                 ('Genes missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
+                 ('Genes missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
+                 ('Genes missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
+                 ('Genes missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
+                 ])
+        else:
+            genesOGs = np.array([[len(og_species) for og_species in og] for og in Map]) # Number of genes per OG per species
+            res = collec.OrderedDict(
+                [('Starting data and time', starttime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Time consumed', timeconsumedtxt),
+                 ('Number of datasets', len(X)),
+                 ('Total number of input OGs', GDMall.shape[0]),
+                 ('OGs included in the analysis', GDM.shape[0]),
+                 ('OGs filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
+                 ('Number of clusters', B_corrected.shape[1]),
+                 ('Total number of OGs in clusters', np.sum(np.any(B_corrected, axis=1))),
+                 ('OGs not included in any cluster', B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1))),
+                 ('Min cluster size', np.min(np.sum(B_corrected, axis=0))),
+                 ('Max cluster size', np.max(np.sum(B_corrected, axis=0))),
+                 ('Average cluster size', np.mean(np.sum(B_corrected, axis=0))),
+                 ('nokey0', '**********************************'),
+                 ('Number of species', Map.shape[1]),
+                 ('Average number of genes in an OG per type', np.mean(genesOGs)),
+                 ('Max number of genes in an OG per type', np.max(genesOGs)),
+                 ('Number of OGs with at least a single gene in each type', np.sum(np.all(genesOGs >= 1, axis=1))),
+                 ('Number of OGs with exactly a single gene in each type', np.sum(np.all(genesOGs == 1, axis=1))),
+                 ('nokey1', '**********************************'),
+                 ('OGs included in all datasets', np.sum(np.all(GDMall, axis=1))),
+                 ('OGs missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
+                 ('OGs missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
+                 ('OGs missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
+                 ('OGs missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
+                 ])
     else:
-        genesOGs = np.array([[len(og_species) for og_species in og] for og in Map]) # Number of genes per OG per species
-        res = collec.OrderedDict(
-            [('Starting data and time', starttime.strftime('%A %d %B %Y (%H:%M:%S)')),
-             ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
-             ('Time consumed', timeconsumedtxt),
-             ('Number of datasets', len(X)),
-             ('Total number of input OGs', GDMall.shape[0]),
-             ('OGs included in the analysis', GDM.shape[0]),
-             ('OGs filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
-             ('Number of clusters', B_corrected.shape[1]),
-             ('Total number of OGs in clusters', np.sum(np.any(B_corrected, axis=1))),
-             ('OGs not included in any cluster', B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1))),
-             ('Min cluster size', np.min(np.sum(B_corrected, axis=0))),
-             ('Max cluster size', np.max(np.sum(B_corrected, axis=0))),
-             ('Average cluster size', np.mean(np.sum(B_corrected, axis=0))),
-             ('nokey0', '**********************************'),
-             ('Number of species', Map.shape[1]),
-             ('Average number of genes in an OG per type', np.mean(genesOGs)),
-             ('Max number of genes in an OG per type', np.max(genesOGs)),
-             ('Number of OGs with at least a single gene in each type', np.sum(np.all(genesOGs >= 1, axis=1))),
-             ('Number of OGs with exactly a single gene in each type', np.sum(np.all(genesOGs == 1, axis=1))),
-             ('nokey1', '**********************************'),
-             ('OGs included in all datasets', np.sum(np.all(GDMall, axis=1))),
-             ('OGs missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
-             ('OGs missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
-             ('OGs missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
-             ('OGs missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
-             ])
+        if Map is None:
+            res = collec.OrderedDict(
+                [('Starting data and time', starttime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Time consumed', timeconsumedtxt),
+                 ('Number of datasets', len(X)),
+                 ('Total number of input genes', GDMall.shape[0]),
+                 ('Genes included in the analysis', GDM.shape[0]),
+                 ('Genes filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
+                 ('Number of clusters', B_corrected.shape[1]),
+                 ('nokey0', '**********************************'),
+                 ('Genes included in all datasets', np.sum(np.all(GDMall, axis=1))),
+                 ('Genes missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
+                 ('Genes missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
+                 ('Genes missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
+                 ('Genes missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
+                 ])
+        else:
+            genesOGs = np.array([[len(og_species) for og_species in og] for og in Map]) # Number of genes per OG per species
+            res = collec.OrderedDict(
+                [('Starting data and time', starttime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
+                 ('Time consumed', timeconsumedtxt),
+                 ('Number of datasets', len(X)),
+                 ('Total number of input OGs', GDMall.shape[0]),
+                 ('OGs included in the analysis', GDM.shape[0]),
+                 ('OGs filtered out from the analysis', GDMall.shape[0] - GDM.shape[0]),
+                 ('Number of clusters', B_corrected.shape[1]),
+                 ('nokey0', '**********************************'),
+                 ('Number of species', Map.shape[1]),
+                 ('Average number of genes in an OG per type', np.mean(genesOGs)),
+                 ('Max number of genes in an OG per type', np.max(genesOGs)),
+                 ('Number of OGs with at least a single gene in each type', np.sum(np.all(genesOGs >= 1, axis=1))),
+                 ('Number of OGs with exactly a single gene in each type', np.sum(np.all(genesOGs == 1, axis=1))),
+                 ('nokey1', '**********************************'),
+                 ('OGs included in all datasets', np.sum(np.all(GDMall, axis=1))),
+                 ('OGs missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
+                 ('OGs missed from 2 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 2)),
+                 ('OGs missed from 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) == 3)),
+                 ('OGs missed from more than 3 datasets', np.sum(np.sum(GDMall == 0, axis=1) > 3))
+                 ])
     return res
 
 
@@ -211,6 +259,8 @@ def clusters_genes_OGs(B, OGs, Map, MapSpecies, delim='; '):
     else:
         Nsp = len(MapSpecies)  # Number of species
     K = B.shape[1]  # Number of clusters
+    if K == 0:
+        return np.array(np.empty([1, 1]), dtype=object)
     Csizes = np.sum(B, axis=0)  # Clusters' sizes
     maxCsize = np.max(Csizes)  # Largest cluster size
     res = np.array(np.empty([maxCsize, (Nsp + 1) * K], dtype=str), dtype=object)

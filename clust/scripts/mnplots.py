@@ -296,7 +296,7 @@ def mnplotsdistancethreshold(dists, method='bimodal', returnmodel=False):
             labels = [1]
         else:
             gaps = np.subtract(dists[1:], dists[0:-1])
-            wgaps = np.multiply(gaps, np.arange(len(gaps), 0, -1))
+            wgaps = np.multiply(gaps, np.arange(len(gaps), 0, -1))  # weight gaps (higher weight for first clusters)
             labels = np.arange(0, np.argmax(wgaps)+1)
         return labels
     else:
