@@ -79,6 +79,10 @@ def main(args=None):
                         default=0)
     parser.add_argument('-fil-d', metavar='<integer>', dest='fild', type=int,
                         help='Filtering: number of datasets (default: 0)', default=0)
+    parser.add_argument('--fil-abs', dest='absval', action='store_true',
+                        help='Filter using absolute values of expression')
+    parser.add_argument('--fil-perc', dest='filperc', action='store_true',
+                        help='-fil-v is a percentile rather than raw value')
     parser.add_argument('-cs', metavar='<integer>', type=int, help='Smallest cluster size (default: 11)', default=11)
     parser.add_argument('-q3s', metavar='<real number>', type=float,
                         help='Q3''s defining outliers (default: 2.0)', default=2.0)
@@ -88,7 +92,7 @@ def main(args=None):
                         help='Use deterministic settings across all steps')
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
                         default=1)
-    parser.set_defaults(optimisation=True, deterministic=False)
+    parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
     if len(args) == 0:
@@ -96,10 +100,14 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
+    if args.filperc:
+        filtype = 'perc'
+    else:
+        filtype = 'raw'
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
-                                args.s, args.d, args.filv, args.filc, args.fild, args.cs, args.np, args.optimisation,
-                                args.q3s, args.deterministic)
+                                args.s, args.d, args.filv, args.filc, args.fild, args.absval, filtype, args.cs,
+                                args.np, args.optimisation, args.q3s, args.deterministic)
 
 
 if __name__ == "__main__":

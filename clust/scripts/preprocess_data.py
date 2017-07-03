@@ -5,7 +5,7 @@ import math
 import datastructures as ds
 import numeric as nu
 import re
-import io
+# import io
 import warnings
 from copy import deepcopy
 
@@ -27,18 +27,18 @@ def isnan(X):
 
 
 def fixnans(Xin, method='spline'):
-    def fixrow(rowin, method='spline'):
+    def fixrow(rowin, methodloc='spline'):
         rowout = np.array(rowin)
 
         unknown = isnan(rowin)
-        known = [not x for x in unknown]
+        known = [not xx for xx in unknown]
 
         tknown = np.nonzero(known)[0]
-        tunknown = np.nonzero((unknown))[0]
+        tunknown = np.nonzero(unknown)[0]
 
         xknown = np.take(rowin, tknown)
 
-        if method == 'spline':
+        if methodloc == 'spline':
             if len(xknown) > 3:
                 sf = spinter.UnivariateSpline(tknown, xknown)
             else:
@@ -99,73 +99,73 @@ def normaliseSampleFeatureMat(X, type):
         return Xout
 
     if type == 1:
-        #1: Divide by the mean
+        # 1: Divide by the mean
         Xout = nu.divideaxis(Xout, np.mean(Xout, axis=1), 1)
 
     if type == 2:
-        #2: Divide by the first value
-        Xout = nu.divideaxis(Xout, Xout[:,1], 1)
+        # 2: Divide by the first value
+        Xout = nu.divideaxis(Xout, Xout[:, 1], 1)
 
     if type == 3:
-        #3: Take log2
-        Xout[Xout<=0] = float('nan')
+        # 3: Take log2
+        Xout[Xout <= 0] = float('nan')
         Xout = np.log2(Xout)
         ind1 = np.any(isnan(Xout), axis=1)
         Xout[ind1] = fixnans(Xout[ind1])
 
     if type == 4:
-        #4: Subtract the mean and divide by the std
+        # 4: Subtract the mean and divide by the std
         Xout = nu.subtractaxis(Xout, np.mean(Xout, axis=1), axis=1)
         ConstGenesIndices = np.std(Xout, axis=1) == 0
         Xout = nu.divideaxis(Xout, np.std(Xout, axis=1), axis=1)
         Xout[ConstGenesIndices] = 0
 
     if type == 5:
-        #5: Divide by the sum
+        # 5: Divide by the sum
         Xout = nu.divideaxis(Xout, np.sum(Xout, axis=1), axis=1)
 
     if type == 6:
-        #6: Subtract the mean
+        # 6: Subtract the mean
         Xout = nu.subtractaxis(Xout, np.mean(Xout, axis=1), axis=1)
 
     if type == 7:
-        #7: Divide by the maximum
+        # 7: Divide by the maximum
         Xout = nu.divideaxis(Xout, np.max(Xout, axis=1), axis=1)
 
     if type == 8:
-        #8: (2 to the power X)
+        # 8: (2 to the power X)
         Xout = np.power(2, Xout)
 
     if type == 9:
-        #9: Subtract the min
+        # 9: Subtract the min
         Xout = nu.subtractaxis(Xout, np.min(Xout, axis=1), axis=1)
 
     if type == 10:
-        #10: Rank: 0 for lowest, then 1, 2, ...; average on ties
+        # 10: Rank: 0 for lowest, then 1, 2, ...; average on ties
         Xout = spmstats.rankdata(Xout, axis=0) - 1
 
     if type == 11:
-        #11: Rank: 0 for lowest, then 1, 2, ...; arbitrary order on ties
-        Xout = np.argsort(np.argsort(Xout,axis=0), axis=0)
+        # 11: Rank: 0 for lowest, then 1, 2, ...; arbitrary order on ties
+        Xout = np.argsort(np.argsort(Xout, axis=0), axis=0)
 
     if type == 12:
-        #12: Normalise to the [0 1] range
+        # 12: Normalise to the [0 1] range
         Xout = nu.subtractaxis(Xout, np.min(Xout, axis=1), axis=1)
         Xout = nu.divideaxis(Xout, np.max(Xout, axis=1), axis=1)
 
     # 100s
     if type == 101:
-        #101: quantile
+        # 101: quantile
         av = np.mean(np.sort(Xout, axis=0), axis=1)
         II = np.argsort(np.argsort(Xout, axis=0), axis=0)
         Xout = av[II]
 
     if type == 102:
-        #102: subtract the mean of each sample (column) from it
-        Xout = nu.subtractaxis(Xout, np.mean(Xout,axis=0), axis=0)
+        # 102: subtract the mean of each sample (column) from it
+        Xout = nu.subtractaxis(Xout, np.mean(Xout, axis=0), axis=0)
 
     if type == 103:
-        #103: subtract the global mean of the data
+        # 103: subtract the global mean of the data
         Xout -= np.mean(Xout)
 
     return Xout
@@ -197,12 +197,12 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
     # Split Map entries by the delim
     for i in range(Maploc.shape[0]):
         for j in range(Maploc.shape[1]):
-            Maploc[i, j] = re.split(delimGenesInMap, Maploc[i, j].replace('.','thisisadot'))
-            Maploc[i, j] = [gg.replace('thisisadot','.') for gg in Maploc[i, j]]
+            Maploc[i, j] = re.split(delimGenesInMap, Maploc[i, j].replace('.', 'thisisadot'))
+            Maploc[i, j] = [gg.replace('thisisadot', '.') for gg in Maploc[i, j]]
 
     # Generate a flattened version of the Map: FlattenedMap[s] is a 1d list of all genes in the (s)th Map row, i.e.
     # in the (s)th species; this will make FlattenedMap[s1][n] not necessarily corresponding to FlattenedMap[s2][n])
-    S = Maploc.shape[0]  # Number of species
+    # S = Maploc.shape[0]  # Number of species
     FlattenedMap = [np.array(ds.flattenAList(ms.tolist())) for ms in Maploc]
 
     OGsDatasets = np.array([None] * L, dtype=object)
@@ -212,9 +212,8 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
                        for speciesgenes in FlattenedMap])  # The most matching species
 
         OGsDatasets[l] = np.array(['' for i in range(Ng)], dtype=object)  # Default gene name for unmapped genes is ''
-        findGenesInMap = ds.findArrayInSubArraysOfAnotherArray1D(Genes[l], Maploc[s])  # Indices of Genes in the Map (Ngx1 indices)
+        findGenesInMap = ds.findArrayInSubArraysOfAnotherArray1D(Genes[l], Maploc[s])  # Indices of Genes in Map (Ngx1)
         OGsDatasets[l][findGenesInMap > -1] = OGs[findGenesInMap[findGenesInMap > -1]]
-
 
     OGsFiltered = np.unique(ds.flattenAList(OGsDatasets.flatten().tolist()))  # Get sorted unique and *USED* OGs
     OGsFiltered = OGsFiltered[OGsFiltered != '']
@@ -222,10 +221,11 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
     Maploc = Maploc.transpose()[I]
 
     # Return
-    return (OGsFiltered, OGsDatasets, Maploc, MapSpecies)
+    return OGsFiltered, OGsDatasets, Maploc, MapSpecies
 
 
-def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstColMap=True, delimGenesInMap='\\W+', OGsIncludedIfAtLeastInDatasets=1):
+def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstColMap=True, delimGenesInMap='\\W+',
+                                  OGsIncludedIfAtLeastInDatasets=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     Genesloc = deepcopy(Genes)
     if Map is None:
@@ -234,10 +234,11 @@ def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstCo
         MapNew = None
         MapSpecies = None
     else:
-        (OGs, OGsDatasets, MapNew, MapSpecies) = mapGenesToCommonIDs(Genes, Map, mapheader, OGsFirstColMap, delimGenesInMap)
+        (OGs, OGsDatasets, MapNew, MapSpecies) = mapGenesToCommonIDs(Genes, Map, mapheader,
+                                                                     OGsFirstColMap, delimGenesInMap)
 
     L = len(Genesloc)  # Number of datasets
-    Ng = len(OGs)  # Number of unique genes
+    # Ng = len(OGs)  # Number of unique genes
 
     GDMall = np.transpose([np.in1d(OGs, gs) for gs in OGsDatasets])  # GDM: (Ng)x(L) boolean
 
@@ -263,10 +264,11 @@ def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstCo
             Xnew[l][ogi] = np.sum(Xloc[l][np.in1d(OGsDatasets[l], og)], axis=0)
             GenesDatasets[l][ogi] = ds.concatenateStrings(Genesloc[l][np.in1d(OGsDatasets[l], og)])
 
-    return (Xnew, GDM, GDMall, OGs, MapNew, MapSpecies)
+    return Xnew, GDM, GDMall, OGs, MapNew, MapSpecies
 
 
-def filterlowgenes(X, GDM, threshold=10.0, replacementVal=0.0, atleastinconditions=1, atleastindatasets=1):
+def filterlowgenes_raw(X, GDM, threshold=10.0, replacementVal=0.0, atleastinconditions=1, atleastindatasets=1,
+                       absvalue=False, usereplacementval=False):
     Xloc = np.array(X)
     GDMloc = np.array(GDM)
     L = len(Xloc)  # Number of the datasets
@@ -276,8 +278,14 @@ def filterlowgenes(X, GDM, threshold=10.0, replacementVal=0.0, atleastinconditio
     # find genes which do not pass this threshold, i.e. have been set to zero, at all:
     Iincluded = np.zeros([Ng, L], dtype=bool)  # The genes which pass the threshold in at least atleastinconditions
     for l in range(L):
-        Xloc[l][Xloc[l] < threshold] = replacementVal
-        Iincluded[GDMloc[:, l], l] = np.sum(Xloc[l] >= threshold, axis=1) >= atleastinconditions
+        if absvalue:
+            if usereplacementval:
+                Xloc[l][np.abs(Xloc[l]) < threshold] = replacementVal
+            Iincluded[GDMloc[:, l], l] = np.sum(np.abs(Xloc[l]) >= threshold, axis=1) >= atleastinconditions
+        else:
+            if usereplacementval:
+                Xloc[l][Xloc[l] < threshold] = replacementVal
+            Iincluded[GDMloc[:, l], l] = np.sum(Xloc[l] >= threshold, axis=1) >= atleastinconditions
     Iincluded = np.sum(Iincluded, axis=1) >= atleastindatasets
 
     # Update Xloc, Genesloc, and finally GDM loc
@@ -286,7 +294,54 @@ def filterlowgenes(X, GDM, threshold=10.0, replacementVal=0.0, atleastinconditio
     GDMloc = GDMloc[Iincluded]
 
     # Return results:
-    return (Xloc, GDMloc, Iincluded)
+    return Xloc, GDMloc, Iincluded
+
+
+def filterlowgenes_perc(X, GDM, threshold=10.0, replacementVal=0.0, atleastinconditions=1, atleastindatasets=1,
+                        absvalue=False, usereplacementval=False):
+    Xloc = np.array(X)
+    GDMloc = np.array(GDM)
+    L = len(Xloc)  # Number of the datasets
+    Ng = GDMloc.shape[0]  # Number of genes
+    if threshold < 1.0:
+        threshold = threshold * 100
+    threshold = int(threshold)
+
+    # Set values less than the threshold to zero, then
+    # find genes which do not pass this threshold, i.e. have been set to zero, at all:
+    Iincluded = np.zeros([Ng, L], dtype=bool)  # The genes which pass the threshold in at least atleastinconditions
+    for l in range(L):
+        if absvalue:
+            thresholdloc = np.percentile(np.abs(Xloc[l]), threshold)
+            if usereplacementval:
+                Xloc[l][np.abs(Xloc[l]) < thresholdloc] = replacementVal
+            Iincluded[GDMloc[:, l], l] = np.sum(np.abs(Xloc[l]) >= thresholdloc, axis=1) >= atleastinconditions
+        else:
+            thresholdloc = np.percentile(Xloc[l], threshold)
+            if usereplacementval:
+                Xloc[l][Xloc[l] < thresholdloc] = replacementVal
+            Iincluded[GDMloc[:, l], l] = np.sum(Xloc[l] >= thresholdloc, axis=1) >= atleastinconditions
+    Iincluded = np.sum(Iincluded, axis=1) >= atleastindatasets
+
+    # Update Xloc, Genesloc, and finally GDM loc
+    for l in range(L):
+        Xloc[l] = Xloc[l][Iincluded[GDMloc[:, l]]]
+    GDMloc = GDMloc[Iincluded]
+
+    # Return results:
+    return Xloc, GDMloc, Iincluded
+
+
+def filterlowgenes(X, GDM, threshold=10.0, replacementVal=0.0, atleastinconditions=1, atleastindatasets=1,
+                   absvalue=False, usereplacementval=False, filteringtype='raw'):
+    if filteringtype == 'raw':
+        return filterlowgenes_raw(X, GDM, threshold, replacementVal, atleastinconditions, atleastindatasets,
+                                  absvalue, usereplacementval)
+    elif filteringtype == 'perc':
+        return filterlowgenes_perc(X, GDM, threshold, replacementVal, atleastinconditions, atleastindatasets,
+                                   absvalue, usereplacementval)
+    else:
+        raise ValueError('Invalid filtering type')
 
 
 def combineReplicates(X, replicatesIDs, flipSamples):
@@ -311,11 +366,13 @@ def combineReplicates(X, replicatesIDs, flipSamples):
 
 
 def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expressionValueThreshold=10.0,
-               replacementVal=0.0, atleastinconditions=1, atleastindatasets=1, params=None):
+               replacementVal=0.0, atleastinconditions=1, atleastindatasets=1, absvalue=False, usereplacementval=False,
+               filteringtype='raw', params=None):
     # Fixing parameters
     Xloc = ds.listofarrays2arrayofarrays(X)
     L = len(Xloc)
-    if params is None: params = {}
+    if params is None:
+        params = {}
     if replicatesIDs is None:
         replicatesIDsloc = [np.array([ii for ii in range(x.shape[1])]) for x in Xloc]
     else:
@@ -327,7 +384,8 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
         flipSamplesloc = ds.listofarrays2arrayofarrays(flipSamples)
         flipSamplesloc = [np.array(x) for x in flipSamplesloc]
     if not isinstance(normalise, (list, tuple, np.ndarray)):
-        normaliseloc = [normalise if isinstance(normalise, (list, tuple, np.ndarray)) else [normalise] for i in range(L)]
+        normaliseloc = [normalise if isinstance(normalise, (list, tuple, np.ndarray))
+                        else [normalise] for i in range(L)]
         normaliseloc = ds.listofarrays2arrayofarrays(normaliseloc)
     else:
         normaliseloc = [nor if isinstance(nor, (list, tuple, np.ndarray)) else [nor] for nor in normalise]
@@ -351,7 +409,8 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
 
     # Filter genes not exceeding the threshold
     (Xproc, GDMnew, Iincluded) = filterlowgenes(Xproc, GDM, expressionValueThreshold, replacementVal,
-                                                atleastinconditions, atleastindatasets)
+                                                atleastinconditions, atleastindatasets, absvalue,
+                                                usereplacementval, filteringtype)
 
     # Normalise
     for l in range(L):
@@ -365,6 +424,4 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
         'L': L
     })
 
-    return (Xproc, GDMnew, Iincluded, params)
-
-
+    return Xproc, GDMnew, Iincluded, params
