@@ -24,39 +24,17 @@ def main(args=None):
     headertxt += op.msgformated('Citation\n'
                                 '~~~~~~~~', '^')
     citationtxt = 'When publishing work that uses Clust, please include these two citations:\n' \
-                  '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version {0}) [Python package]. Available at ' \
-                  'https://github.com/BaselAbujamous/clust.\n' \
+                  '1. Basel Abu-Jamous and Steven Kelly (2017) Clust: automatic extraction of optimal co-expressed ' \
+                  'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.\n' \
                   '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
                   'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
-                  'PLOS ONE, 8(2): e56432'.format(version[1:])
+                  'PLOS ONE, 8(2): e56432'
     headertxt += op.msgformated(citationtxt, '<')
     headertxt += op.midline()
     headertxt += op.msgformated('Full description of usage can be found at:\n'
                                 'https://github.com/BaselAbujamous/clust', '<')
     headertxt += op.bottomline()
 
-    '''
-    headertxt = '/==========================================================================\\\n' \
-                '|                                  Clust                                   |\n' \
-                '|     Optimised consensus clustering of multiple heterogeneous datasets    |\n' \
-                '|                              Version {0}                                |\n' \
-                '|                                                                          |\n' \
-                '|                            By Basel Abu-Jamous                           |\n' \
-                '|                       Department of Plant Sciences                       |\n' \
-                '|                         The University of Oxford                         |\n' \
-                '|                      basel.abujamous@plants.ox.ac.uk                     |\n' \
-                '+--------------------------------------------------------------------------+\n' \
-                '|                                 Citation                                 |\n' \
-                '|                                 ~~~~~~~~                                 |\n' \
-                '| When publishing work that uses Clust, please include these two citations |\n' \
-                '| 1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.0) [Python   |\n' \
-                '|    package]. Available at https://github.com/BaselAbujamous/clust        |\n' \
-                '| 2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) |\n' \
-                '|    Paradigm of tunable clustering using binarisation of consensus        |\n' \
-                '|    partition matrices (Bi-CoPaM) for gene discovery, PLOS ONE, 8(2):     |\n' \
-                '|    e56432.                                                               |\n' \
-                '\\==========================================================================/\n'.format(version)
-    '''
     parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
     parser.add_argument('datapath', help='The directory that includes the data files.', default=None)
     parser.add_argument('-n', metavar='<file>', help='Normalisation codes file', default=None)
