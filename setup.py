@@ -1,3 +1,12 @@
+# HOW TO SETUP (FOR PIP)
+# Go to the clust directory and remove dist/ and build folders by
+# sudo rm -r dist/
+# sudo rm -r build/
+# Create the bdist_wheel file:
+# sudo python setup.py sdist bdist_wheel
+# Upload to pypi:
+# twine upload dist/*
+# You will be asked for username (basel) and pword
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
