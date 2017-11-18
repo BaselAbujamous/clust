@@ -384,9 +384,5 @@ You may also like to save results in an output directory of your choice by using
 
 
 # Citation
-When publishing work that uses *Clust*, please include these two citations:
-1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version 1.1.6) [Python package]. Available at
-https://github.com/BaselAbujamous/clust.
-2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable
-clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery,
-PLOS ONE, 8(2): e56432 
+When publishing work that uses *Clust*, please cite this pre-print:
+1. Basel Abu-Jamous and Steven Kelly (2017) Clust: automatic extraction of optimal co-expressed gene clusters from gene expression data. `bioRxiv` 221309; doi: https://doi.org/10.1101/221309.
