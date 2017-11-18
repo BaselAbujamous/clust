@@ -128,17 +128,12 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
 
     res += msgformated('Citation\n~~~~~~~~', alignment='^')
     tmptxt = 'When publishing work that uses Clust, please include these two citations:\n' \
-             '1. Basel Abu-Jamous and Steve Kelly (2017) Clust (Version {0}) [Python package]. Available at ' \
-             'https://github.com/BaselAbujamous/clust.\n' \
+             '1. Basel Abu-Jamous and Steven Kelly (2017) Clust: automatic extraction of optimal co-expressed ' \
+             'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.\n' \
              '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
              'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
-             'PLOS ONE, 8(2): e56432'.format(version[1:])
+             'PLOS ONE, 8(2): e56432.'
 
-    '''
-             '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2015) UNCLES: method for the ' \
-             'identification of genes differentially consistently co-expressed in a specific subset of datasets, ' \
-             'BMC Bioinformatics, 16: 184.'
-             '''
     res += msgformated(tmptxt)
     res += midline()
 
