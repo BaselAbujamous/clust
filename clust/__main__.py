@@ -24,7 +24,7 @@ def main(args=None):
     headertxt += op.msgformated('Citation\n'
                                 '~~~~~~~~', '^')
     citationtxt = 'When publishing work that uses Clust, please include these two citations:\n' \
-                  '1. Basel Abu-Jamous and Steven Kelly (2017) Clust: automatic extraction of optimal co-expressed ' \
+                  '1. Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed ' \
                   'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.\n' \
                   '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
                   'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \

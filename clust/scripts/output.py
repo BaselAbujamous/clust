@@ -65,7 +65,7 @@ def generateinitialmessage():
     res = '\n' + topline()
     tmptxt = 'Clust\n' \
              '(Optimised consensus clustering of multiple heterogenous datasets)\n' \
-             'Python package version {0} (2017) Basel Abu-Jamous'.format(version[1:])
+             'Python package version {0} (2018) Basel Abu-Jamous'.format(version[1:])
     res += msgformated(tmptxt, alignment='^')
     res += midline()
 
@@ -128,7 +128,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
 
     res += msgformated('Citation\n~~~~~~~~', alignment='^')
     tmptxt = 'When publishing work that uses Clust, please include these two citations:\n' \
-             '1. Basel Abu-Jamous and Steven Kelly (2017) Clust: automatic extraction of optimal co-expressed ' \
+             '1. Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed ' \
              'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.\n' \
              '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
              'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \

@@ -385,4 +385,4 @@ You may also like to save results in an output directory of your choice by using
 
 # Citation
 When publishing work that uses *Clust*, please cite this pre-print:
-1. Basel Abu-Jamous and Steven Kelly (2017) Clust: automatic extraction of optimal co-expressed gene clusters from gene expression data. `bioRxiv` 221309; doi: https://doi.org/10.1101/221309.
+1. Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed gene clusters from gene expression data. `bioRxiv` 221309; doi: https://doi.org/10.1101/221309.
