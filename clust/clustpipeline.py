@@ -69,7 +69,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
     # Read data
     io.log('1. Reading datasets')
-    (X, replicates, Genes, datafiles) = io.readDatasetsFromDirectory(datapath, delimiter='\t', skiprows=1, skipcolumns=1,
+    (X, replicates, Genes, datafiles) = io.readDatasetsFromDirectory(datapath, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1,
                                                                      returnSkipped=True)
     datafiles_noext = [os.path.splitext(d)[0] for d in datafiles]
 

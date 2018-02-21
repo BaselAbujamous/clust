@@ -20,7 +20,7 @@ def getFilesInDirectory(path, extension=None):
             return [fn for fn in filenames if re.match('(.*\.' + extension + '$)', fn) is not None]
 
 
-def readDatasetsFromDirectory(path, delimiter='\t', skiprows=1, skipcolumns=1, returnSkipped=False):
+def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1, returnSkipped=False):
     datafiles = np.sort(getFilesInDirectory(path)).tolist()
 
     datafileswithpath = [path + '/' + df for df in datafiles]
@@ -142,19 +142,19 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
     return normalise
 
 
-def readDataFromFiles(datafiles, delimiter='\t', dtype=float, skiprows=1, skipcolumns=1, returnSkipped=True, comm='#'):
+def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skiprows=1, skipcolumns=1, returnSkipped=True, comm='#'):
     L = len(datafiles)
     X = [None] * L
     skippedRows = [None] * L
     skippedCols = [None] * L
     for l in range(L):
         with open(datafiles[l]) as f:
-            ncols = len(f.readline().split(delimiter))
-        X[l] = np.loadtxt(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows,
+            ncols = len(re.split(delimiter, f.readline()))
+        X[l] = nploadtxt_regexdelim(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows,
                           usecols=range(skipcolumns, ncols), ndmin=2, comments=comm)
 
         if skiprows > 0:
-            skippedRows[l] = np.loadtxt(datafiles[l], delimiter=delimiter, dtype=str, skiprows=0,
+            skippedRows[l] = nploadtxt_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=0,
                                         usecols=range(skipcolumns, ncols), comments=comm)[0:skiprows]
             if skiprows == 1:
                 skippedRows[l] = skippedRows[l][0]
@@ -162,7 +162,7 @@ def readDataFromFiles(datafiles, delimiter='\t', dtype=float, skiprows=1, skipco
             skippedRows[l] = np.array([]).reshape([0, X[l].shape[1]])
 
         if skipcolumns > 0:
-            skippedCols[l] = np.loadtxt(datafiles[l], delimiter=delimiter, dtype=str, skiprows=skiprows,
+            skippedCols[l] = nploadtxt_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=skiprows,
                                         usecols=range(skipcolumns), comments=comm)
         else:
             skippedCols[l] = np.array([]).reshape([0, X[l].shape[1]])
@@ -171,6 +171,14 @@ def readDataFromFiles(datafiles, delimiter='\t', dtype=float, skiprows=1, skipco
         return (ds.listofarrays2arrayofarrays(X), skippedRows, skippedCols)
     else:
         return ds.listofarrays2arrayofarrays(X)
+
+
+# Does the same job as numpy.loadtxt but regex delimiter
+def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, ndmin=0, comments='#'):
+    with open(file) as f:
+        result = np.loadtxt((re.sub(delimiter, b'\t', x) for x in f),
+                            delimiter='\t', dtype=dtype, skiprows=skiprows, usecols=usecols, ndmin=ndmin, comments=comments)
+    return result
 
 
 def writedic(filepath, dic, header=None, delim='\t'):
