@@ -20,13 +20,20 @@ Optimised consensus clustering of one or more heterogeneous datasets
 *Clust* is a fully automated method for identification of clusters (groups) of genes that are consistently
 co-expressed (well-correlated) in one or more heterogeneous datasets from one or multiple species.
 
-![Clusters](Images/Clusters.png)
+#### The single dataset case:
+![Clusters_oneDS](Images/Clusters_1DS.png)
 
-*Figure 1: Clust processeses multiple gene expression datasets (X1, X2, ... X(*L*)) to identifiy clusters of genes
+*Figure 1: Clust processes one gene expression dataset to identify (*K*) clusters of co-expressed genes. Clust
+automatically identifies the number of clusters (*K*).* 
+
+#### The multiple datasets case:
+![Clusters_multiDS](Images/Clusters.png)
+
+*Figure 2: Clust processes multiple gene expression datasets (X1, X2, ... X(*L*)) to identify clusters of genes
 that are co-expressed (well-correlated) in each of the input datasets. The left-hand panel shows the gene expression
-profiles of all genes in each of the input datasets, while the right-hand panel shows the gene expression profiles of
-the genes in the clusters (C1, C2, ... C(*k*)). Note that the number of conditions or time points are different for
-each dataset.
+profiles of all genes in each one of the input datasets, while the right-hand panel shows the gene expression profiles 
+of the genes in the clusters (C1, C2, ... C(*k*)). Note that the number of conditions or time points are different for
+each dataset.*
 
 ### Features!
 
@@ -53,7 +60,7 @@ each dataset.
 # How does Clust do it?
 ![Clust workflow](Images/Workflow_PyPkg.png)
 
-*Figure 2: Automatic Clust analysis pipeline*
+*Figure 3: Automatic Clust analysis pipeline*
 
 # Install *Clust*
 
@@ -137,7 +144,7 @@ gene expression values.
 
 ![Data_simple](Images/Data_simple.png)
 
-*Figure 3: Snapshots of the first few lines of three data files X1.txt, X2.txt, and X3.txt.*
+*Figure 4: Snapshots of the first few lines of three data files X1.txt, X2.txt, and X3.txt.*
 
 * When the same gene ID appears in different datasets, it is considered to refer to the same gene.
 * If more than one row in the same file had the same identifier, they are automatically summarised by
@@ -158,7 +165,7 @@ application of normalisation techniques.
 
 ![NormalisationFile](Images/NormalisationFile.png)
 
-*Figure 4: Normalisation file indicating the types of normalisation that should be applied to each of the datasets.*
+*Figure 5: Normalisation file indicating the types of normalisation that should be applied to each of the datasets.*
 
 * Delimiters between these elements can be spaces, TABs, commas, or semicolons.
 
@@ -209,7 +216,7 @@ and includes these elements in order:
 
 ![ReplicatesFile](Images/ReplicatesFile.png)
 
-*Figure 5: Replicates file*
+*Figure 6: Replicates file*
 
 * Delimiters between these elements can be spaces, TABs, commas, or semicolons.
 
@@ -224,16 +231,16 @@ column split by commas.
 
 ![MapFile](Images/MapFile.png)
 
-*Figure 6: Mapping fission and budding yeast genes*
+*Figure 7: Mapping fission and budding yeast genes*
 
 ![MapFile2](Images/MapFile2.png)
 
-*Figure 7: Mapping rice, setaria, and maize genes. Notice that some OGs do not include genes in some species*
+*Figure 8: Mapping rice, setaria, and maize genes. Notice that some OGs do not include genes in some species*
 
 * You can use [Orthofinder](#) to identify the OGs across multiple species. Orthofiner's output file `Orthogroups.csv`
 can be provided directly to `clust` as the mapping file.
 
-* If some genes do not exist in some species (e.g. Figure 7), have a look at the section [Genes missing from some
+* If some genes do not exist in some species (e.g. Figure 8), have a look at the section [Genes missing from some
 datasets](#genes-missing-from-some-datasets) below.
 
 
@@ -276,7 +283,7 @@ This mapping file is provided to `clust` by the `-m` option:
 
 These are many reasons that result in missing some genes from some datasets:
 
-* Datasets are from multiple species and some genes do not exist in some species (see Figure 7 above for example)
+* Datasets are from multiple species and some genes do not exist in some species (see Figure 8 above for example)
 * Older platforms of microarrays did not include probes for some genes
 * Other reasons
 
