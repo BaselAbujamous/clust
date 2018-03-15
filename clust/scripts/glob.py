@@ -3,7 +3,7 @@ tmpfile = 'tmp'
 object_label_upper = 'Gene'
 object_label_lower = 'gene'
 outputwidth = 73
-version = 'v1.6.0'
+version = 'v1.7.0'
 
 
 def set_logfile(val):

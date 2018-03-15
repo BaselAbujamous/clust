@@ -182,7 +182,7 @@ application of normalisation techniques.
 
 Code | Definition
 |:---:|:---|
-0|No normalisation
+0|No normalisation (Default in v1.6.0 and earlier)
 1|Divide by the mean value of the row
 2|Divide by the first value of the row
 3|Log2
@@ -199,6 +199,8 @@ Code | Definition
 101|Quantile normalisation
 102|Column-wise mean subtraction
 103|Subtract the global mean of the entire dataset
+-|-
+1000|Automatic detection of suitable normalisation (Default in v1.7.0 and newer)
 
 
 # Handling replicates

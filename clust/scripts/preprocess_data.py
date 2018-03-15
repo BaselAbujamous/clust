@@ -1,6 +1,8 @@
 import numpy as np
 import scipy.interpolate as spinter
 import scipy.stats.mstats as spmstats
+import scipy.stats as spst
+import sklearn.mixture as skmix
 import math
 import datastructures as ds
 import numeric as nu
@@ -70,6 +72,117 @@ def fixnans(Xin, method='spline'):
     return Xout
 
 
+def percentage_less_than(X, v):
+    """
+    Percentage of elements in matrix X that are less than the value v
+    :param X: Matrix of numbers (numpy array)
+    :param v: A value to be compared with
+    :return: A percentage in the range [0.0, 1.0]
+    """
+    return np.sum(X < v) * 1.0 / ds.numel(X)
+
+
+def isnormal_68_95_99p7_rule(X):
+    """
+    Test if data is normally distributed by checking the percentages of values below different stds away from the mean
+    This is not fully implemented and is not used in the current version of the method
+    :param X: Dataset matrix (numpy array)
+    :return:
+    """
+    n = ds.numel(X)
+    m = np.mean(X)
+    s = np.std(X)
+
+    bins = np.linspace(np.min(X), np.max(X), 100)
+    d = np.digitize(np.concatenate(X), bins)
+    xd = bins[d-1]
+    mode = spst.mode(xd)[0]
+
+    # Find the percentage of elements less than these seven values
+    m3s = percentage_less_than(X, m - 3 * s)  # mean minus 3s (theory ~= N(0.0013, s=0.0315/sqrt(n)))
+    m2s = percentage_less_than(X, m - 2 * s)  # mean minus 2s (theory ~= N(0.0228, s=0.1153/sqrt(n)))
+    m1s = percentage_less_than(X, m - 1 * s)  # mean minus 1s (theory ~= N(0.1587, s=0.2116/sqrt(n)))
+    p0s = percentage_less_than(X, m)  # mean (theory ~= N(0.5000, s=0.3013/sqrt(n)))
+    p1s = percentage_less_than(X, m + 1 * s)  # mean plus 1s (theory ~= N(0.8413, s=0.2116/sqrt(n)))
+    p2s = percentage_less_than(X, m + 2 * s)  # mean plus 2s (theory ~= N(0.9772, s=0.1153/sqrt(n)))
+    p3s = percentage_less_than(X, m + 3 * s)  # mean plus 3s (theory ~= N(0.9987, s=0.0315/sqrt(n)))
+    md = percentage_less_than(X, mode)  # mode (theory ~= N(0.9987, s=0.0315/sqrt(n)))
+
+    # How were these theoretical distributions calculated??
+    # The distributions of these stds were found empirically by calculating them from 1000x26 randomly generated
+    # normally distributed numbers ~N(0.0, 1.0). 26 different population sizes were considered "round(10.^(1:0.2:6))",
+    # at each population size, 1000 random populations were generated. It was observed that at a fixed population size,
+    # the percentages of elements less than (m-3*s) or (m-2*s) ... (etc.) were normally distributed with an average
+    # equal to the expected CDF at (m-3*s) or (m-2*s) ... (etc.) and with a standard deviation that is inversely
+    # linearly proportional to the square root of the size of the population. The empirical values were calculated from
+    # this experiment and are included above. For example: the percentage of elements that are less than (m-2*s) in a
+    # population of n elements is expected to be 0.0228 (2.28%) with a standard deviation of 0.1587/sqrt(n).
+    # This empirical test was run on MATLAB
+
+    # Calculate one-tailed p-values for the seven values above based on normal distributions
+    pv = np.array([i*1.0 for i in range(8)])
+    diff = np.array([i*1.0 for i in range(8)])
+
+    pv[0] = 1-2*spst.norm.cdf(-abs(m3s-0.0013), loc=0, scale=0.0315/math.sqrt(n))
+    diff[0] = abs(m3s-0.0013)
+
+    pv[1] = 1-2*spst.norm.cdf(-abs(m2s-0.0228), loc=0, scale=0.1153/math.sqrt(n))
+    diff[1] = abs(m2s-0.0228)
+
+    pv[2] = 1-2*spst.norm.cdf(-abs(m1s-0.1587), loc=0, scale=0.2116/math.sqrt(n))
+    diff[2] = abs(m1s-0.1587)
+
+    pv[3] = 1-2*spst.norm.cdf(-abs(p0s-0.5000), loc=0, scale=0.3013/math.sqrt(n))
+    diff[3] = abs(p0s-0.5000)
+
+    pv[4] = 1-2*spst.norm.cdf(-abs(p1s-0.8413), loc=0, scale=0.2116/math.sqrt(n))
+    diff[4] = abs(p1s-0.8413)
+
+    pv[5] = 1-2*spst.norm.cdf(-abs(p2s-0.9772), loc=0, scale=0.1153/math.sqrt(n))
+    diff[5] = abs(p2s-0.9772)
+
+    pv[6] = 1-2*spst.norm.cdf(-abs(p3s-0.9987), loc=0, scale=0.0315/math.sqrt(n))
+    diff[6] = abs(p3s-0.9987)
+
+    pv[7] = 1 - 2 * spst.norm.cdf(-abs(md - 0.5000), loc=0, scale=0.3013 / math.sqrt(n))
+    diff[7] = abs(md - 0.5000)
+
+    return np.mean(np.log10(pv)), np.mean(diff), np.array([m3s, m2s, m1s, p0s, p1s, p2s, p3s, md])
+
+
+def detectBestNormalisation(X):
+    """
+    Automatically detect the best normalisation codes for dataset X
+
+    :param X: Dataset matrix (numpy array)
+    :return: A list of normalisation codes
+    """
+    x = np.concatenate(X)  # convert to a vector
+    x = x[x > 0]  # take out zero values
+    x = x[np.all([x > np.percentile(x, q=1), x < np.percentile(x, q=99)], axis=0)]  # take out 1% big & small outliers
+
+    Xl = normaliseSampleFeatureMat(X, [3])
+    xl = np.concatenate(Xl)
+
+    xmax = np.max(X, axis=1)
+    xmaxsort = np.sort(xmax).reshape(-1, 1)
+    GM = skmix.GaussianMixture(n_components=2)
+    GM.fit(xmaxsort)
+    labels = GM.predict(xmaxsort)
+    th1 = np.max(xmaxsort[labels == labels[0]])
+
+    """xmin = np.min(X, axis=1)
+    xminsort = np.sort(xmin).reshape(-1, 1)
+    GM = skmix.GaussianMixture(n_components=3)
+    GM.fit(xminsort)
+    labels = GM.predict(xminsort)
+    th2 = np.min(xminsort[labels == labels[-1]])
+
+    Xf = X[np.all([xmax >= th1, xmin <= th2], axis=0)]
+    """
+    Xf = X[xmax >= th1]
+    
+
 def normaliseSampleFeatureMat(X, type):
     """
     X = normalizeSampleFeatureMat(X, type)
@@ -84,6 +197,8 @@ def normaliseSampleFeatureMat(X, type):
 
         101 (quantile), 102 (subtract columns (samples) means),
         103 (subtract global mean)
+
+        1000 (Automatically detect normalisation)
 
     If (type) was a vector like [3 1], this means to apply normalisation
     type (3) over (X) then to apply type (1) over the result. And so on.
@@ -167,6 +282,10 @@ def normaliseSampleFeatureMat(X, type):
     if type == 103:
         # 103: subtract the global mean of the data
         Xout -= np.mean(Xout)
+
+    if type == 1000:
+        # 1000: automatically detect normalisation
+        Xout
 
     return Xout
 
@@ -383,6 +502,7 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
     else:
         flipSamplesloc = ds.listofarrays2arrayofarrays(flipSamples)
         flipSamplesloc = [np.array(x) for x in flipSamplesloc]
+    # Revise if the if statement below is accurate!
     if not isinstance(normalise, (list, tuple, np.ndarray)):
         normaliseloc = [normalise if isinstance(normalise, (list, tuple, np.ndarray))
                         else [normalise] for i in range(L)]
@@ -398,7 +518,7 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
 
     # Quantile normalisation
     for l in range(L):
-        if 101 in normaliseloc[l]:
+        if 101 in normaliseloc[l] or 1000 in normaliseloc[l]:
             Xproc[l] = normaliseSampleFeatureMat(Xproc[l], 101)
             i = np.argwhere(np.array(normaliseloc[l]) == 101)
             i = i[0][0]

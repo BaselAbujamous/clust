@@ -98,7 +98,7 @@ def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
     return (replicatesIDs, conditions)
 
 
-def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnormalisation=0):
+def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnormalisation=1000):
     if normalisefile is None:
         return defaultnormalisation
 
@@ -135,7 +135,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
 
     for l in range(L):
         if normalise[l] is None:
-            normalise[l] = [0]
+            normalise[l] = [defaultnormalisation]
         else:
             normalise[l] = [int(n) for n in normalise[l]]
 
