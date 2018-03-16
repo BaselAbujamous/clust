@@ -55,6 +55,21 @@ def closest_to_square_factors(n):
     return res
 
 
+def isint(s):
+    """
+    Test if string s is an integer
+    :param s: string
+    :return: boolean
+    """
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+    except TypeError:
+        return False
+
+
 def getcondvects(n):
     g = 1
     n2 = 2 ** n

@@ -37,7 +37,7 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
     parser.add_argument('datapath', help='The directory that includes the data files.', default=None)
-    parser.add_argument('-n', metavar='<file>', help='Normalisation codes file', default=None)
+    parser.add_argument('-n', metavar='<file or int>', help='Normalisation file or list of codes (default: 1000)', default=['1000'], nargs='+')
     parser.add_argument('-r', metavar='<file>', help='Replicates structure file', default=None)
     parser.add_argument('-m', metavar='<file>', help='OrthoGroups (OGs) mapping file', default=None)
     parser.add_argument('-o', metavar='<directory>', help='Output directory', default=None)

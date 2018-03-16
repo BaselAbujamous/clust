@@ -8,6 +8,7 @@ import scripts.preprocess_data as pp
 import scripts.output as op
 import scripts.graphics as graph
 import scripts.glob as glob
+import scripts.numeric as nu
 import numpy as np
 import os
 import datetime as dt
@@ -15,8 +16,9 @@ import shutil
 import sys
 
 
+
 # Define the clust function (and below it towards the end of this file it is called).
-def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=None, outpath=None,
+def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=['1000'], outpath=None,
                   Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
                   OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0, atleastinconditions=1,
                   atleastindatasets=1, absvalue=False, filteringtype='raw', smallestClusterSize=11,
@@ -55,7 +57,8 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     if replicatesfile is not None:
         shutil.copy(replicatesfile, os.path.join(in2out_path, 'Replicates.txt'))
     if normalisationfile is not None:
-        shutil.copy(normalisationfile, os.path.join(in2out_path, 'Normalisation.txt'))
+        if len(normalisationfile) == 1 and not nu.isint(normalisationfile[0]):
+            shutil.copy(normalisationfile, os.path.join(in2out_path, 'Normalisation.txt'))
 
     in2out_X_unproc_path = in2out_path + '/Data'
     if not os.path.exists(in2out_X_unproc_path):
@@ -84,10 +87,12 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     (X_OGs, GDM, GDMall, OGs, MapNew, MapSpecies) \
         = pp.calculateGDMandUpdateDatasets(X, Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap='\\W+',
                                            OGsIncludedIfAtLeastInDatasets=OGsIncludedIfAtLeastInDatasets)
-    (X_summarised_normalised, GDM, Iincluded, params) = \
+    (X_summarised_normalised, GDM, Iincluded, params, applied_norms) = \
         pp.preprocess(X_OGs, GDM, normalise, replicatesIDs, flipSamples=None,
                       expressionValueThreshold=expressionValueThreshold, replacementVal=0.0,
-                      atleastinconditions=atleastinconditions, atleastindatasets=atleastindatasets, params=None)
+                      atleastinconditions=atleastinconditions, atleastindatasets=atleastindatasets, params=None,
+                      datafiles=datafiles)
+    io.writedic('{0}/Normalisation_actual'.format(outpath), applied_norms, delim='\t')
     OGs = OGs[Iincluded]
     if MapNew is not None:
         MapNew = MapNew[Iincluded]

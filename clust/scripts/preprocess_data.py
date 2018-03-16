@@ -7,10 +7,11 @@ import math
 import datastructures as ds
 import numeric as nu
 import re
-# import io
 import warnings
 from copy import deepcopy
-
+import glob
+import output as op
+# import io
 
 def isnan(X):
     if ds.numel(X) == 1:
@@ -147,53 +148,95 @@ def isnormal_68_95_99p7_rule(X):
     pv[7] = 1 - 2 * spst.norm.cdf(-abs(md - 0.5000), loc=0, scale=0.3013 / math.sqrt(n))
     diff[7] = abs(md - 0.5000)
 
-    return np.mean(np.log10(pv)), np.mean(diff), np.array([m3s, m2s, m1s, p0s, p1s, p2s, p3s, md])
+    return np.mean(np.log10(pv)), np.mean(diff)
 
 
-def detectBestNormalisation(X):
+def filterLowExpression(X):
     """
-    Automatically detect the best normalisation codes for dataset X
-
+    Filter out genes that always have low expression values
     :param X: Dataset matrix (numpy array)
-    :return: A list of normalisation codes
+    :return: Tuple: (Filtered X, Iincluded)
     """
-    x = np.concatenate(X)  # convert to a vector
-    x = x[x > 0]  # take out zero values
-    x = x[np.all([x > np.percentile(x, q=1), x < np.percentile(x, q=99)], axis=0)]  # take out 1% big & small outliers
-
-    Xl = normaliseSampleFeatureMat(X, [3])
-    xl = np.concatenate(Xl)
-
     xmax = np.max(X, axis=1)
-    xmaxsort = np.sort(xmax).reshape(-1, 1)
+    xmaxsort = xmax[xmax > 0]  # take out zero values
+    xmaxsort = xmaxsort[np.all([xmaxsort > np.percentile(xmaxsort, q=1), xmaxsort < np.percentile(xmaxsort, q=99)],
+                               axis=0)]  # take out 1% big & small outliers
+    xmaxsort = np.sort(xmaxsort).reshape(-1, 1)
     GM = skmix.GaussianMixture(n_components=2)
     GM.fit(xmaxsort)
     labels = GM.predict(xmaxsort)
     th1 = np.max(xmaxsort[labels == labels[0]])
 
-    """xmin = np.min(X, axis=1)
-    xminsort = np.sort(xmin).reshape(-1, 1)
-    GM = skmix.GaussianMixture(n_components=3)
-    GM.fit(xminsort)
-    labels = GM.predict(xminsort)
-    th2 = np.min(xminsort[labels == labels[-1]])
+    Iexcluded = xmax < th1
+    Xf = np.array(X)
+    Xf[Iexcluded] = 0.0
 
-    Xf = X[np.all([xmax >= th1, xmin <= th2], axis=0)]
+    return Xf
+
+
+def autoNormalise(X):
     """
-    Xf = X[xmax >= th1]
-    
+    Automatically normalise dataset X and filter it if needed
+
+    :param X: Dataset matrix (numpy array)
+    :return: array of normalisation codes
+    """
+    Xloc = np.array(X)
+
+    twosided = np.sum(Xloc < 0) > 0.2 * np.sum(Xloc > 0)  # negative values are at least 20% of positive values
+    alreadylogs = np.max(abs(Xloc)) < 30
+
+    if twosided:
+        return np.array([6])
+        #return np.array([101, 4])
+    else:
+        Xloc[isnan(Xloc)] = 0.0
+        Xloc[Xloc < 0] = 0.0
+        if alreadylogs:
+            Xf = normaliseSampleFeatureMat(Xloc, [13])[0]
+            if isnormal_68_95_99p7_rule(Xf)[1] < isnormal_68_95_99p7_rule(Xloc)[1]:
+                return np.array([13, 4])
+            else:
+                return np.array([4])
+        else:
+            Xl = normaliseSampleFeatureMat(Xloc, [3])[0]  # index 1  (Xloc, i.e. original X is index 0)
+            Xlp = normaliseSampleFeatureMat(Xloc, [31])[0]  # index 2
+            Xf = normaliseSampleFeatureMat(Xloc, [13])[0]  # index 3
+            Xlf = normaliseSampleFeatureMat(Xl, [13])[0]  # index 4
+            Xlpf = normaliseSampleFeatureMat(Xlp, [13])[0]  # index 5
+            isnormal_stats = [isnormal_68_95_99p7_rule(Xloc)[1], isnormal_68_95_99p7_rule(Xl)[1],
+                              isnormal_68_95_99p7_rule(Xlp)[1], isnormal_68_95_99p7_rule(Xf)[1],
+                              isnormal_68_95_99p7_rule(Xlf)[1], isnormal_68_95_99p7_rule(Xlpf)[1]]
+            most_normal_index = np.argmin(isnormal_stats)
+            if most_normal_index == 0:
+                return np.array([4])
+            elif most_normal_index == 1:
+                return np.array([3, 4])
+            elif most_normal_index == 2:
+                return np.array([31, 4])
+            elif most_normal_index == 3:
+                return np.array([13, 4])
+            elif most_normal_index == 4:
+                return np.array([3, 13, 4])
+            elif most_normal_index == 5:
+                return np.array([31, 13, 4])
+            else:
+                raise ValueError('You should never reach this error. Please contact {0}'.format(glob.email))
+
 
 def normaliseSampleFeatureMat(X, type):
     """
     X = normalizeSampleFeatureMat(X, type)
 
     type: 0 (none), 1 (divide by mean), 2 (divide by the first),
-        3 (take log2), 4 (subtract the mean and divide by the std),
+        3 (take log2), 31 (take log2 after setting all values < 1.0 to 1.0, i.e. guarantee positive log),
+        4 (subtract the mean and divide by the std),
         5 (divide by the sum), 6 (subtract the mean),
         7 (divide by the max), 8 (2 to the power X), 9 (subtract the min),
         10 (rank: 1 for lowest, then 2, 3, ...; average on ties),
         11 (rank, like 10 but order arbitrarly on ties),
-        12 (normalise to the [0 1] range)
+        12 (normalise to the [0 1] range),
+        13 (Genes with low values everywhere are set to zeros; bimodel distribution is fit to maxima of rows)
 
         101 (quantile), 102 (subtract columns (samples) means),
         103 (subtract global mean)
@@ -208,10 +251,20 @@ def normaliseSampleFeatureMat(X, type):
     :return:
     """
     Xout = np.array(X)
+    codes = np.array(type)  # stays as input types unless auto-normalisation (type 1000) changes it
+
     if isinstance(type, (list, tuple, np.ndarray)):
-        for i in type:
-            Xout = normaliseSampleFeatureMat(Xout, i)
-        return Xout
+        # This has a reason, which is if there is a single type (1000), it will replace it with the actual codes
+        j = 0
+        for i in range(len(type)):
+            Xout, codesi = normaliseSampleFeatureMat(Xout, type[i])
+            if isinstance(codesi, (list, tuple, np.ndarray)) & codesi.ndim > 0:
+                codes[j] = codesi[0]
+                codes = np.insert(codes, j+1, codesi[1:])
+                j = j + len(codesi)
+            else:
+                j = j + 1
+        return Xout, codes
 
     if type == 1:
         # 1: Divide by the mean
@@ -227,6 +280,11 @@ def normaliseSampleFeatureMat(X, type):
         Xout = np.log2(Xout)
         ind1 = np.any(isnan(Xout), axis=1)
         Xout[ind1] = fixnans(Xout[ind1])
+
+    if type == 31:
+        # 31: Set all values < 1 to 1 then take log (guarantee a positive log)
+        Xout[Xout <= 1] = 1
+        Xout = np.log2(Xout)
 
     if type == 4:
         # 4: Subtract the mean and divide by the std
@@ -268,6 +326,10 @@ def normaliseSampleFeatureMat(X, type):
         Xout = nu.subtractaxis(Xout, np.min(Xout, axis=1), axis=1)
         Xout = nu.divideaxis(Xout, np.max(Xout, axis=1), axis=1)
 
+    if type == 13:
+        # 13: Genes with low values everywhere are set to zeros; bimodel distribution is fit to maxima of rows
+        Xout = filterLowExpression(X)
+
     # 100s
     if type == 101:
         # 101: quantile
@@ -285,9 +347,12 @@ def normaliseSampleFeatureMat(X, type):
 
     if type == 1000:
         # 1000: automatically detect normalisation
-        Xout
+        codes = autoNormalise(Xout)
+        Xout = normaliseSampleFeatureMat(Xout, codes)[0]
+        codes = np.append([101], codes)
 
-    return Xout
+
+    return Xout, codes
 
 
 def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGenesInMap='\\W+'):
@@ -484,12 +549,19 @@ def combineReplicates(X, replicatesIDs, flipSamples):
     return Xloc
 
 
-def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expressionValueThreshold=10.0,
+def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, expressionValueThreshold=10.0,
                replacementVal=0.0, atleastinconditions=1, atleastindatasets=1, absvalue=False, usereplacementval=False,
-               filteringtype='raw', params=None):
+               filteringtype='raw', params=None, datafiles=None):
     # Fixing parameters
     Xloc = ds.listofarrays2arrayofarrays(X)
     L = len(Xloc)
+    if datafiles is None:
+        if L == 1:
+            datafiles = ['X']
+        else:
+            datafiles = np.array([], dtype=str)
+            for i in range(L):
+                datafiles = np.append(datafiles, 'X{0}'.format(i+1))
     if params is None:
         params = {}
     if replicatesIDs is None:
@@ -516,13 +588,17 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
     for l in range(L):
         Xproc[l] = fixnans(Xproc[l])
 
+    # Prepare applied_norm dictionary before any normalisation takes place
+        applied_norm = dict(zip(datafiles, normaliseloc))
+
     # Quantile normalisation
     for l in range(L):
         if 101 in normaliseloc[l] or 1000 in normaliseloc[l]:
-            Xproc[l] = normaliseSampleFeatureMat(Xproc[l], 101)
-            i = np.argwhere(np.array(normaliseloc[l]) == 101)
-            i = i[0][0]
-            normaliseloc[l][i] = 0
+            Xproc[l] = normaliseSampleFeatureMat(Xproc[l], 101)[0]
+            if 101 in normaliseloc[l]:
+                i = np.argwhere(np.array(normaliseloc[l]) == 101)
+                i = i[0][0]
+                normaliseloc[l][i] = 0
 
     # Combine replicates and sort out flipped samples
     Xproc = combineReplicates(Xproc, replicatesIDsloc, flipSamplesloc)
@@ -532,9 +608,10 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
                                                 atleastinconditions, atleastindatasets, absvalue,
                                                 usereplacementval, filteringtype)
 
-    # Normalise
+    # Normalise (and maybe automatically filter)
     for l in range(L):
-        Xproc[l] = normaliseSampleFeatureMat(Xproc[l], normaliseloc[l])
+        (Xproc[l], applied_norm[datafiles[l]]) = normaliseSampleFeatureMat(Xproc[l], normaliseloc[l])
+        applied_norm[datafiles[l]] = op.arraytostring(applied_norm[datafiles[l]], delim=' ', openbrac='', closebrac='')
 
     # Prepare params for the output
     params = dict(params, **{
@@ -544,4 +621,4 @@ def preprocess(X, GDM, normalise=0, replicatesIDs=None, flipSamples=None, expres
         'L': L
     })
 
-    return Xproc, GDMnew, Iincluded, params
+    return Xproc, GDMnew, Iincluded, params, applied_norm

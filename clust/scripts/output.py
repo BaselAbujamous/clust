@@ -38,6 +38,20 @@ def msgformated(msg, alignment='<', withnewline=True):
     return res
 
 
+def arraytostring(A, delim=' ', openbrac='', closebrac=''):
+    L = len(A)
+
+    if L == 0:
+        res = '{0}{1}'.format(openbrac, closebrac)
+    else:
+        res = '{0}{1}'.format(openbrac, A[0])
+        for i in range(1,L):
+            res = '{0}{1}{2}'.format(res, delim, A[i])
+        res = '{0}{1}'.format(res, closebrac)
+
+    return res
+
+
 def topline(withnewline=True):
     res = '/{{0:=^{0}}}\\'.format(outputwidth+2).format('')
     if withnewline:
