@@ -184,7 +184,7 @@ def autoNormalise(X):
     Xloc = np.array(X)
 
     twosided = np.sum(Xloc < 0) > 0.2 * np.sum(Xloc > 0)  # negative values are at least 20% of positive values
-    alreadylogs = np.max(abs(Xloc)) < 30
+    alreadylogs = np.sum(abs(Xloc) < 30) > 0.98 * ds.numel(Xloc)  # More than 98% of values are below 30.0
 
     if twosided:
         return np.array([6])
@@ -438,6 +438,7 @@ def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstCo
     Xnew = np.array([None] * L, dtype=object)
     GenesDatasets = np.array([None] * L, dtype=object)
     for l in range(L):
+        arelogs = np.sum(abs(Xloc[l]) < 30) > 0.98 * ds.numel(Xloc[l])  # More than 98% of values are below 30.0
         d = Xloc[l].shape[1]  # Number of dimensions (samples) in this dataset
         Xnew[l] = np.zeros([Ngs[l], d], dtype=float)
         GenesDatasets[l] = np.empty(Ngs[l], dtype=object)
@@ -445,7 +446,10 @@ def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstCo
         # TODO: Optimise the code below by exploiting ds.findArrayInSubArraysOfAnotherArray1D (like in line 203 above)
         for ogi in range(len(OGsInThisDS)):
             og = OGsInThisDS[ogi]
-            Xnew[l][ogi] = np.sum(Xloc[l][np.in1d(OGsDatasets[l], og)], axis=0)
+            if arelogs:
+                Xnew[l][ogi] = np.log2(np.sum(np.power(2.0, Xloc[l][np.in1d(OGsDatasets[l], og)]), axis=0))
+            else:
+                Xnew[l][ogi] = np.sum(Xloc[l][np.in1d(OGsDatasets[l], og)], axis=0)
             GenesDatasets[l][ogi] = ds.concatenateStrings(Genesloc[l][np.in1d(OGsDatasets[l], og)])
 
     return Xnew, GDM, GDMall, OGs, MapNew, MapSpecies
@@ -534,9 +538,12 @@ def combineReplicates(X, replicatesIDs, flipSamples):
 
     for l in range(L):
         Xtmp = Xloc[l]
+        arelogs = np.sum(abs(Xtmp) < 30) > 0.98 * ds.numel(Xtmp)  # More than 98% of values are below 30.0
         if flipSamples is not None and flipSamples[l] is not None and len(flipSamples[l]) == Xtmp.shape[1]:
-            Xtmp[:, flipSamples[l] == 1] = np.divide(1.0, Xtmp[:, flipSamples[l] == 1])
-            Xtmp[:, flipSamples[l] == 2] = -Xtmp[:, flipSamples[l] == 2]
+            if arelogs:
+                Xtmp[:, flipSamples[l] == 1] = -Xtmp[:, flipSamples[l] == 1]
+            else:
+                Xtmp[:, flipSamples[l] == 1] = np.divide(1.0, Xtmp[:, flipSamples[l] == 1])
         uniqueSamples = np.unique(replicatesIDs[l])
         uniqueSamples = uniqueSamples[uniqueSamples != -1]
         Xloc[l] = np.zeros([Xtmp.shape[0], len(uniqueSamples)])
@@ -589,7 +596,7 @@ def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, exp
         Xproc[l] = fixnans(Xproc[l])
 
     # Prepare applied_norm dictionary before any normalisation takes place
-        applied_norm = dict(zip(datafiles, normaliseloc))
+    applied_norm = dict(zip(datafiles, deepcopy(normaliseloc)))
 
     # Quantile normalisation
     for l in range(L):
@@ -610,8 +617,12 @@ def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, exp
 
     # Normalise (and maybe automatically filter)
     for l in range(L):
-        (Xproc[l], applied_norm[datafiles[l]]) = normaliseSampleFeatureMat(Xproc[l], normaliseloc[l])
-        applied_norm[datafiles[l]] = op.arraytostring(applied_norm[datafiles[l]], delim=' ', openbrac='', closebrac='')
+        (Xproc[l], codes) = normaliseSampleFeatureMat(Xproc[l], normaliseloc[l])
+        if np.all(codes == normaliseloc[l]):
+            applied_norm[datafiles[l]] = op.arraytostring(applied_norm[datafiles[l]], delim=' ', openbrac='',
+                                                          closebrac='')
+        else:
+            applied_norm[datafiles[l]] = op.arraytostring(codes, delim=' ', openbrac='', closebrac='')
 
     # Prepare params for the output
     params = dict(params, **{

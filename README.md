@@ -85,17 +85,17 @@ If `matplotlib` is not already installed, run this:
 
 * `sudo apt-get install python-matplotlib`
 
-Then install *Clust* by:
+Then install *clust* by:
 
 * `sudo -H pip install clust`
 
-Then you can run *Clust* straightforwardly from any place:
+Then you can run *clust* straightforwardly from any place:
 
 * `clust ...`
 
 ### If you do not have privileges to install
 
-This works if the Python packages that *Clust* requires are already installed (listed above).
+This works if the Python packages that *clust* requires are already installed (listed above).
 
 Download the latest release file (clust-*.*.*.tar.gz) file from the
 [release tab](https://github.com/BaselAbujamous/clust/releases)
@@ -109,7 +109,7 @@ and run the script `clust.py` that is in the top level directory of the source c
 Clust has not been tried in Windows thoroughly. If you try it, your feedback will be much appreciated.
 
 We recommend that you download and install WinPython which provides
-you with many Python packages that *Clust* requires from http://winpython.github.io/
+you with many Python packages that *clust* requires from http://winpython.github.io/
 
 Open `WinPython Powershell Prompt.exe` from the directory in which you installed WinPython.
 
@@ -117,7 +117,7 @@ Run:
 
 * `pip install clust`
 
-Then you can run *Clust* by:
+Then you can run *clust* by:
 
 * `clust ...`
 
@@ -128,8 +128,8 @@ For normalised homogeneous datasets, simply run:
 - `clust data_path`
 - `clust data_path -o output_directory [...]`
 
-This runs *Clust* over the datasets in the data_path directory with default parameters.
-If the output directory is not provided, *Clust* creates a new directory for the results within the
+This runs *clust* over the datasets in the data_path directory with default parameters.
+If the output directory is not provided, *clust* creates a new directory for the results within the
 current working directory.
 
 For raw RNA-seq TPM, FPKM, or RPKM data, consider the [Normalisation](#normalisation) section below.
@@ -152,22 +152,39 @@ summing up their values.
 
 
 # Normalisation
-If datasets need normalisation (e.g. raw RNA-seq TPM, FPKM, or RPKM data), include this information in a
-`normalisation file` and provide it to `clust` by:
+**NEW FEATURE: AUTOMATIC NORMALISATION! (V1.7.0 and newer)**
 
-* `clust data_path -n normalisation_file [...]`
+*Clust* applies data normalisation during its pre-processing step.
 
-Each line in the normalisation file includes these elements in order:
+* Version 1.7.0 and newer: *Clust* **automatically detects** the most suitable normalisation for each dataset unless 
+otherwise stated by the user via the `-n` option. The normalisation codes that *clust* decides to
+apply are stored in the output file `/Normalisation_actual`
 
-1. The name of the dataset file (e.g. X0.txt)
-2. One or more normalisation codes (see below). **The order** of these codes defines the order of the
+* Version 1.6.0 and earlier: The required normalisation techniques should be stated by the user via the `-n` option.
+Otherwise, no normalisation is applied. 
+
+
+#### The `-n` option:
+Tell *clust* how to normalise your data in one of two ways:
+
+1. `clust data_path -n code1 [code2 code3 ...] [...]` **(V1.7.0 and newer)**
+
+    * List one or more normalisation codes (from the table below) to be applied to your one or more datasets
+    * Example: `clust data_path -n 101 3 4 [...]`
+    
+2. `clust data_path -n normalisation_file [...]`
+
+    * Provide a file listing the normalisation codes for each dataset (see Fig. 5).
+    * Each line of the file includes these elements in order:
+        1. The name of the dataset file (e.g. X0.txt)
+        2. One or more normalisation codes. **The order** of these codes defines the order of the
 application of normalisation techniques.
+    * Delimiters between these elements can be spaces, TABs, commas, or semicolons.
 
 ![NormalisationFile](Images/NormalisationFile.png)
 
 *Figure 5: Normalisation file indicating the types of normalisation that should be applied to each of the datasets.*
 
-* Delimiters between these elements can be spaces, TABs, commas, or semicolons.
 
 #### Codes suggested for commonly used datasets
 
@@ -186,6 +203,7 @@ Code | Definition
 1|Divide by the mean value of the row
 2|Divide by the first value of the row
 3|Log2
+31|Set all values that are less than 1.0 to 1.0, then log2 (v1.7.0+)
 4|Subtract the mean of the row and then divide by its standard deviation
 5|Divide by the total (sum) of the row
 6|Subtract the mean value of the row
@@ -195,6 +213,7 @@ Code | Definition
 10|Rank across rows (1 for the lowest, up to *N* for *N* columns; average ranks at ties)
 11|Rank across rows (1 for the lowest, up to *N* for *N* columns; order arbitrarly at ties)
 12|Linear transformation to the [0, 1] range across rows (0.0 for the lowest and 1.0 for the highest)
+13|Set all values of genes with low expression everywhere to zeros. The threshold of low expression is found by fitting a bimodal distribution to per-gene maximum expression values over all samples (v1.7.0+)  
 -|-
 101|Quantile normalisation
 102|Column-wise mean subtraction
@@ -256,7 +275,7 @@ Also, if the first column of the microarray data file includes probe IDs which a
 generated by using different microarray/RNA-seq platforms, make sure that probe-gene mapping information is included in
 the map file described [above](#data-from-multiple-species).
 
-For example, you may apply *Clust* to tens of human and mouse datasets generated by
+For example, you may apply *clust* to tens of human and mouse datasets generated by
 these different technologies / platforms:
 
 Platform / Format | Technology | Example identifier
@@ -267,7 +286,7 @@ Platform / Format | Technology | Example identifier
 |Illumina Human WG-6 v3.0 |Microarray | ILMN_1825594
 |Illumina Mouse WG-6 v2.0 |Microarray | ILMN_1243094
 
-In this case, provide *Clust* with a mapping file (TAB delimited) which looks like this:
+In this case, provide *clust* with a mapping file (TAB delimited) which looks like this:
 
 OG | H_RNAseq | M_RNAseq | H_U133+ | H_WG6 | M_WG6
 :---|:---|:---|:---|:---|:---|
@@ -293,7 +312,7 @@ These are many reasons that result in missing some genes from some datasets:
  using the `-d` option. This option specifies the minimum number of datasets in which a gene has to be present
  for it to be included in the analysis.
  
-For example, if you have 20 datasets, you can force *Clust* to discard any gene that is not included at least
+For example, if you have 20 datasets, you can force *clust* to discard any gene that is not included at least
 in 17 datasets by:
 
 * `clust data_path -d 17 [...]`
@@ -330,7 +349,7 @@ data_directory | The path of the directory including all data files
 -n \<file> | Path of the normalisation file
 -o \<directory> | Custom path of the output directory
 -t \<real number> | (Cluster tightness) versus (cluster size) weight: a real positive number, where 1.0 means equal weights, values smaller than 1.0 means larger and less tight clusters, and values larger than 1.0 produce smaller and tighter clusters (default: 1.0).
--d \<integer> | Minimum number of datasets in which a gene has to be included for it to be considered in the *Clust* analysis. If a gene is included only in fewer datasets than this, it will be excluded from the analysis (default: 1)
+-d \<integer> | Minimum number of datasets in which a gene has to be included for it to be considered in the *clust* analysis. If a gene is included only in fewer datasets than this, it will be excluded from the analysis (default: 1)
 -fil-v \<real number> | Threshold of data values (e.g. gene expression). Any value lower than this will be set to 0.0. If a gene never exceeds this value at least in FILC conditions in at least FILD datasets, it is excluded from the analysis (default: -inf)
 -fil-c \<integer> | Minimum number of conditions in a dataset in which a gene should exceed the data value FILV at least in FILD datasets to be included in the analysis (default: 0)
 -fil-d \<integer> | Minimum number of datasets in which a gene should exceed the data value FILV at least in FILC conditions to be included in the analysis (default: 0)
@@ -338,7 +357,7 @@ data_directory | The path of the directory including all data files
 -K \<integer> [\<integer> ...] | K values: refer to the publication for details (default: all values from 2 to 20 inclusively)
 -q3s \<real number> |  Defines the threshold for outliers in terms of the number of Q3's (third quartiles). Smaller values lead to tighter clusters (default: 2.0).
 --no-optimisation | Skip the cluster optimisation step. Not recommended except to compare results before and after optimisation (default: optimisation is performed).
---deterministic | Use deterministic settings across the steps of *Clust*. Recommended if one requires the same results to be obtained when *Clust* is run multiple times with the same parameters. This is not expected to compensate the quality, and it might become a default setting in future releases.
+--deterministic | Use deterministic settings across the steps of *clust*. Recommended if one requires the same results to be obtained when *clust* is run multiple times with the same parameters. This is not expected to compensate the quality, and it might become a default setting in future releases.
 -np \<integer> | Number of parallel processes (default: 1) 
 -h, --help | show the help message and exit
 
@@ -356,9 +375,13 @@ the required [normalisation](ExampleData/1_RawData/Normalisation.txt), and the g
 [mapping](ExampleData/1_RawData/MapIDs.txt) across the datasets,
 i.e. orthologous genes across the two yeast species.
 
-Run *Clust* over this data by:
+Run *clust* over this data by:
 
 * `clust Data/ -r Replicates.txt -n Normalisation.txt -m MapIDs.txt`
+
+Or let *clust* automatically detect suitable normalisation by running (v1.7.0+):
+
+*  `clust Data/ -r Replicates.txt -m MapIDs.txt`
 
 You may like to specify a tightness level `-t` other than the default by adding:
 
@@ -377,10 +400,10 @@ simply run this command over the directory "Data":
 
 * `clust Data/`
 
-Find the results in the Results_[Date] directory that *Clust*
+Find the results in the Results_[Date] directory that *clust*
 will have generated in your current working directory.
 
-This runs *Clust* with the default tightness `-t` value of 1.0.
+This runs *clust* with the default tightness `-t` value of 1.0.
 You may like to make the generated clusters tighter by increase `-t` or less tight
 by decreasing `-t`. For example, try -t = 5.0 or -t = 0.2 by: 
 
@@ -393,5 +416,5 @@ You may also like to save results in an output directory of your choice by using
 
 
 # Citation
-When publishing work that uses *Clust*, please cite this pre-print:
+When publishing work that uses *clust*, please cite this pre-print:
 1. Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed gene clusters from gene expression data. `bioRxiv` 221309; doi: https://doi.org/10.1101/221309.

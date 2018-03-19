@@ -58,7 +58,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         shutil.copy(replicatesfile, os.path.join(in2out_path, 'Replicates.txt'))
     if normalisationfile is not None:
         if len(normalisationfile) == 1 and not nu.isint(normalisationfile[0]):
-            shutil.copy(normalisationfile, os.path.join(in2out_path, 'Normalisation.txt'))
+            shutil.copy(normalisationfile[0], os.path.join(in2out_path, 'Normalisation.txt'))
 
     in2out_X_unproc_path = in2out_path + '/Data'
     if not os.path.exists(in2out_X_unproc_path):

@@ -126,7 +126,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
         return normalise
 
 
-    with open(normalisefile) as f:
+    with open(normalisefile[0]) as f:
         lineNumber = 0
         for line in f:
             lineNumber += 1
@@ -142,7 +142,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
                 l = datafiles.index(line[0])  # (l)th dataset
             else:
                 raise ValueError('Unrecognised data file name ({0}) in line {1} in {2}.'.
-                                 format(line[0], lineNumber, normalisefile))
+                                 format(line[0], lineNumber, normalisefile[0]))
 
             # If no normalisation is set for the dataset, skip to the next line
             if len(line) < 2:
