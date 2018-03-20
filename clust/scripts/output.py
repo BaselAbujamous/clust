@@ -107,8 +107,13 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
                                     s, 'second' if s == 1 else 'seconds')
 
     # Generate the text
+    L = len(X)
     label0 = 'genes' if Map is None else 'OrthoGroups (OGs)*'
     label1 = 'gene' if Map is None else 'OG'
+    dataset_datasets = 'dataset' if L == 1 else 'datasets'
+    Ng_original = GDMall.shape[0]
+    Ng_to_clustering = GDM.shape[0]
+    Ng_in_clusters = np.sum(np.any(B_corrected, axis=1))
 
     tmptxt = 'Analysis finished at: {0}\n' \
              'Total time consumed: {1}\n'.format(endtime.strftime('%A %d %B %Y (%H:%M:%S)'), timeConsumedTxt)
@@ -120,18 +125,19 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += midline()
 
     K = B_corrected.shape[1]
+
     if K > 0:
-        tmptxt = 'Clust analysed the profiles of {2} {0} in {3} datasets. It generated {4} clusters of {1}s, ' \
-                 'which in total include {5} {1}s. The smallest cluster includes {6} {1}s, the largest cluster ' \
-                 'includes {7} {1}s, and the average cluster size is {8} {1}s. {9} {1}s were not included in any ' \
-                 'cluster at all.' \
-                 ''.format(label0, label1, B_corrected.shape[0], len(X), K,
-                           np.sum(np.any(B_corrected, axis=1)), np.min(np.sum(B_corrected, axis=0)),
-                           np.max(np.sum(B_corrected, axis=0)), np.mean(np.sum(B_corrected, axis=0)),
-                           B_corrected.shape[0] - np.sum(np.any(B_corrected, axis=1)))
+        tmptxt = 'Clust received {2} {3} with {4} unique {0}. After filtering, {5} {1}s made it to the clustering ' \
+                 'step. Clust generated {6} clusters of {1}s, which in total include {7} {1}s. The smallest cluster ' \
+                 'includes {8} {1}s, the largest cluster includes {9} {1}s, and the average cluster size ' \
+                 'is {10} {1}s.' \
+                 ''.format(label0, label1, L, dataset_datasets, Ng_original, Ng_to_clustering, K, Ng_in_clusters,
+                           np.min(np.sum(B_corrected, axis=0)), np.max(np.sum(B_corrected, axis=0)),
+                           np.mean(np.sum(B_corrected, axis=0)))
     else:
-        tmptxt = 'Clust analysed the profiles of {0} {1} in {2} datasets. It generated {3} clusters.' \
-            .format(B_corrected.shape[0], label0, len(X), K)
+        tmptxt = 'Clust received {2} {3} with {4} unique {0}. After filtering, {5} {1}s made it to the clustering ' \
+                 'step. Clust generated {6} clusters of {1}s.' \
+                 ''.format(label0, label1, L, dataset_datasets, Ng_original, Ng_to_clustering, K)
     res += msgformated(tmptxt)
     if Map is not None:
         tmptxt = '\n* An OG is a group of orthologous genes within & across different species, as identified by the ' \
@@ -143,10 +149,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += msgformated('Citation\n~~~~~~~~', alignment='^')
     tmptxt = 'When publishing work that uses Clust, please include these two citations:\n' \
              '1. Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed ' \
-             'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.\n' \
-             '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
-             'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
-             'PLOS ONE, 8(2): e56432.'
+             'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.'
 
     res += msgformated(tmptxt)
     res += midline()

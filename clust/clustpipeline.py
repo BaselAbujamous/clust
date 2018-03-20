@@ -21,7 +21,7 @@ import sys
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=['1000'], outpath=None,
                   Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
                   OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0, atleastinconditions=1,
-                  atleastindatasets=1, absvalue=False, filteringtype='raw', smallestClusterSize=11,
+                  atleastindatasets=1, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
                   ncores=1, optimisation=True, Q3s=2, deterministic=False):
     # Set the global objects label
     if mapfile is None:
@@ -90,12 +90,21 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     (X_summarised_normalised, GDM, Iincluded, params, applied_norms) = \
         pp.preprocess(X_OGs, GDM, normalise, replicatesIDs, flipSamples=None,
                       expressionValueThreshold=expressionValueThreshold, replacementVal=0.0,
-                      atleastinconditions=atleastinconditions, atleastindatasets=atleastindatasets, params=None,
-                      datafiles=datafiles)
+                      atleastinconditions=atleastinconditions, atleastindatasets=atleastindatasets, absvalue=absvalue,
+                      filteringtype=filteringtype, filterflat=filflat, params=None, datafiles=datafiles)
     io.writedic('{0}/Normalisation_actual'.format(outpath), applied_norms, delim='\t')
     OGs = OGs[Iincluded]
     if MapNew is not None:
         MapNew = MapNew[Iincluded]
+
+    # Output: Save processed data
+    Xprocessed = op.processed_X(X_summarised_normalised, conditions, GDM, OGs, MapNew, MapSpecies)
+    X_proc_path = outpath + '/Processed_Data'
+    if not os.path.exists(X_proc_path):
+        os.makedirs(X_proc_path)
+    for l in range(len(datafiles)):
+        np.savetxt('{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), Xprocessed[l], fmt='%s', delimiter='\t')
+
 
     # UNCLES and M-N plots
     io.log('3. Seed clusters production (the Bi-CoPaM method)')
@@ -138,7 +147,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                             deterministic, ures.params['methods'], MapNew)
     io.writedic('{0}/input_params.tsv'.format(in2out_path), inputparams, delim='\t')
 
-    # Output: Generating and saving clusters, and processed data
+    # Output: Generating and saving clusters
     res_og = op.clusters_genes_OGs(B_corrected, OGs, MapNew, MapSpecies, '; ')
     if mapfile is None:
         np.savetxt('{0}/Clusters_Objects.tsv'.format(outpath), res_og, fmt='%s', delimiter='\t')
@@ -147,13 +156,6 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         res_sp = op.clusters_genes_Species(B_corrected, OGs, MapNew, MapSpecies)
         for sp in range(len(res_sp)):
             np.savetxt('{0}/Clusters_{1}.tsv'.format(outpath, MapSpecies[sp]), res_sp[sp], fmt='%s', delimiter='\t')
-
-    Xprocessed = op.processed_X(X_summarised_normalised, conditions, GDM, OGs, MapNew, MapSpecies)
-    X_proc_path = outpath + '/Processed_Data'
-    if not os.path.exists(X_proc_path):
-        os.makedirs(X_proc_path)
-    for l in range(len(datafiles)):
-        np.savetxt('{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), Xprocessed[l], fmt='%s', delimiter='\t')
 
     # Output: Save figures to a PDF
     try:

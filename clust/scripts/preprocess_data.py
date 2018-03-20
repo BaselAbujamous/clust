@@ -151,7 +151,7 @@ def isnormal_68_95_99p7_rule(X):
     return np.mean(np.log10(pv)), np.mean(diff)
 
 
-def filterLowExpression(X):
+def filterBimodal(X):
     """
     Filter out genes that always have low expression values
     :param X: Dataset matrix (numpy array)
@@ -328,7 +328,7 @@ def normaliseSampleFeatureMat(X, type):
 
     if type == 13:
         # 13: Genes with low values everywhere are set to zeros; bimodel distribution is fit to maxima of rows
-        Xout = filterLowExpression(X)
+        Xout = filterBimodal(X)
 
     # 100s
     if type == 101:
@@ -556,9 +556,26 @@ def combineReplicates(X, replicatesIDs, flipSamples):
     return Xloc
 
 
+def filterFlat(X, GDM, Iincluded):
+    Xloc = np.array(X)
+    GDMloc = np.array(GDM)
+    Iincludedloc = np.array(Iincluded)
+    L = len(Xloc)
+    Ng = GDMloc.shape[0]
+    Iincluded2 = np.array([False for i in range(Ng)])
+    for l in range(L):
+        Iincluded2[GDMloc[:, l]] = np.bitwise_or(Iincluded2[GDMloc[:,l]], np.std(Xloc[l], axis=1) > 0)
+
+    for l in range(L):
+        Xloc[l] = Xloc[l][Iincluded2[GDMloc[:,l]]]
+    GDMloc = GDMloc[Iincluded2]
+    Iincludedloc[Iincludedloc] = Iincluded2
+    return Xloc, GDMloc, Iincludedloc
+
+
 def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, expressionValueThreshold=10.0,
                replacementVal=0.0, atleastinconditions=1, atleastindatasets=1, absvalue=False, usereplacementval=False,
-               filteringtype='raw', params=None, datafiles=None):
+               filteringtype='raw', filterflat=True, params=None, datafiles=None):
     # Fixing parameters
     Xloc = ds.listofarrays2arrayofarrays(X)
     L = len(Xloc)
@@ -623,6 +640,9 @@ def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, exp
                                                           closebrac='')
         else:
             applied_norm[datafiles[l]] = op.arraytostring(codes, delim=' ', openbrac='', closebrac='')
+
+    if filterflat:
+        (Xproc, GDMnew, Iincluded) = filterFlat(Xproc, GDMnew, Iincluded)
 
     # Prepare params for the output
     params = dict(params, **{

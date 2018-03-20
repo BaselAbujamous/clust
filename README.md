@@ -353,6 +353,10 @@ data_directory | The path of the directory including all data files
 -fil-v \<real number> | Threshold of data values (e.g. gene expression). Any value lower than this will be set to 0.0. If a gene never exceeds this value at least in FILC conditions in at least FILD datasets, it is excluded from the analysis (default: -inf)
 -fil-c \<integer> | Minimum number of conditions in a dataset in which a gene should exceed the data value FILV at least in FILD datasets to be included in the analysis (default: 0)
 -fil-d \<integer> | Minimum number of datasets in which a gene should exceed the data value FILV at least in FILC conditions to be included in the analysis (default: 0)
+--fil-abs | -fil-v is used as a threshold for the absolute values of expression. Useful when the data has positive and negative values (e.g. log-ratio 2-colour microarray data). (default: not used).
+--fil-perc | -fil-v is a percentile of gene expression rather than an absolute expression value (e.g. -fil-v 25 sets the 25th percentile of all gene expression values as the threshold). (default: not used).
+--fil-flat | Filter out genes with flat expression profiles (constant expression over all samples in all datasets). (default: used).
+--no-fil-flat | Cancels the default --fil-flat option.
 -cs \<integer> | Smallest cluster size (default: 11)
 -K \<integer> [\<integer> ...] | K values: refer to the publication for details (default: all values from 2 to 20 inclusively)
 -q3s \<real number> |  Defines the threshold for outliers in terms of the number of Q3's (third quartiles). Smaller values lead to tighter clusters (default: 2.0).
