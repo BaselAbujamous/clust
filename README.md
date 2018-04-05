@@ -93,6 +93,11 @@ Then you can run *clust* straightforwardly from any place:
 
 * `clust ...`
 
+If you already have *clust* and want to update it, try:
+
+* `sudo pip uninstall clust`
+* `sudo pip install clust --no-cache-dir`
+
 ### If you do not have privileges to install
 
 This works if the Python packages that *clust* requires are already installed (listed above).
