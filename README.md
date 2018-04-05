@@ -320,8 +320,13 @@ in 17 datasets by:
 
 # Handling genes with low expression
 
-*Clust* can automatically filter out genes with low expression values if you provide the three options 
-`fil-v`, `fil-c`, and `fil-d` to `clust`
+By default in v1.7.0+, *Clust* filters out genes with flat expression
+profiles (profiles with absolutely no change in expression) after
+summarising replicates and normalisation. To switch this option off,
+use the `--no-fil-flat` option.
+
+Also, *clust* can automatically filter out genes with low expression values if you provide the three options
+`-fil-v`, `-fil-c`, and `-fil-d` to *clust*:
 
 * `clust data_path -fil-v value  -fil-c conditions -fil-d datasets`
 
@@ -343,13 +348,15 @@ Try larger values of `-t` to obtain tighter clusters:
 Parameter | Definition
 --- | ---
 data_directory | The path of the directory including all data files
--|-
+----|----
 -m \<file> | Path of the map file
 -r \<file> | Path of the replicates file
--n \<file> | Path of the normalisation file
+-n \<file or integer list> | Path of the normalisation file or a list of normalisation codes. See the [Normalisation section](#normalisation) above for details.
 -o \<directory> | Custom path of the output directory
+----|----
 -t \<real number> | (Cluster tightness) versus (cluster size) weight: a real positive number, where 1.0 means equal weights, values smaller than 1.0 means larger and less tight clusters, and values larger than 1.0 produce smaller and tighter clusters (default: 1.0).
--d \<integer> | Minimum number of datasets in which a gene has to be included for it to be considered in the *clust* analysis. If a gene is included only in fewer datasets than this, it will be excluded from the analysis (default: 1)
+-q3s \<real number> |  Defines the threshold for outliers in terms of the number of Q3's (third quartiles). Smaller values lead to tighter clusters (default: 2.0).
+----|----
 -fil-v \<real number> | Threshold of data values (e.g. gene expression). Any value lower than this will be set to 0.0. If a gene never exceeds this value at least in FILC conditions in at least FILD datasets, it is excluded from the analysis (default: -inf)
 -fil-c \<integer> | Minimum number of conditions in a dataset in which a gene should exceed the data value FILV at least in FILD datasets to be included in the analysis (default: 0)
 -fil-d \<integer> | Minimum number of datasets in which a gene should exceed the data value FILV at least in FILC conditions to be included in the analysis (default: 0)
@@ -357,11 +364,14 @@ data_directory | The path of the directory including all data files
 --fil-perc | -fil-v is a percentile of gene expression rather than an absolute expression value (e.g. -fil-v 25 sets the 25th percentile of all gene expression values as the threshold). (default: not used).
 --fil-flat | Filter out genes with flat expression profiles (constant expression over all samples in all datasets). (default: used).
 --no-fil-flat | Cancels the default --fil-flat option.
+----|----
+-d \<integer> | Minimum number of datasets in which a gene has to be included for it to be considered in the *clust* analysis. If a gene is included only in fewer datasets than this, it will be excluded from the analysis (default: 1)
 -cs \<integer> | Smallest cluster size (default: 11)
 -K \<integer> [\<integer> ...] | K values: refer to the publication for details (default: all values from 2 to 20 inclusively)
--q3s \<real number> |  Defines the threshold for outliers in terms of the number of Q3's (third quartiles). Smaller values lead to tighter clusters (default: 2.0).
+----|----
 --no-optimisation | Skip the cluster optimisation step. Not recommended except to compare results before and after optimisation (default: optimisation is performed).
 --deterministic | Use deterministic settings across the steps of *clust*. Recommended if one requires the same results to be obtained when *clust* is run multiple times with the same parameters. This is not expected to compensate the quality, and it might become a default setting in future releases.
+----|----
 -np \<integer> | Number of parallel processes (default: 1) 
 -h, --help | show the help message and exit
 

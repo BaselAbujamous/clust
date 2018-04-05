@@ -125,7 +125,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
             normalise[l] = [int(n) for n in normalisefile]
         return normalise
 
-
+    # This happens when a normalisation file is given
     with open(normalisefile[0]) as f:
         lineNumber = 0
         for line in f:
@@ -148,7 +148,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
             if len(line) < 2:
                 continue
 
-            # If the normalisation of this dataset has not been set, set it, otherwise
+            # If the normalisation of this dataset has not been set, set it, otherwise append
             if normalise[l] is None:
                 normalise[l] = line[1:]
             else:

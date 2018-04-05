@@ -11,7 +11,9 @@ import warnings
 from copy import deepcopy
 import glob
 import output as op
-# import io
+import io
+import collections as collec
+
 
 def isnan(X):
     if ds.numel(X) == 1:
@@ -613,7 +615,28 @@ def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, exp
         Xproc[l] = fixnans(Xproc[l])
 
     # Prepare applied_norm dictionary before any normalisation takes place
-    applied_norm = dict(zip(datafiles, deepcopy(normaliseloc)))
+    applied_norm = collec.OrderedDict(zip(datafiles, deepcopy(normaliseloc)))
+
+    # Tell the user if any automatic normalisation is taking place
+    allare1000 = True
+    anyis1000 = False
+    for l in range(L):
+        if normaliseloc[l] == [1000]:
+            anyis1000 = True
+        else:
+            allare1000 = False
+    if allare1000:
+        io.log(' - Automatic normalisation mode (default in v1.7.0+).')
+        io.log('   Clust automatically normalises your dataset(s).')
+        io.log('   To switch it off, use the `-n 0` option (not recommended).')
+        io.log('   Check https://github.com/BaselAbujamous/clust for details.')
+    elif anyis1000:
+        io.log(' - Some datasets are not assigned normalisation codes in the provided')
+        io.log('   normalisation file. Clust automatically identifies and applies the')
+        io.log('   most suitable normalisation to them (default in v1.7.0+).')
+        io.log('   If you don''t want clust to normalise them, assign each of them a')
+        io.log('   normalisation code of 0 in the normalisation file.')
+        io.log('   Check https://github.com/BaselAbujamous/clust for details.')
 
     # Quantile normalisation
     for l in range(L):
@@ -632,7 +655,7 @@ def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, exp
                                                 atleastinconditions, atleastindatasets, absvalue,
                                                 usereplacementval, filteringtype)
 
-    # Normalise (and maybe automatically filter)
+    # Normalise
     for l in range(L):
         (Xproc[l], codes) = normaliseSampleFeatureMat(Xproc[l], normaliseloc[l])
         if np.all(codes == normaliseloc[l]):
@@ -642,6 +665,9 @@ def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, exp
             applied_norm[datafiles[l]] = op.arraytostring(codes, delim=' ', openbrac='', closebrac='')
 
     if filterflat:
+        io.log(' - Flat expression profiles filtered out (default in v1.7.0+).')
+        io.log('   To switch it off, use the --no-fil-flat option (not recommended).')
+        io.log('   Check https://github.com/BaselAbujamous/clust for details.')
         (Xproc, GDMnew, Iincluded) = filterFlat(Xproc, GDMnew, Iincluded)
 
     # Prepare params for the output

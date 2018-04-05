@@ -62,7 +62,7 @@ def main(args=None):
     parser.add_argument('--fil-perc', dest='filperc', action='store_true',
                         help='-fil-v is a percentile of genes rather than raw value')
     parser.add_argument('--fil-flat', dest='filflat', action='store_true',
-                        help='Filter out genes with flat expression profiles (zero variation) (default: used)')
+                        help='Filter out genes with flat expression profiles (default)')
     parser.add_argument('--no-fil-flat', dest='filflat', action='store_false',
                         help='Cancels the default --fil-flat option')
     parser.add_argument('-cs', metavar='<integer>', type=int, help='Smallest cluster size (default: 11)', default=11)
