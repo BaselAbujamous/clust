@@ -87,7 +87,12 @@ If `matplotlib` is not already installed, run this:
 
 Then install *clust* by:
 
-* `sudo -H pip install clust`
+* `sudo pip install clust`
+
+If you already have *clust* and want to update it, try:
+
+* `sudo pip uninstall clust`
+* `sudo pip install clust --no-cache-dir`
 
 Then you can run *clust* straightforwardly from any place:
 
