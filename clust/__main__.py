@@ -37,7 +37,7 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
     parser.add_argument('datapath', help='The directory that includes the data files.', default=None)
-    parser.add_argument('-n', metavar='<file>', help='Normalisation codes file', default=None)
+    parser.add_argument('-n', metavar='<file or int>', help='Normalisation file or list of codes (default: 1000)', default=['1000'], nargs='+')
     parser.add_argument('-r', metavar='<file>', help='Replicates structure file', default=None)
     parser.add_argument('-m', metavar='<file>', help='OrthoGroups (OGs) mapping file', default=None)
     parser.add_argument('-o', metavar='<directory>', help='Output directory', default=None)
@@ -60,7 +60,11 @@ def main(args=None):
     parser.add_argument('--fil-abs', dest='absval', action='store_true',
                         help='Filter using absolute values of expression')
     parser.add_argument('--fil-perc', dest='filperc', action='store_true',
-                        help='-fil-v is a percentile rather than raw value')
+                        help='-fil-v is a percentile of genes rather than raw value')
+    parser.add_argument('--fil-flat', dest='filflat', action='store_true',
+                        help='Filter out genes with flat expression profiles (default)')
+    parser.add_argument('--no-fil-flat', dest='filflat', action='store_false',
+                        help='Cancels the default --fil-flat option')
     parser.add_argument('-cs', metavar='<integer>', type=int, help='Smallest cluster size (default: 11)', default=11)
     parser.add_argument('-q3s', metavar='<real number>', type=float,
                         help='Q3''s defining outliers (default: 2.0)', default=2.0)
@@ -70,7 +74,7 @@ def main(args=None):
                         help='Use deterministic settings across all steps')
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
                         default=1)
-    parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False)
+    parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
     if len(args) == 0:
@@ -84,8 +88,8 @@ def main(args=None):
         filtype = 'raw'
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
-                                args.s, args.d, args.filv, args.filc, args.fild, args.absval, filtype, args.cs,
-                                args.np, args.optimisation, args.q3s, args.deterministic)
+                                args.s, args.d, args.filv, args.filc, args.fild, args.absval, filtype, args.filflat,
+                                args.cs, args.np, args.optimisation, args.q3s, args.deterministic)
 
 
 if __name__ == "__main__":

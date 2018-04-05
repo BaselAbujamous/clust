@@ -2,6 +2,7 @@ import os
 import re
 import numpy as np
 import datastructures as ds
+import numeric as nu
 import glob
 import output as op
 import sys
@@ -98,14 +99,34 @@ def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
     return (replicatesIDs, conditions)
 
 
-def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnormalisation=0):
+def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnormalisation=1000):
+    """
+
+    :param normalisefile: either a list of a single string element which is the normalisation file name,
+    or a list of strings representing normalisation codes. In this case, the strings must be convertable to integers.
+    :param datafiles:
+    :param delimiter:
+    :param defaultnormalisation:
+    :return:
+    """
     if normalisefile is None:
         return defaultnormalisation
+
+    # This is in case the normalisation file was given as a single integer, it should not though
+    if nu.isint(normalisefile):
+        normalisefile = [normalisefile]
 
     L = len(datafiles)
     normalise = [None] * L
 
-    with open(normalisefile) as f:
+    # This happens when the normalisation codes are given directly rather than in a file
+    if len(normalisefile) > 1 or nu.isint(normalisefile[0]):
+        for l in range(L):
+            normalise[l] = [int(n) for n in normalisefile]
+        return normalise
+
+    # This happens when a normalisation file is given
+    with open(normalisefile[0]) as f:
         lineNumber = 0
         for line in f:
             lineNumber += 1
@@ -121,13 +142,13 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
                 l = datafiles.index(line[0])  # (l)th dataset
             else:
                 raise ValueError('Unrecognised data file name ({0}) in line {1} in {2}.'.
-                                 format(line[0], lineNumber, normalisefile))
+                                 format(line[0], lineNumber, normalisefile[0]))
 
             # If no normalisation is set for the dataset, skip to the next line
             if len(line) < 2:
                 continue
 
-            # If the normalisation of this dataset has not been set, set it, otherwise
+            # If the normalisation of this dataset has not been set, set it, otherwise append
             if normalise[l] is None:
                 normalise[l] = line[1:]
             else:
@@ -135,7 +156,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
 
     for l in range(L):
         if normalise[l] is None:
-            normalise[l] = [0]
+            normalise[l] = [defaultnormalisation]
         else:
             normalise[l] = [int(n) for n in normalise[l]]
 
@@ -191,6 +212,7 @@ def writedic(filepath, dic, header=None, delim='\t'):
     # Write the rest
     nokey = re.compile('^nokey[0-9]*$', flags=re.I)  # To match lines with no keys
     for k in dic.keys():
+
         if nokey.match(k) is None:
             f.write('{0}{1}{2}\n'.format(k, delim, dic[k]))
         else:
