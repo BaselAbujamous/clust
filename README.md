@@ -348,7 +348,7 @@ Try larger values of `-t` to obtain tighter clusters:
 Parameter | Definition
 --- | ---
 data_directory | The path of the directory including all data files
----|---
+-|-
 -m \<file> | Path of the map file
 -r \<file> | Path of the replicates file
 -n \<file or integer list> | Path of the normalisation file or a list of normalisation codes. See the [Normalisation section](#normalisation) above for details.
