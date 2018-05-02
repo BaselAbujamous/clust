@@ -41,11 +41,14 @@ def main(args=None):
     parser.add_argument('-r', metavar='<file>', help='Replicates structure file', default=None)
     parser.add_argument('-m', metavar='<file>', help='OrthoGroups (OGs) mapping file', default=None)
     parser.add_argument('-o', metavar='<directory>', help='Output directory', default=None)
+    parser.add_argument('-t', metavar='<real number>', type=float,
+                        help='Cluster tightness (default: 1.0).', default=1.0)
+    parser.add_argument('-basemethods', metavar='<string>', nargs='+',
+                        help='One or more base clustering methods (default: k-means HC SOMs)',
+                        default=None)
     parser.add_argument('-K', metavar='<integer>', type=int, nargs='+',
                         help='K values, e.g. 2 4 6 10 ... (default: 2 to 20)',
                         default=[n for n in range(2, 21)])
-    parser.add_argument('-t', metavar='<real number>', type=float,
-                        help='Cluster tightness (default: 1.0).', default=1.0)
     parser.add_argument('-s', metavar='<real number>', type=float,
                         help='Outlier standard deviations (default: 3.0)', default=3.0)
     parser.add_argument('-d', metavar='<integer>', type=int,
@@ -86,10 +89,14 @@ def main(args=None):
         filtype = 'perc'
     else:
         filtype = 'raw'
+
+    if args.basemethods is not None:
+        args.basemethods = [[m] for m in args.basemethods]
+
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
                                 args.s, args.d, args.filv, args.filc, args.fild, args.absval, filtype, args.filflat,
-                                args.cs, args.np, args.optimisation, args.q3s, args.deterministic)
+                                args.cs, args.np, args.optimisation, args.q3s, args.basemethods, args.deterministic)
 
 
 if __name__ == "__main__":

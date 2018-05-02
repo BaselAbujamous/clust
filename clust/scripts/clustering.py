@@ -5,6 +5,7 @@ import scipy.cluster.hierarchy as sphc
 import scipy.spatial.distance as spdist
 import sompy
 import io
+from glob import maxgenesinsetforpdist
 
 
 kmeans_init = {}  # This is to cache the centres of the k-means and reuse them
@@ -47,9 +48,10 @@ def ckmeans(X, K, datasetID=-1, params=()):
     if datasetID in kmeans_init:
         init = kmeans_init[datasetID][0:K]
     elif init == 'KA':
-        init = initclusterKA(X, K, distance)
-    elif init == 'KA_memorysaver':
-        init = initclusterKA_memorysaver(X, K, distance)
+        if X.shape[0] <= maxgenesinsetforpdist:
+            init = initclusterKA(X, K, distance)
+        else:
+            init = initclusterKA_memorysaver(X, K, distance)
 
     C = skcl.KMeans(K, init=init, max_iter=max_iter, n_jobs=n_jobs).fit(X).labels_
     return clustVec2partMat(C, K)
@@ -181,9 +183,10 @@ def cache_kmeans_init(X, K, methods, datasetID):
     # Perform initialisation over the largest K value and cache it, if k-means was found and init is some 'KA'
     if kmeansFound:
         if init == 'KA':
-            kmeans_init[datasetID] = initclusterKA(X, np.max(K), distance)
-        elif init == 'KA_memorysaver':
-            kmeans_init[datasetID] = initclusterKA_memorysaver(X, np.max(K), distance)
+            if X.shape[0] <= maxgenesinsetforpdist:
+                kmeans_init[datasetID] = initclusterKA(X, np.max(K), distance)
+            else:
+                kmeans_init[datasetID] = initclusterKA_memorysaver(X, np.max(K), distance)
 
 
 def clustVec2partMat(C, K=None):

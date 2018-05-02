@@ -3,8 +3,9 @@ tmpfile = 'tmp'
 object_label_upper = 'Gene'
 object_label_lower = 'gene'
 outputwidth = 73
-version = 'v1.7.0'
+version = 'v1.7.1'
 email = 'basel.abujamous@plants.ox.ac.uk'
+maxgenesinsetforpdist = 10000
 
 
 def set_logfile(val):

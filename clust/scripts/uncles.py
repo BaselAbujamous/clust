@@ -14,6 +14,8 @@ from joblib import Parallel, delayed
 import joblib
 import warnings
 import gc
+from glob import maxgenesinsetforpdist
+import output as op
 
 
 def binarise(U, technique, param=0.0):
@@ -347,16 +349,27 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
 
     if methods is None:
         largest_DS = np.max([x.shape[0] for x in Xloc])
-        if (largest_DS < 10000):
+        if (largest_DS <= maxgenesinsetforpdist):
             if (deterministic):
-                methods = [['k-means', 'init', 'KA'], ['HC', 'linkage_method', 'ward']]
+                methods = [['k-means'], ['HC']]
             else:
-                methods = [['k-means', 'init', 'KA'], ['SOMs'], ['HC', 'linkage_method', 'ward']]
+                methods = [['k-means'], ['SOMs'], ['HC']]
         else:
             if (deterministic):
-                methods = [['k-means', 'init', 'KA_memorysaver']]
+                methods = [['k-means']]
             else:
-                methods = [['k-means', 'init', 'KA_memorysaver'], ['SOMs']]
+                methods = [['k-means'], ['SOMs']]
+    else:
+        largest_DS = np.max([x.shape[0] for x in Xloc])
+        if (largest_DS > maxgenesinsetforpdist):
+            methods = [m for m in methods if 'hc' not in [entry.lower() for entry in m]]
+            if not methods:
+                io.log('No valid base clustering can be used. Please note that clust would not use HC clustering ' \
+                       'on datasets with more than {0} genes. You have a dataset with {1} genes.' \
+                       ''.format(maxgenesinsetforpdist, largest_DS))
+                io.log('Clust will terminate here.')
+                io.log(op.bottomline(), addextrastick=False)
+                sys.exit()
     if methodsDetailed is None:
         methodsDetailedloc = np.array([methods for l in range(L)])
     else:

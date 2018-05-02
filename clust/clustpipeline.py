@@ -22,7 +22,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                   Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
                   OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0, atleastinconditions=1,
                   atleastindatasets=1, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
-                  ncores=1, optimisation=True, Q3s=2, deterministic=False):
+                  ncores=1, optimisation=True, Q3s=2, methods=None, deterministic=False):
     # Set the global objects label
     if mapfile is None:
         glob.set_object_label_upper('Object')
@@ -108,8 +108,8 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
     # UNCLES and M-N plots
     io.log('3. Seed clusters production (the Bi-CoPaM method)')
-    ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, Xnames=datafiles_noext,
-                      ncores=ncores, deterministic=deterministic)
+    ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, methods=methods,
+                      Xnames=datafiles_noext, ncores=ncores, deterministic=deterministic)
     io.log('4. Cluster evaluation and selection (the M-N scatter plots technique)')
     mnres = mn.mnplotsgreedy(X_summarised_normalised, ures.B, GDM=GDM, tightnessweight=tightnessweight,
                              params=ures.params, smallestClusterSize=smallestClusterSize, Xnames=datafiles_noext,

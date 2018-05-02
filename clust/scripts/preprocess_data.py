@@ -621,7 +621,7 @@ def preprocess(X, GDM, normalise=1000, replicatesIDs=None, flipSamples=None, exp
     allare1000 = True
     anyis1000 = False
     for l in range(L):
-        if normaliseloc[l] == [1000]:
+        if 1000 in normaliseloc[l]:
             anyis1000 = True
         else:
             allare1000 = False
