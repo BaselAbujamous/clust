@@ -440,7 +440,7 @@ def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstCo
     Xnew = np.array([None] * L, dtype=object)
     GenesDatasets = np.array([None] * L, dtype=object)
     for l in range(L):
-        arelogs = np.nansum(abs(Xloc[l]) < 30) > 0.98 * ds.numel(Xloc[l])  # More than 98% of values are below 30.0
+        arelogs = np.nansum(abs(Xloc[l][~isnan(Xloc[l])]) < 30) > 0.98 * ds.numel(Xloc[l][~isnan(Xloc[l])])  # More than 98% of values are below 30.0
         d = Xloc[l].shape[1]  # Number of dimensions (samples) in this dataset
         Xnew[l] = np.zeros([Ngs[l], d], dtype=float)
         GenesDatasets[l] = np.empty(Ngs[l], dtype=object)
