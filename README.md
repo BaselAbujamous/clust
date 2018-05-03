@@ -79,9 +79,11 @@ You can check if you have these packages by:
 
 * `pip freeze`
 
-### If you have privileges to install (sudo privileges)
+### Install using sudo privileges
 
-If `matplotlib` is not already installed, run this:
+Use this, for example, to install *clust* on a server for all users.
+
+If `matplotlib` is not already installed, install it:
 
 * `sudo apt-get install python-matplotlib`
 
@@ -98,7 +100,23 @@ If you already have *clust* and want to update it, try:
 * `sudo pip uninstall clust`
 * `sudo pip install clust --no-cache-dir`
 
-### If you do not have privileges to install
+
+### Install without sudo privileges (Way 1)
+
+This installs *clust* for the local user only:
+
+* `pip install --user clust`
+
+If you already have *clust* and want to update it, try:
+
+* `pip install --user clust --upgrade`
+
+Then you can run *clust* by:
+
+* `clust ...`
+
+
+### Install without sudo privileges (Way 2)
 
 This works if the Python packages that *clust* requires are already installed (listed above).
 
@@ -154,6 +172,7 @@ gene expression values.
 * When the same gene ID appears in different datasets, it is considered to refer to the same gene.
 * If more than one row in the same file had the same identifier, they are automatically summarised by
 summing up their values.
+* **IMPORTANT**: Gene names should not include spaces, commas, or semicolons.
 
 
 # Normalisation
