@@ -9,6 +9,11 @@ import sys
 import traceback
 import math
 import portalocker
+import pandas as pd
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 
 def getFilesInDirectory(path, extension=None):
@@ -171,20 +176,21 @@ def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skipro
     for l in range(L):
         with open(datafiles[l]) as f:
             ncols = len(re.split(delimiter, f.readline()))
-        X[l] = nploadtxt_regexdelim(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows,
-                          usecols=range(skipcolumns, ncols), ndmin=2, comments=comm)
+        # This is now using pandas read_csv, if np.loadtxt is re-used, you HAVE TO set ndmin = 2 here
+        X[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows,
+                          usecols=range(skipcolumns, ncols), na_filter=True, comments=comm)
 
         if skiprows > 0:
-            skippedRows[l] = nploadtxt_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=0,
-                                        usecols=range(skipcolumns, ncols), comments=comm)[0:skiprows]
+            skippedRows[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=0,
+                                        usecols=range(skipcolumns, ncols), na_filter=False, comments=comm)[0:skiprows]
             if skiprows == 1:
                 skippedRows[l] = skippedRows[l][0]
         else:
             skippedRows[l] = np.array([]).reshape([0, X[l].shape[1]])
 
         if skipcolumns > 0:
-            skippedCols[l] = nploadtxt_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=skiprows,
-                                        usecols=range(skipcolumns), comments=comm)
+            skippedCols[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=skiprows,
+                                        usecols=range(skipcolumns), na_filter=False, comments=comm)
         else:
             skippedCols[l] = np.array([]).reshape([0, X[l].shape[1]])
 
@@ -195,10 +201,19 @@ def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skipro
 
 
 # Does the same job as numpy.loadtxt but regex delimiter
+#### OBSOLETE, USE THE PANDAS READ_CSV VERSION BELOW INSTEAD
 def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, ndmin=0, comments='#'):
     with open(file) as f:
         result = np.loadtxt((re.sub(delimiter, b'\t', x) for x in f),
                             delimiter='\t', dtype=dtype, skiprows=skiprows, usecols=usecols, ndmin=ndmin, comments=comments)
+    return result
+
+
+# Does the same job as pandas.read_csv but regex delimiter
+def pdreadcsv_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, na_filter=True, comments='#'):
+    with open(file) as f:
+        result = pd.read_csv(StringIO('\n'.join(re.sub(delimiter, b'\t', x) for x in f)),
+                            delimiter='\t', dtype=dtype, header=-1, skiprows=skiprows, usecols=usecols, na_filter=na_filter, comment=comments).values
     return result
 
 

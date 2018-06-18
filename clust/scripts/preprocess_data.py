@@ -383,8 +383,8 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
     # Split Map entries by the delim
     for i in range(Maploc.shape[0]):
         for j in range(Maploc.shape[1]):
-            Maploc[i, j] = re.split(delimGenesInMap, Maploc[i, j].replace('.', 'thisisadot'))
-            Maploc[i, j] = [gg.replace('thisisadot', '.') for gg in Maploc[i, j]]
+            Maploc[i, j] = re.split(delimGenesInMap, Maploc[i, j].replace('.', 'thisisadot').replace('-', 'thisisadash').replace('/', 'thisisaslash'))
+            Maploc[i, j] = [gg.replace('thisisadot', '.').replace('thisisadash', '-').replace('thisisaslash', '/') for gg in Maploc[i, j]]
 
     # Generate a flattened version of the Map: FlattenedMap[s] is a 1d list of all genes in the (s)th Map row, i.e.
     # in the (s)th species; this will make FlattenedMap[s1][n] not necessarily corresponding to FlattenedMap[s2][n])
@@ -399,6 +399,7 @@ def mapGenesToCommonIDs(Genes, Map, mapheader=True, OGsFirstColMap=True, delimGe
 
         OGsDatasets[l] = np.array(['' for i in range(Ng)], dtype=object)  # Default gene name for unmapped genes is ''
         findGenesInMap = ds.findArrayInSubArraysOfAnotherArray1D(Genes[l], Maploc[s])  # Indices of Genes in Map (Ngx1)
+        findGenesInMap = findGenesInMap[:,0]  # Make it flat (length of Ng instead of array of Ngx1)
         OGsDatasets[l][findGenesInMap > -1] = OGs[findGenesInMap[findGenesInMap > -1]]
 
     OGsFiltered = np.unique(ds.flattenAList(OGsDatasets.flatten().tolist()))  # Get sorted unique and *USED* OGs
