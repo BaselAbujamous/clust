@@ -44,11 +44,11 @@ def main(args=None):
     parser.add_argument('-t', metavar='<real number>', type=float,
                         help='Cluster tightness (default: 1.0).', default=1.0)
     parser.add_argument('-basemethods', metavar='<string>', nargs='+',
-                        help='One or more base clustering methods (default: k-means HC SOMs)',
+                        help='One or more base clustering methods (default: k-means)',
                         default=None)
     parser.add_argument('-K', metavar='<integer>', type=int, nargs='+',
-                        help='K values, e.g. 2 4 6 10 ... (default: 2 to 20)',
-                        default=[n for n in range(2, 21)])
+                        help='K values, e.g. 2 4 6 10 ... (default: 4 to 20 (step=4))',
+                        default=[n for n in range(4, 21, 4)])
     parser.add_argument('-s', metavar='<real number>', type=float,
                         help='Outlier standard deviations (default: 3.0)', default=3.0)
     parser.add_argument('-d', metavar='<integer>', type=int,
@@ -74,7 +74,7 @@ def main(args=None):
     parser.add_argument('--no-optimisation', dest='optimisation', action='store_false',
                         help='Skip cluster optimsation & completion')
     parser.add_argument('--deterministic', dest='deterministic', action='store_true',
-                        help='Use deterministic settings across all steps')
+                        help='Obsolete as all steps are already deterministic (v1.7.4+)')
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
                         default=1)
     parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True)

@@ -318,7 +318,7 @@ def clustDataset(X, K, D, methods, GDMcolumn, Ng, datasetID):
     return Uloc
 
 
-def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None, methodsDetailed=None, U=None,
+def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=None, methodsDetailed=None, U=None,
            Utype='PM', relabel_technique='minmin', setsP=None, setsN=None, dofuzzystretch=False, wsets=None,
            wmethods=None, GDM=None, smallestClusterSize=11, CoPaMfinetrials=1, CoPaMfinaltrials=1,
            binarise_techniqueP='DTB', binarise_paramP=np.arange(0.0,1.1,0.1,dtype='float'), binarise_techniqueN='DTB',
@@ -348,17 +348,18 @@ def uncles(X, type='A', Ks=[n for n in range(2, 21)], params=None, methods=None,
         Xnames = ['X{0}'.format(l) for l in range(L)]
 
     if methods is None:
-        largest_DS = np.max([x.shape[0] for x in Xloc])
-        if (largest_DS <= maxgenesinsetforpdist):
-            if (deterministic):
-                methods = [['k-means'], ['HC']]
-            else:
-                methods = [['k-means'], ['SOMs'], ['HC']]
-        else:
-            if (deterministic):
-                methods = [['k-means']]
-            else:
-                methods = [['k-means'], ['SOMs']]
+        methods = [['k-means']]
+        # largest_DS = np.max([x.shape[0] for x in Xloc])
+        # if (largest_DS <= maxgenesinsetforpdist):
+        #     if (deterministic):
+        #         methods = [['k-means'], ['HC']]
+        #     else:
+        #         methods = [['k-means'], ['SOMs'], ['HC']]
+        # else:
+        #     if (deterministic):
+        #         methods = [['k-means']]
+        #     else:
+        #         methods = [['k-means'], ['SOMs']]
     else:
         largest_DS = np.max([x.shape[0] for x in Xloc])
         if (largest_DS > maxgenesinsetforpdist):

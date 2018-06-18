@@ -19,7 +19,7 @@ import sys
 
 # Define the clust function (and below it towards the end of this file it is called).
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=['1000'], outpath=None,
-                  Ks=[n for n in range(2, 21)], tightnessweight=5, stds=0.01,
+                  Ks=[n for n in range(4, 21, 4)], tightnessweight=5, stds=0.01,
                   OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0, atleastinconditions=1,
                   atleastindatasets=1, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
                   ncores=1, optimisation=True, Q3s=2, methods=None, deterministic=False):

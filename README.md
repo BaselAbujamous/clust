@@ -391,7 +391,7 @@ data_directory | The path of the directory including all data files
 -|-
 -d \<integer> | Minimum number of datasets in which a gene has to be included for it to be considered in the *clust* analysis. If a gene is included only in fewer datasets than this, it will be excluded from the analysis (default: 1)
 -cs \<integer> | Smallest cluster size (default: 11)
--K \<integer> [\<integer> ...] | K values: refer to the publication for details (default: all values from 2 to 20 inclusively)
+-K \<integer> [\<integer> ...] | K values: refer to the publication for details (default: all even integers from 4 to 20 inclusively)
 -|-
 --no-optimisation | Skip the cluster optimisation step. Not recommended except to compare results before and after optimisation (default: optimisation is performed).
 --deterministic | Use deterministic settings across the steps of *clust*. Recommended if one requires the same results to be obtained when *clust* is run multiple times with the same parameters. This is not expected to compensate the quality, and it might become a default setting in future releases.
