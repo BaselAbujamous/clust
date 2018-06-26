@@ -373,9 +373,9 @@ Parameter | Definition
 --- | ---
 data_directory | The path of the directory including all data files
 -|-
--m \<file> | Path of the map file
--r \<file> | Path of the replicates file
 -n \<file or integer list> | Path of the normalisation file or a list of normalisation codes. See the [Normalisation section](#normalisation) above for details.
+-r \<file> | Path of the replicates file
+-m \<file> | Path to orthogroup mapping file
 -o \<directory> | Custom path of the output directory
 -|-
 -t \<real number> | (Cluster tightness) versus (cluster size) weight: a real positive number, where 1.0 means equal weights, values smaller than 1.0 means larger and less tight clusters, and values larger than 1.0 produce smaller and tighter clusters (default: 1.0).
@@ -394,7 +394,7 @@ data_directory | The path of the directory including all data files
 -K \<integer> [\<integer> ...] | K values: refer to the publication for details (default: all even integers from 4 to 20 inclusively)
 -|-
 --no-optimisation | Skip the cluster optimisation step. Not recommended except to compare results before and after optimisation (default: optimisation is performed).
---deterministic | Use deterministic settings across the steps of *clust*. Recommended if one requires the same results to be obtained when *clust* is run multiple times with the same parameters. This is not expected to compensate the quality, and it might become a default setting in future releases.
+-basemethods \<string> [\<string> ...] | One or more base clustering methods (default (V1.8.0+): k-means)
 -|-
 -np \<integer> | Number of parallel processes (default: 1) 
 -h, --help | show the help message and exit
