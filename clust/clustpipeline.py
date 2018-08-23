@@ -14,6 +14,7 @@ import os
 import datetime as dt
 import shutil
 import sys
+import pandas as pd
 
 
 
@@ -98,12 +99,13 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         MapNew = MapNew[Iincluded]
 
     # Output: Save processed data
-    Xprocessed = op.processed_X(X_summarised_normalised, conditions, GDM, OGs, MapNew, MapSpecies)
+    Xprocessed = op.processed_X(X_summarised_normalised, conditions, GDM, OGs, MapNew, MapSpecies)  # pandas DataFrames
     X_proc_path = outpath + '/Processed_Data'
     if not os.path.exists(X_proc_path):
         os.makedirs(X_proc_path)
     for l in range(len(datafiles)):
-        np.savetxt('{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), Xprocessed[l], fmt='%s', delimiter='\t')
+        pd.DataFrame.to_csv(Xprocessed[l], '{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), sep='\t', encoding='utf-8', index=None, columns=None, header=False)
+        #np.savetxt('{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), Xprocessed[l], fmt='%s', delimiter='\t')
 
 
     # UNCLES and M-N plots
@@ -148,14 +150,20 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     io.writedic('{0}/input_params.tsv'.format(in2out_path), inputparams, delim='\t')
 
     # Output: Generating and saving clusters
-    res_og = op.clusters_genes_OGs(B_corrected, OGs, MapNew, MapSpecies, '; ')
+    res_og = op.clusters_genes_OGs(B_corrected, OGs, MapNew, MapSpecies, '; ')  # pandas DataFrame
     if mapfile is None:
-        np.savetxt('{0}/Clusters_Objects.tsv'.format(outpath), res_og, fmt='%s', delimiter='\t')
+        pd.DataFrame.to_csv(res_og, '{0}/Clusters_Objects.tsv'.format(outpath), sep='\t',
+                            encoding='utf-8', index=None, columns=None, header=False)
+        #np.savetxt('{0}/Clusters_Objects.tsv'.format(outpath), res_og, fmt='%s', delimiter='\t')
     else:
-        np.savetxt('{0}/Clusters_OGs.tsv'.format(outpath), res_og, fmt='%s', delimiter='\t')
-        res_sp = op.clusters_genes_Species(B_corrected, OGs, MapNew, MapSpecies)
+        pd.DataFrame.to_csv(res_og, '{0}/Clusters_OGs.tsv'.format(outpath), sep='\t',
+                            encoding='utf-8', index=None, columns=None, header=False)
+        #np.savetxt('{0}/Clusters_OGs.tsv'.format(outpath), res_og, fmt='%s', delimiter='\t')
+        res_sp = op.clusters_genes_Species(B_corrected, OGs, MapNew, MapSpecies)  # pandas DataFrame
         for sp in range(len(res_sp)):
-            np.savetxt('{0}/Clusters_{1}.tsv'.format(outpath, MapSpecies[sp]), res_sp[sp], fmt='%s', delimiter='\t')
+            pd.DataFrame.to_csv(res_sp[sp], '{0}/Clusters_{1}.tsv'.format(outpath, MapSpecies[sp]), sep='\t',
+                                encoding='utf-8', index=None, columns=None, header=False)
+            #np.savetxt('{0}/Clusters_{1}.tsv'.format(outpath, MapSpecies[sp]), res_sp[sp], fmt='%s', delimiter='\t')
 
     # Output: Save figures to a PDF
     try:

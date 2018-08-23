@@ -3,6 +3,7 @@ import datetime as dt
 import collections as collec
 import datastructures as ds
 from glob import outputwidth, version
+import pandas as pd
 
 
 
@@ -291,7 +292,7 @@ def clusters_genes_OGs(B, OGs, Map, MapSpecies, delim='; '):
             header[1, col] = MapSpecies[sp]
 
 
-    return np.array(np.concatenate((header, res), axis=0), dtype=str)
+    return pd.DataFrame(data=np.array(np.concatenate((header, res), axis=0), dtype=str), index=None, columns=None, dtype=str)
 
 
 def clusters_genes_Species(B, OGs, Map, MapSpecies):
@@ -305,6 +306,7 @@ def clusters_genes_Species(B, OGs, Map, MapSpecies):
     Csizes = [[len(sp_k_genes) for sp_k_genes in sp_genes] for sp_genes in flatGenesInSpecies]  # Nsp x K
     maxCsizes = [np.max(csizes_sp) for csizes_sp in Csizes]  # Nsp x 1
     res = np.array([None] * Nsp, dtype=object)
+    resFrames = np.array([None] * Nsp, dtype=object)
 
     # Fill the results object, species by species
     for sp in range(Nsp):
@@ -315,13 +317,15 @@ def clusters_genes_Species(B, OGs, Map, MapSpecies):
             restmp[Csizes[sp][k]:, k] = ''
             header[0, k] = 'C{0} ({1} genes)'.format(k, Csizes[sp][k])
         res[sp] = np.array(np.concatenate((header, restmp), axis=0), dtype=str)
+        resFrames[sp] = pd.DataFrame(data=res[sp], columns=None, index=None, dtype=str)
 
-    return res
+    return resFrames
 
 
 def processed_X(Xprocessed, conditions, GDM, OGs, Map, MapSpecies):
     L = len(Xprocessed)
     res = np.array([None] * L, dtype=object)
+    resFrame = np.array([None] * L, dtype=object)
     resData = np.array([None] * L, dtype=object)
     resHeader = np.array([None] * L, dtype=object)
     resGeneNames = np.array([None] * L, dtype=object)
@@ -353,7 +357,9 @@ def processed_X(Xprocessed, conditions, GDM, OGs, Map, MapSpecies):
         res[l] = np.concatenate((resHeader[l], res[l]), axis=0)
         res[l] = np.array(res[l], dtype=str)
 
-    return res
+        resFrame[l] = pd.DataFrame(data=res[l], index=None, columns=None, dtype=str)
+
+    return resFrame
 
 
 def params(params, q3s, OGsIncludedIfAtLeastInDatasets, expressionValueThreshold,
