@@ -7,12 +7,12 @@ from matplotlib.backends.backend_pdf import PdfPages
 import glob
 
 maxrows_per_page = 8
-maxcols_per_page = 8
+maxcols_per_page = 6
 bands_per_page = 1
 pagesize = (11.69, 8.27)
 page_is_landscape = True
 fontsize = 16
-xticksrotation = 0
+xticksrotation = 45
 
 
 def set_maxrows_per_page(val):
@@ -40,11 +40,11 @@ def set_page_is_landscape(val, setRowsColsToDefault=False):
     page_is_landscape = val
     if setRowsColsToDefault:
         if page_is_landscape:
-            set_maxrows_per_page(8)
-            set_maxcols_per_page(8)
+            set_maxrows_per_page(6)
+            set_maxcols_per_page(6)
         else:
-            set_maxrows_per_page(12)
-            set_maxcols_per_page(5)
+            set_maxrows_per_page(8)
+            set_maxcols_per_page(4)
     if page_is_landscape:
         set_pagesize((11.69, 8.27))
     else:
@@ -132,7 +132,7 @@ def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', 
         for l in range(L):
             (page, pos, row, col) = position_of_subplot(L, K, l, Cs[k])
             plt.figure(page, figsize=pagesize, frameon=False)
-            plt.subplot(maxrows_per_page, maxcols_per_page, pos)
+            plt.subplot(max(maxrows_per_page, 3), maxcols_per_page, pos)
             # Get the subset of the dataset relevant to this cluster and this dataset
             if GDM is None:
                 localX = X[l][B[:, Cs[k]], :]
@@ -140,9 +140,33 @@ def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', 
                 localX = X[l][B[GDM[:, l], Cs[k]], :]
             plt.plot(np.arange(localX.shape[1]), np.transpose(localX), 'k-')
             plt.xticks(np.arange(localX.shape[1]), conditions[l], rotation=xticksrotation)
-            # Suppress ticks
-            frame = plt.gca()
-            frame.axes.get_yaxis().set_ticks([])
+
+
+            # New ytick business
+            def formatn(n):
+                if abs(n) == 0:
+                    return '0'
+                elif abs(n) < 0.1:
+                    return '{0:.1e}'.format(n)
+                elif abs(n) < 10:
+                    return '{0:.1f}'.format(n)
+                else:
+                    return '{0:.0f}'.format(n)
+
+            maxval = np.max(localX)
+            minval = np.min(localX)
+
+            if maxval > 0 > minval:
+                midval = 0
+            else:
+                midval = (minval + maxval) / 2
+
+            plt.yticks([minval, midval, maxval], [formatn(minval), formatn(midval), formatn(maxval)])
+
+
+            # Suppress ticks (old, instead the ytick business above)
+            # frame = plt.gca()
+            # frame.axes.get_yaxis().set_ticks([])
 
             '''
             if l < L - 1 and l < maxrows_per_page - 1:
@@ -153,10 +177,13 @@ def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', 
 
             # Add title
             if l == 0 or row == 0:
-                plt.title('C{0}\n({1} {2})'.format(Cs[k], np.sum(B[:, Cs[k]]), glob.object_label_lower))
+                plt.title('C{0}\n({1} {2}s)'.format(Cs[k], np.sum(B[:, Cs[k]]), glob.object_label_lower))
             # Add datasets names (ylabels)
             if col == 0:
                 plt.ylabel(DatasetsNames[l])
+
+            # Add more white space between subplots
+            plt.subplots_adjust(wspace=0.35, hspace=0.35)
 
     # Save plots
     with PdfPages(filename) as pdf:

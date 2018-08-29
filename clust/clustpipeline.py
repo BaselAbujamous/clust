@@ -26,8 +26,8 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                   ncores=1, optimisation=True, Q3s=2, methods=None, deterministic=False):
     # Set the global objects label
     if mapfile is None:
-        glob.set_object_label_upper('Object')
-        glob.set_object_label_lower('object')
+        glob.set_object_label_upper('Gene')
+        glob.set_object_label_lower('gene')
     else:
         glob.set_object_label_upper('OG')
         glob.set_object_label_lower('OG')
