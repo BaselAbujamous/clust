@@ -25,15 +25,16 @@ def getFilesInDirectory(path, extension=None):
                 extension = extension[1:]
             return [fn for fn in filenames if re.match('(.*\.' + extension + '$)', fn) is not None]
 
-
-def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1, returnSkipped=False):
+def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=0, header=True, skipcolumns=0,
+                                  firstColumn=True, returnHeader=True, returnFirstCol=True):
     datafiles = np.sort(getFilesInDirectory(path)).tolist()
 
     datafileswithpath = [path + '/' + df for df in datafiles]
 
-    datafilesread = readDataFromFiles(datafileswithpath, delimiter, float, skiprows, skipcolumns, returnSkipped)
+    datafilesread = readDataFromFiles(datafileswithpath, delimiter, float, skiprows, header, skipcolumns, firstColumn,
+                                      returnHeader, returnFirstCol)
 
-    if returnSkipped:
+    if returnHeader or returnFirstCol:
         return datafilesread + (datafiles, )
     else:
         return datafilesread, datafiles
@@ -42,7 +43,8 @@ def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skip
 def readMap(mapfile, delimiter='\t'):
     if mapfile is None:
         return None
-    return readDataFromFiles([mapfile], delimiter, dtype=str, skiprows=0, skipcolumns=0, returnSkipped=False)[0]
+    return readDataFromFiles([mapfile], delimiter, dtype=str, skiprows=0, header=False, skipcolumns=0,
+                             firstColumn=False, returnHeader=False, returnFirstCol=False)[0]
 
 
 def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
@@ -168,41 +170,53 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
     return normalise
 
 
-def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skiprows=1, skipcolumns=1, returnSkipped=True, comm='#'):
+def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, header=True,
+                      skipcolumns=0, firstColumn=True, returnHeader=False, returnFirstCol=False, comm='#'):
     L = len(datafiles)
     X = [None] * L
-    skippedRows = [None] * L
-    skippedCols = [None] * L
+    headerRows = [None] * L
+    firstCols = [None] * L
     for l in range(L):
         with open(datafiles[l]) as f:
             ncols = len(re.split(delimiter, f.readline()))
+
+        skiprows_with_header = skiprows + 1 if header else skiprows
+        skipcolumns_with_firstcol = skipcolumns + 1 if firstColumn else skipcolumns
+
         # This is now using pandas read_csv, if np.loadtxt is re-used, you HAVE TO set ndmin = 2 here
-        X[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows,
-                          usecols=range(skipcolumns, ncols), na_filter=True, comments=comm)
+        X[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows_with_header,
+                                    usecols=range(skipcolumns_with_firstcol, ncols), na_filter=True, comments=comm)
 
-        if skiprows > 0:
-            skippedRows[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=0,
-                                        usecols=range(skipcolumns, ncols), na_filter=False, comments=comm)[0:skiprows]
-            if skiprows == 1:
-                skippedRows[l] = skippedRows[l][0]
+        if header:
+            headerRows[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=skiprows,
+                                                 usecols=range(skipcolumns_with_firstcol, ncols), na_filter=False,
+                                                 comments=comm)[0]
         else:
-            skippedRows[l] = np.array([]).reshape([0, X[l].shape[1]])
-
-        if skipcolumns > 0:
-            skippedCols[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=skiprows,
-                                        usecols=range(skipcolumns), na_filter=False, comments=comm)
+            headerRows[l] = np.array(['g{0}'.format(i) for i in range(1, X[l].shape[1] + 1)])
+        if firstColumn:
+            firstCols[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str,
+                                                skiprows=skiprows_with_header,
+                                                usecols=range(skipcolumns, skipcolumns_with_firstcol),
+                                                na_filter=False, comments=comm)
         else:
-            skippedCols[l] = np.array([]).reshape([0, X[l].shape[1]])
+            firstCols[l] = np.array(['x{0}'.format(i) for i in range(1, X[l].shape[0] + 1)])
 
-    if returnSkipped:
-        return (ds.listofarrays2arrayofarrays(X), skippedRows, skippedCols)
-    else:
-        return ds.listofarrays2arrayofarrays(X)
+    if returnHeader and returnFirstCol:
+        return (ds.listofarrays2arrayofarrays(X), headerRows, firstCols)
+    elif returnHeader:
+        return (ds.listofarrays2arrayofarrays(X), headerRows)
+    elif returnFirstCol:
+        return (ds.listofarrays2arrayofarrays(X), firstCols)
 
 
 # Does the same job as numpy.loadtxt but regex delimiter
 #### OBSOLETE, USE THE PANDAS READ_CSV VERSION BELOW INSTEAD
 def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, ndmin=0, comments='#'):
+    if len(delimiter) == 0 and dtype in [str, np.str_]:
+        result = pdreadcsv_regexdelim(file, ' ', dtype=dtype, skiprows=skiprows, na_filter=na_filter, comments=comments)
+        result = np.array([[x[0][i] for i in range(len(x[0]))] for x in result])
+        return result
+
     with open(file) as f:
         result = np.loadtxt((re.sub(delimiter, b'\t', x) for x in f),
                             delimiter='\t', dtype=dtype, skiprows=skiprows, usecols=usecols, ndmin=ndmin, comments=comments)

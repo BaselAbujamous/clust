@@ -20,10 +20,11 @@ import pandas as pd
 
 # Define the clust function (and below it towards the end of this file it is called).
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=['1000'], outpath=None,
-                  Ks=[n for n in range(4, 21, 4)], tightnessweight=5, stds=0.01,
-                  OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0, atleastinconditions=1,
-                  atleastindatasets=1, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
-                  ncores=1, optimisation=True, Q3s=2, methods=None, deterministic=False):
+                  Ks=[n for n in range(4, 21, 4)], tightnessweight=5, stds=0.01, delimiter='\t| |, |; |,|;',
+                  skiprows=0, header=True, skipcolumns=0, firstcol=True, OGsIncludedIfAtLeastInDatasets=1,
+                  expressionValueThreshold=10.0, atleastinconditions=1, atleastindatasets=1, absvalue=False,
+                  filteringtype='raw', filflat=True, smallestClusterSize=11, ncores=1, optimisation=True, Q3s=2,
+                  methods=None, deterministic=False, distance='euclidean'):
     # Set the global objects label
     if mapfile is None:
         glob.set_object_label_upper('Gene')
@@ -73,8 +74,10 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
     # Read data
     io.log('1. Reading datasets')
-    (X, replicates, Genes, datafiles) = io.readDatasetsFromDirectory(datapath, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1,
-                                                                     returnSkipped=True)
+    (X, replicates, Genes, datafiles) = io.readDatasetsFromDirectory(datapath, delimiter=delimiter,
+                                                                     skiprows=skiprows, header=header,
+                                                                     skipcolumns=skipcolumns, firstColumn=firstcol,
+                                                                     returnHeader=True, returnFirstCol=True)
     datafiles_noext = [os.path.splitext(d)[0] for d in datafiles]
 
     # Read map, replicates, and normalisation files:
@@ -104,18 +107,20 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     if not os.path.exists(X_proc_path):
         os.makedirs(X_proc_path)
     for l in range(len(datafiles)):
-        pd.DataFrame.to_csv(Xprocessed[l], '{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), sep='\t', encoding='utf-8', index=None, columns=None, header=False)
+        sep = '\t' if delimiter != '' else ''  # Unless the delimiter was set to nothing, use tabs for the output
+        pd.DataFrame.to_csv(Xprocessed[l], '{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), sep=sep,
+                            encoding='utf-8', index=None, columns=None, header=False)
         #np.savetxt('{0}/{1}_processed.tsv'.format(X_proc_path, datafiles[l]), Xprocessed[l], fmt='%s', delimiter='\t')
 
 
     # UNCLES and M-N plots
     io.log('3. Seed clusters production (the Bi-CoPaM method)')
     ures = unc.uncles(X_summarised_normalised, type='A', GDM=GDM, Ks=Ks, params=params, methods=methods,
-                      Xnames=datafiles_noext, ncores=ncores, deterministic=deterministic)
+                      Xnames=datafiles_noext, ncores=ncores, deterministic=deterministic, distance=distance)
     io.log('4. Cluster evaluation and selection (the M-N scatter plots technique)')
     mnres = mn.mnplotsgreedy(X_summarised_normalised, ures.B, GDM=GDM, tightnessweight=tightnessweight,
                              params=ures.params, smallestClusterSize=smallestClusterSize, Xnames=datafiles_noext,
-                             ncores=ncores)
+                             distance=distance, ncores=ncores)
 
     # Post-processing
     ppmethod = 'tukey_sqrtSCG'

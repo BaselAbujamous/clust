@@ -9,6 +9,7 @@ import datastructures as ds
 import io
 import numeric as nu
 import preprocess_data as pp
+import statistical as st
 
 from joblib import Parallel, delayed
 import warnings
@@ -60,7 +61,7 @@ def mseclustersfuzzy(X, B, donormalise=True, GDM=None):
     return np.mean(mseC, axis=0)
 
 
-def mseclusters(X, B, donormalise=True, GDM=None):
+def mseclusters(X, B, distance='euclidean', donormalise=False, GDM=None):
     Xloc = np.array(X)
     Bloc = np.array(B)
 
@@ -83,8 +84,8 @@ def mseclusters(X, B, donormalise=True, GDM=None):
 
     mseC = np.zeros([Nx, K], dtype=float)
 
-    Nk = [np.sum(b) for b in Bloc.transpose()] # Number of genes per cluster
-    Nd = [x.shape[1] for x in Xloc] # Number of dimensions per dataset
+    #Nk = [np.sum(b) for b in Bloc.transpose()] # Number of genes per cluster
+    #Nd = [x.shape[1] for x in Xloc] # Number of dimensions per dataset
 
     # Normalise if needed
     if donormalise:
@@ -103,9 +104,10 @@ def mseclusters(X, B, donormalise=True, GDM=None):
                 mseC[nx,k] = float('nan')
             else:
                 Xlocloc = Xloc[nx][Bloc[GDMloc[:, nx], k], :]
-                tmp = nu.subtractaxis(Xlocloc, np.mean(Xlocloc, axis=0), axis=0)
-                tmp = np.sum(np.power(tmp,2))
-                mseC[nx,k] = tmp / Nd[nx] / Nk[k]
+                mseC[nx, k] = st.mse_distance_metric(Xlocloc, distance)
+                #tmp = nu.subtractaxis(Xlocloc, np.mean(Xlocloc, axis=0), axis=0)
+                #tmp = np.sum(np.power(tmp, 2))
+                #mseC[nx, k] = tmp / Nd[nx] / Nk[k]
         # Report progress
         if (K > reportedprogress):
             io.updateparallelprogress(K - reportedprogress)
@@ -115,7 +117,7 @@ def mseclusters(X, B, donormalise=True, GDM=None):
 
 def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, setsP=None, setsN=None, Xtype='data',
                       mseCache=None, wsets=None, GDM=None, msesummary='average', percentageOfClustersKept=100,
-                      smallestClusterSize=11, Xnames=None, ncores=1):
+                      smallestClusterSize=11, Xnames=None, distance='euclidean', ncores=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     Bloc = ds.reduceToArrayOfNDArraysAsObjects(B, 2)
     L = Xloc.shape[0]  # Number of datasets
@@ -167,7 +169,7 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
                 warnings.simplefilter("ignore")
                 mseCachetmp = Parallel(n_jobs=ncores)\
                     (delayed(mseclusters)
-                     (Xtmp, ds.matlablike_index2D(BB, GDMloc[:, l], nn), 0) for nn in range(NN))
+                     (Xtmp, ds.matlablike_index2D(BB, GDMloc[:, l], nn), distance, 0) for nn in range(NN))
                 mseCachetmp = [mm[0] for mm in mseCachetmp]
                 for nn in range(NN):
                     mseCache[nn, l] = mseCachetmp[nn]

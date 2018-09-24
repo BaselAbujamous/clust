@@ -381,6 +381,12 @@ data_directory | The path of the directory including all data files
 -t \<real number> | (Cluster tightness) versus (cluster size) weight: a real positive number, where 1.0 means equal weights, values smaller than 1.0 means larger and less tight clusters, and values larger than 1.0 produce smaller and tighter clusters (default: 1.0).
 -q3s \<real number> |  Defines the threshold for outliers in terms of the number of Q3's (third quartiles). Smaller values lead to tighter clusters (default: 2.0).
 -|-
+-delim \<string> | Defines the delimiter(s) used in data file(s). Put these between double quotations and split between them using vertical bars (default: "\t\| \|, \|; \|,\|;").
+-skiprows \<integer> | Number of rows to skip from the top of the data file(s) other than the header (default: 0).
+--no-header | Indicates that the data file(s) have no header line (default: a header line exists)
+-skipcols \<integer> | Number of columns to skip from the left of the data file(s) other than the gene names column (default: 0).
+--no-first-col | Indicates that the data file(s) have no column for gene or object names. If exists, this column is the first folumn after the skipped columns indicated by -skipcols above (default: a gene names column exists).
+-|-
 -fil-v \<real number> | Threshold of data values (e.g. gene expression). Any value lower than this will be set to 0.0. If a gene never exceeds this value at least in FILC conditions in at least FILD datasets, it is excluded from the analysis (default: -inf)
 -fil-c \<integer> | Minimum number of conditions in a dataset in which a gene should exceed the data value FILV at least in FILD datasets to be included in the analysis (default: 0)
 -fil-d \<integer> | Minimum number of datasets in which a gene should exceed the data value FILV at least in FILC conditions to be included in the analysis (default: 0)

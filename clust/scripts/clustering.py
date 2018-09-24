@@ -12,7 +12,7 @@ kmeans_init = {}  # This is to cache the centres of the k-means and reuse them
 
 
 # Main function
-def clusterdataset(X, K, D, methods=None, datasetID=-1):
+def clusterdataset(X, K, D, methods=None, distance='euclidean', datasetID=-1):
     if methods is None: methods = [['k-means'],['SOMs'],['HC','linkage_method','ward']]
     methodsloc = [n if isinstance(n,(list,tuple,np.ndarray)) else [n] for n in methods]
     #io.log('clusterdataset')
@@ -25,7 +25,7 @@ def clusterdataset(X, K, D, methods=None, datasetID=-1):
         elif methodsloc[ms][0].lower() in ['soms', 'soms-bubble']:
             U[ms] = csoms(X, D, methodsloc[ms][1:])
         elif methodsloc[ms][0].lower() in ['hc', 'hierarchical']:
-            U[ms] = chc(X, K, methodsloc[ms][1:])
+            U[ms] = chc(X, K, distance, methodsloc[ms][1:])
 
     io.updateparallelprogress(K * C)
 
@@ -33,6 +33,8 @@ def clusterdataset(X, K, D, methods=None, datasetID=-1):
 
 
 # Clustering functions
+
+# KM always uses euclidean distance
 def ckmeans(X, K, datasetID=-1, params=()):
     global kmeans_init
 
@@ -57,6 +59,7 @@ def ckmeans(X, K, datasetID=-1, params=()):
     return clustVec2partMat(C, K)
 
 
+# SOMs always uses euclidean distance
 def csoms(X, D, params=()):
     pnames = ['neighbour', 'learning_rate', 'input_length_ratio']
     dflts  = [        0.1,             0.2,                   -1]
@@ -81,21 +84,24 @@ def csoms(X, D, params=()):
     return clustVec2partMat(C, K)
 
 
-def chc(X, K, params=()):
-    pnames = ['linkage_method',  'distance']
-    dflts  = [          'ward', 'euclidean']
+def chc(X, K, distance, params=()):
+    pnames = ['linkage_method']
+    if distance in ['euc', 'euclidean']:
+        dflts = ['ward']
+    else:
+        dflts = ['complete']
     if isinstance(params, np.ndarray):
         paramsloc = params.tolist()
     else:
         paramsloc = params
-    (linkage_method, distance) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
+    (linkage_method, ) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
 
     Z = sphc.linkage(X, method=linkage_method, metric=distance)
     C = sphc.fcluster(Z, K, criterion='maxclust')
     return clustVec2partMat(C, K)
 
 
-# Other related functions
+# Other related functions (KA only uses euclidean)
 def initclusterKA(X, K, distance='euclidean'):
     M = X.shape[0]
     Dist = spdist.pdist(X, metric=distance)  # MxM (condensed)
@@ -126,6 +132,7 @@ def initclusterKA(X, K, distance='euclidean'):
     return Result
 
 
+#  (KA only uses euclidean)
 '''This is the same as initclusterKA, but does not calculate the pdist amongst all objects at once.
 It rather uses loops and therefore saves the memory.'''
 def initclusterKA_memorysaver(X, K, distance='euclidean'):
@@ -159,6 +166,7 @@ def initclusterKA_memorysaver(X, K, distance='euclidean'):
     return Result
 
 
+#  (KA only uses euclidean)
 def cache_kmeans_init(X, K, methods, datasetID):
     global kmeans_init
 

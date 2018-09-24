@@ -309,10 +309,10 @@ def sortclusters(CoPaM, Mc, minGenesinClust = 11):
 
 
 # Clustering helping function for parallel loop
-def clustDataset(X, K, D, methods, GDMcolumn, Ng, datasetID):
+def clustDataset(X, K, D, methods, distance, GDMcolumn, Ng, datasetID):
     #X, K, D, methods, GDMcolumn, Ng = args
     Uloc = [np.zeros([Ng, K], dtype=bool)] * len(methods)  # Prepare the U output
-    tmpU = cl.clusterdataset(X, K, D, methods, datasetID)  # Obtain U's
+    tmpU = cl.clusterdataset(X, K, D, methods, distance, datasetID)  # Obtain U's
     for cc in range(len(methods)):  # Set U's as per the GDM values
         Uloc[cc][GDMcolumn] = tmpU[cc]
     return Uloc
@@ -323,7 +323,7 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
            wmethods=None, GDM=None, smallestClusterSize=11, CoPaMfinetrials=1, CoPaMfinaltrials=1,
            binarise_techniqueP='DTB', binarise_paramP=np.arange(0.0,1.1,0.1,dtype='float'), binarise_techniqueN='DTB',
            binarise_paramN=np.concatenate(([sys.float_info.epsilon], np.arange(0.1,1.1,0.1,dtype='float'))),
-           Xnames=None, deterministic=False, ncores=1):
+           Xnames=None, deterministic=False, distance='euclidean', ncores=1):
     Xloc = ds.listofarrays2arrayofarrays(X)
     L = len(Xloc)  # Number of datasets
 
@@ -349,17 +349,6 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
 
     if methods is None:
         methods = [['k-means']]
-        # largest_DS = np.max([x.shape[0] for x in Xloc])
-        # if (largest_DS <= maxgenesinsetforpdist):
-        #     if (deterministic):
-        #         methods = [['k-means'], ['HC']]
-        #     else:
-        #         methods = [['k-means'], ['SOMs'], ['HC']]
-        # else:
-        #     if (deterministic):
-        #         methods = [['k-means']]
-        #     else:
-        #         methods = [['k-means'], ['SOMs']]
     else:
         largest_DS = np.max([x.shape[0] for x in Xloc])
         if (largest_DS > maxgenesinsetforpdist):
@@ -410,7 +399,7 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
                 warnings.simplefilter("ignore")
                 Utmp = Parallel(n_jobs=ncores)\
                     (delayed(clustDataset)
-                     (Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l], GDMloc[:, l], Ng, l) for ki in range(NKs))
+                     (Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l], distance, GDMloc[:, l], Ng, l) for ki in range(NKs))
 
                 Utmp = [u for u in Utmp]
                 for ki in range(NKs):
@@ -548,7 +537,8 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
         'L': L,
         'CoPaMs': CoPaMs,
         'smallestclustersize': smallestClusterSize,
-        'GDM': GDMloc
+        'GDM': GDMloc,
+        'Distance': distance,
     })
 
     UnclesRes = collections.namedtuple('UnclesRes', ['B', 'Mc', 'params', 'X', 'U'])

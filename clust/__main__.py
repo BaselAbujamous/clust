@@ -51,6 +51,25 @@ def main(args=None):
                         default=[n for n in range(4, 21, 4)])
     parser.add_argument('-s', metavar='<real number>', type=float,
                         help='Outlier standard deviations (default: 3.0)', default=3.0)
+
+
+    parser.add_argument('-delim', metavar='<string>', type=str,
+                        help='Data delimiter(s) split by vertical bars (default: "\\t| |, |; |,|;")',
+                        default='\t| |, |; |,|;')
+
+
+    parser.add_argument('-skiprows', metavar='<integer>', type=int,
+                        help='Lines to skip from the top of the data file(s) other than the header line (default: 0)',
+                        default=0)
+    parser.add_argument('--no-header', dest='header', action='store_false',
+                        help='Indicates that the data files have no header line')
+    parser.add_argument('-skipcols', metavar='<integer>', type=int,
+                        help='Columns to skip from the left of the data file(s) other than the gene names column (default: 0)',
+                        default=0)
+    parser.add_argument('--no-first-col', dest='firstcol', action='store_false',
+                        help='Indicates that the data files have no first column')
+
+
     parser.add_argument('-d', metavar='<integer>', type=int,
                         help='Min datasets in which a gene must exist (default: 1)', default=1)
     parser.add_argument('-fil-v', metavar='<real number>', dest='filv', type=float,
@@ -68,16 +87,29 @@ def main(args=None):
                         help='Filter out genes with flat expression profiles (default)')
     parser.add_argument('--no-fil-flat', dest='filflat', action='store_false',
                         help='Cancels the default --fil-flat option')
+
+
     parser.add_argument('-cs', metavar='<integer>', type=int, help='Smallest cluster size (default: 11)', default=11)
     parser.add_argument('-q3s', metavar='<real number>', type=float,
                         help='Q3''s defining outliers (default: 2.0)', default=2.0)
+
+
     parser.add_argument('--no-optimisation', dest='optimisation', action='store_false',
                         help='Skip cluster optimsation & completion')
     parser.add_argument('--deterministic', dest='deterministic', action='store_true',
                         help='Obsolete as all steps are already deterministic (v1.7.4+)')
+
+
+    parser.add_argument('-distance', metavar='<string>', type=str, help='Distance metric (default: euclidean)',
+                        default='euclidean')
+
+
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
                         default=1)
-    parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True)
+
+
+    parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True,
+                        header=True, firstcol=True)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
     if len(args) == 0:
@@ -93,10 +125,12 @@ def main(args=None):
     if args.basemethods is not None:
         args.basemethods = [[m] for m in args.basemethods]
 
+
     # Call the clust function
-    clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
-                                args.s, args.d, args.filv, args.filc, args.fild, args.absval, filtype, args.filflat,
-                                args.cs, args.np, args.optimisation, args.q3s, args.basemethods, args.deterministic)
+    clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t, args.s, args.delim,
+                                args.skiprows, args.header, args.skipcols, args.firstcol, args.d, args.filv, args.filc,
+                                args.fild, args.absval, filtype, args.filflat, args.cs, args.np, args.optimisation,
+                                args.q3s, args.basemethods, args.deterministic, args.distance)
 
 
 if __name__ == "__main__":
