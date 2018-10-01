@@ -1,5 +1,7 @@
 # Clust
 Optimised consensus clustering of one or more heterogeneous datasets
+Try our *clust's Beta* website front-end at [clust.baselabujamous.com](clust.baselabujamous.com)?
+Or read below for an easy-to-use *clust* command line!
 ### Contents
 * [What does *Clust* do?](#what-does-clust-do)
 * [How does *Clust* do it?](#how-does-clust-do-it)
