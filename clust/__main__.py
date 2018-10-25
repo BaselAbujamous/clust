@@ -23,12 +23,11 @@ def main(args=None):
     headertxt += op.midline()
     headertxt += op.msgformated('Citation\n'
                                 '~~~~~~~~', '^')
-    citationtxt = 'When publishing work that uses Clust, please include these two citations:\n' \
-                  '1. Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed ' \
-                  'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.\n' \
-                  '2. Basel Abu-Jamous, Rui Fa, David J. Roberts, and Asoke K. Nandi (2013) Paradigm of tunable ' \
-                  'clustering using binarisation of consensus partition matrices (Bi-CoPaM) for gene discovery, ' \
-                  'PLOS ONE, 8(2): e56432'
+    citationtxt = 'When publishing work that uses Clust, please cite:\n' \
+                  'Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed ' \
+                  'gene clusters from gene expression data. Genome Biology 19:172; ' \
+                  'doi: https://doi.org/10.1186/s13059-018-1536-8.'
+    # TODO: citation
     headertxt += op.msgformated(citationtxt, '<')
     headertxt += op.midline()
     headertxt += op.msgformated('Full description of usage can be found at:\n'

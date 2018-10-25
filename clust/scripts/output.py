@@ -150,8 +150,9 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += msgformated('Citation\n~~~~~~~~', alignment='^')
     tmptxt = 'When publishing work that uses Clust, please include this citation:\n' \
              'Basel Abu-Jamous and Steven Kelly (2018) Clust: automatic extraction of optimal co-expressed ' \
-             'gene clusters from gene expression data. bioRxiv 221309; doi: https://doi.org/10.1101/221309.'
-
+             'gene clusters from gene expression data. Genome Biology 19:172; ' \
+             'doi: https://doi.org/10.1186/s13059-018-1536-8.'
+#TODO: citation
     res += msgformated(tmptxt)
     res += midline()
 
