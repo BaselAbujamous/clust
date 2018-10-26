@@ -1,15 +1,17 @@
 import os
 import re
 import numpy as np
-import datastructures as ds
-import numeric as nu
-import glob
-import output as op
+import clust.scripts.datastructures as ds
+import clust.scripts.numeric as nu
+import clust.scripts.glob as glob
+import clust.scripts.output as op
 import sys
 import traceback
 import math
 import portalocker
 import pandas as pd
+
+
 if sys.version_info[0] < 3:
     from StringIO import StringIO
 else:

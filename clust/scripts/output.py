@@ -1,8 +1,8 @@
 import numpy as np
 import datetime as dt
 import collections as collec
-import datastructures as ds
-from glob import outputwidth, version
+import clust.scripts.datastructures as ds
+from clust.scripts.glob import outputwidth, version
 import pandas as pd
 
 

@@ -1,14 +1,14 @@
 import matplotlib
 matplotlib.use('Agg')  # To be edited as early as here before any other matplotlib import
-import scripts.io as io
-import scripts.uncles as unc
-import scripts.mnplots as mn
-import scripts.postprocess_results as ecorr
-import scripts.preprocess_data as pp
-import scripts.output as op
-import scripts.graphics as graph
-import scripts.glob as glob
-import scripts.numeric as nu
+import clust.scripts.io as io
+import clust.scripts.uncles as unc
+import clust.scripts.mnplots as mn
+import clust.scripts.postprocess_results as ecorr
+import clust.scripts.preprocess_data as pp
+import clust.scripts.output as op
+import clust.scripts.graphics as graph
+import clust.scripts.glob as glob
+import clust.scripts.numeric as nu
 import numpy as np
 import os
 import datetime as dt

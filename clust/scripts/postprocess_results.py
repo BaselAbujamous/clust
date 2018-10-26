@@ -1,10 +1,10 @@
 import numpy as np
-import datastructures as ds
+import clust.scripts.datastructures as ds
 import sklearn.metrics.pairwise as skdists
-import numeric as nu
-import statistical as st
+import clust.scripts.numeric as nu
+import clust.scripts.statistical as st
 import sys
-from mnplots import mnplotsdistancethreshold
+from clust.scripts.mnplots import mnplotsdistancethreshold
 
 
 def reorderClusters(B, X, GDM, returnOrderIndices = False):

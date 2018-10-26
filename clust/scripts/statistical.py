@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats as sps
-from datastructures import length
+from clust.scripts.datastructures import length
 from copy import deepcopy
 import math
 

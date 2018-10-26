@@ -4,14 +4,14 @@ import scipy.stats.mstats as spmstats
 import scipy.stats as spst
 import sklearn.mixture as skmix
 import math
-import datastructures as ds
-import numeric as nu
+import clust.scripts.datastructures as ds
+import clust.scripts.numeric as nu
 import re
 import warnings
 from copy import deepcopy
-import glob
-import output as op
-import io
+import clust.scripts.glob as glob
+import clust.scripts.output as op
+import clust.scripts.io as io
 import collections as collec
 
 

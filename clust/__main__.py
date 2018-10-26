@@ -1,9 +1,9 @@
 import argparse
 from argparse import RawTextHelpFormatter
 import sys
-import clustpipeline
-from scripts.glob import version
-import scripts.output as op
+import clust.clustpipeline as clustpipeline
+from clust.scripts.glob import version
+import clust.scripts.output as op
 
 
 def main(args=None):

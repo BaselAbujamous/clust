@@ -1,11 +1,11 @@
 import numpy as np
-import datastructures as ds
+import clust.scripts.datastructures as ds
 import sklearn.cluster as skcl
 import scipy.cluster.hierarchy as sphc
 import scipy.spatial.distance as spdist
 import sompy
-import io
-from glob import maxgenesinsetforpdist
+import clust.scripts.io as io
+from clust.scripts.glob import maxgenesinsetforpdist
 
 
 kmeans_init = {}  # This is to cache the centres of the k-means and reuse them

@@ -5,10 +5,10 @@ import numpy as np
 import scipy as sp
 import sklearn.mixture as skmix
 
-import datastructures as ds
-import io
-import numeric as nu
-import preprocess_data as pp
+import clust.scripts.datastructures as ds
+import clust.scripts.io as io
+import clust.scripts.numeric as nu
+import clust.scripts.preprocess_data as pp
 
 from joblib import Parallel, delayed
 import warnings

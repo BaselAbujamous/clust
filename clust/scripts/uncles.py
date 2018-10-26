@@ -4,18 +4,18 @@ import sys
 
 import numpy as np
 
-import clustering as cl
-import datastructures as ds
-import io
-import mnplots as mn
-import numeric as nu
+import clust.scripts.clustering as cl
+import clust.scripts.datastructures as ds
+import clust.scripts.io as io
+import clust.scripts.mnplots as mn
+import clust.scripts.numeric as nu
 
 from joblib import Parallel, delayed
 import joblib
 import warnings
 import gc
-from glob import maxgenesinsetforpdist
-import output as op
+from clust.scripts.glob import maxgenesinsetforpdist
+import clust.scripts.output as op
 
 
 def binarise(U, technique, param=0.0):
