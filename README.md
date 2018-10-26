@@ -68,11 +68,27 @@ each dataset.*
 
 # Install *Clust*
 
-### Required Python packages
-
 *Clust* is a Python package that requires Python 2.7 but is not compatible with Python 3 yet.
 
-*Clust* depends on these Python packages:
+### Way 1
+
+* `sudo pip install clust`
+
+Then run it from any directory as:
+
+* `clust ...`
+
+### Way 2
+
+* `pip install --user clust`
+
+Then run it from any directory as:
+
+* `clust ...`
+
+### Way 3 (less recommended)
+
+First, make sure you have all of the following Python packages installed:
 * numpy
 * scipy
 * matplotlib
@@ -81,56 +97,28 @@ each dataset.*
 * joblib
 * portalocker
 
-You can check if you have these packages by:
+Then, download the latest release file (clust-*.*.*.tar.gz) file from the
+[release tab](https://github.com/BaselAbujamous/clust/releases)
+and run *clust* without installation directly by running the script `clust.py`
+that is in the top level directory of the source code by:
+
+* `python clust.py ...`
+
+**Hint**: you can check which package you have installed by:
 
 * `pip freeze`
 
-### Install using sudo privileges
+### Upgrade clust to a newer version
 
-Use this, for example, to install *clust* on a server for all users.
+If you already have *clust* and you want to upgdare it, then based on the
+way you used to install *clust* (from the ways above), upgrade it by:
 
-If `matplotlib` is not already installed, install it:
+- Way 1. `sudo pip install clust --upgrade`
 
-* `sudo apt-get install python-matplotlib`
+- Way 2. `pip install --user clust --upgrade`
 
-Then install *clust* by:
-
-* `sudo pip install clust`
-
-Then you can run *clust* straightforwardly from any place:
-
-* `clust ...`
-
-If you already have *clust* and want to update it, try:
-
-* `sudo pip uninstall clust`
-* `sudo pip install clust --no-cache-dir`
-
-
-### Install without sudo privileges (Way 1)
-
-This installs *clust* for the local user only:
-
-* `pip install --user clust`
-
-If you already have *clust* and want to update it, try:
-
-* `pip install --user clust --upgrade`
-
-Then you can run *clust* by:
-
-* `clust ...`
-
-
-### Install without sudo privileges (Way 2)
-
-This works if the Python packages that *clust* requires are already installed (listed above).
-
-Download the latest release file (clust-*.*.*.tar.gz) file from the
-[release tab](https://github.com/BaselAbujamous/clust/releases)
-and run the script `clust.py` that is in the top level directory of the source code by:
-
-* `python clust.py ...`
+- Way 3. Download the newer release file (clust-*.*.*.tar.gz) and use it
+to run clust instead of the older one
 
 
 ### For Windows users
