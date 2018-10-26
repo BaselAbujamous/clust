@@ -189,7 +189,7 @@ def autoNormalise(X):
     alreadylogs = np.sum(abs(Xloc) < 30) > 0.98 * ds.numel(Xloc)  # More than 98% of values are below 30.0
 
     if twosided:
-        return np.array([6])
+        return np.array([4])
         #return np.array([101, 4])
     else:
         Xloc[isnan(Xloc)] = 0.0
