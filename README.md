@@ -70,7 +70,9 @@ each dataset.*
 
 ### Required Python packages
 
-*Clust* is a Python package, which requires Python 2.7 or newer and depends on these Python packages:
+*Clust* is a Python package that requires Python 2.7 but is not compatible with Python 3 yet.
+
+*Clust* depends on these Python packages:
 * numpy
 * scipy
 * matplotlib
