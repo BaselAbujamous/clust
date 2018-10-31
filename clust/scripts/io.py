@@ -29,9 +29,19 @@ def getFilesInDirectory(path, extension=None):
 
 
 def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1, returnSkipped=False):
-    datafiles = np.sort(getFilesInDirectory(path)).tolist()
 
-    datafileswithpath = [path + '/' + df for df in datafiles]
+    # Single file name given
+    if os.path.isfile(path):
+        datafiles = [os.path.basename(path)]
+        datafileswithpath = [path]
+    # Directory of data files given
+    elif os.path.isdir(path):
+        datafiles = np.sort(getFilesInDirectory(path)).tolist()
+        datafileswithpath = [path + '/' + df for df in datafiles]
+    # Invalid path given
+    else:
+        raise ValueError('Data path {0} does not exist. Either provide a path ' + \
+                         'of a data file or a path to a directory including data file(s)'.format(path))
 
     datafilesread = readDataFromFiles(datafileswithpath, delimiter, float, skiprows, skipcolumns, returnSkipped)
 

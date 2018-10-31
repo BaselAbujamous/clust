@@ -64,15 +64,22 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     in2out_X_unproc_path = in2out_path + '/Data'
     if not os.path.exists(in2out_X_unproc_path):
         os.makedirs(in2out_X_unproc_path)
-    for df in io.getFilesInDirectory(datapath):
-        shutil.copy(os.path.join(datapath, df), in2out_X_unproc_path)
+    if os.path.isfile(datapath):
+        shutil.copy(datapath, in2out_X_unproc_path)
+    elif os.path.isdir(datapath):
+        for df in io.getFilesInDirectory(datapath):
+            shutil.copy(os.path.join(datapath, df), in2out_X_unproc_path)
+    else:
+        raise ValueError('Data path {0} does not exist. Either provide a path ' + \
+                         'of a data file or a path to a directory including data file(s)'.format(datapath))
+
 
     # Output: Print initial message, and record the starting time:
     initialmsg, starttime = op.generateinitialmessage()
     io.log(initialmsg, addextrastick=False)
 
     # Read data
-    io.log('1. Reading datasets')
+    io.log('1. Reading dataset(s)')
     (X, replicates, Genes, datafiles) = io.readDatasetsFromDirectory(datapath, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1,
                                                                      returnSkipped=True)
     datafiles_noext = [os.path.splitext(d)[0] for d in datafiles]

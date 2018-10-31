@@ -145,9 +145,11 @@ For normalised homogeneous datasets, simply run:
 - `clust data_path`
 - `clust data_path -o output_directory [...]`
 
-This runs *clust* over the datasets in the data_path directory with default parameters.
-If the output directory is not provided, *clust* creates a new directory for the results within the
-current working directory.
+Where `data_path` is either the path to a single data file (**v1.8.5+**),
+or a path to a directory including one or more data files. This command
+runs *clust* with default parameters. If the output directory is not
+provided using the `-o` option, *clust* creates a new directory for the
+results within the current working directory.
 
 For raw RNA-seq TPM, FPKM, or RPKM data, consider the [Normalisation](#normalisation) section below.
 Other sections below address handling [replicates](#handling-replicates), handling data from 
