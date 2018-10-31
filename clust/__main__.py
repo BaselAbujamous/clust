@@ -35,7 +35,7 @@ def main(args=None):
     headertxt += op.bottomline()
 
     parser = argparse.ArgumentParser(description=headertxt, formatter_class=RawTextHelpFormatter)
-    parser.add_argument('datapath', help='Data file path or the directory that includes the data files.', default=None)
+    parser.add_argument('datapath', help='Data file path or directory with data file(s).', default=None)
     parser.add_argument('-n', metavar='<file or int>', help='Normalisation file or list of codes (default: 1000)', default=['1000'], nargs='+')
     parser.add_argument('-r', metavar='<file>', help='Replicates structure file', default=None)
     parser.add_argument('-m', metavar='<file>', help='OrthoGroups (OGs) mapping file', default=None)
@@ -73,7 +73,7 @@ def main(args=None):
     parser.add_argument('--no-optimisation', dest='optimisation', action='store_false',
                         help='Skip cluster optimsation & completion')
     parser.add_argument('--deterministic', dest='deterministic', action='store_true',
-                        help='Obsolete as all steps are already deterministic (v1.7.4+)')
+                        help='Obsolete. All steps are already deterministic (v1.7.4+)')
     parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
                         default=1)
     parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True)
