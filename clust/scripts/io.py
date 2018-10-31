@@ -40,8 +40,8 @@ def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skip
         datafileswithpath = [path + '/' + df for df in datafiles]
     # Invalid path given
     else:
-        raise ValueError('Data path {0} does not exist. Either provide a path ' + \
-                         'of a data file or a path to a directory including data file(s)'.format(path))
+        raise ValueError('Data path {0} does not exist. Either provide a path '.format(path) + \
+                         'of a data file or a path to a directory including data file(s)')
 
     datafilesread = readDataFromFiles(datafileswithpath, delimiter, float, skiprows, skipcolumns, returnSkipped)
 

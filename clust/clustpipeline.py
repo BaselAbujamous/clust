@@ -70,8 +70,8 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
         for df in io.getFilesInDirectory(datapath):
             shutil.copy(os.path.join(datapath, df), in2out_X_unproc_path)
     else:
-        raise ValueError('Data path {0} does not exist. Either provide a path ' + \
-                         'of a data file or a path to a directory including data file(s)'.format(datapath))
+        raise ValueError('Data path {0} does not exist. Either provide a path '.format(datapath) + \
+                         'of a data file or a path to a directory including data file(s)')
 
 
     # Output: Print initial message, and record the starting time:
