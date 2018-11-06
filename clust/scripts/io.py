@@ -321,5 +321,6 @@ def getparallelprogress():
 
 
 def deletetmpfile():
-    os.remove(glob.tmpfile)
+    if os._exists(glob.tmpfile):
+        os.remove(glob.tmpfile)
 

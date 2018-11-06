@@ -269,6 +269,10 @@ def summarise_results(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_res,
                  ])
         else:
             genesOGs = np.array([[len(og_species) for og_species in og] for og in Map]) # Number of genes per OG per species
+            meanGenesOGs = 0 if len(genesOGs) == 0 else np.mean(genesOGs)
+            maxGenesOGs = 0 if len(genesOGs) == 0 else np.max(genesOGs)
+            OGsWithAtLeastASingleGeneInEachType = 0 if len(genesOGs) == 0 else np.sum(np.all(genesOGs >= 1, axis=1))
+            OGsWithExactlyASingleGeneInEachType = 0 if len(genesOGs) == 0 else np.sum(np.all(genesOGs == 1, axis=1))
             res = collec.OrderedDict(
                 [('Starting data and time', starttime.strftime('%A %d %B %Y (%H:%M:%S)')),
                  ('Ending date and time', endtime.strftime('%A %d %B %Y (%H:%M:%S)')),
@@ -280,10 +284,10 @@ def summarise_results(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_res,
                  ('Number of clusters', B_corrected.shape[1]),
                  ('nokey0', '**********************************'),
                  ('Number of species', Map.shape[1]),
-                 ('Average number of genes in an OG per type', np.mean(genesOGs)),
-                 ('Max number of genes in an OG per type', np.max(genesOGs)),
-                 ('Number of OGs with at least a single gene in each type', np.sum(np.all(genesOGs >= 1, axis=1))),
-                 ('Number of OGs with exactly a single gene in each type', np.sum(np.all(genesOGs == 1, axis=1))),
+                 ('Average number of genes in an OG per type', meanGenesOGs),
+                 ('Max number of genes in an OG per type', maxGenesOGs),
+                 ('Number of OGs with at least a single gene in each type', OGsWithAtLeastASingleGeneInEachType),
+                 ('Number of OGs with exactly a single gene in each type', OGsWithExactlyASingleGeneInEachType),
                  ('nokey1', '**********************************'),
                  ('OGs included in all datasets', np.sum(np.all(GDMall, axis=1))),
                  ('OGs missed from 1 dataset', np.sum(np.sum(GDMall == 0, axis=1) == 1)),
@@ -301,7 +305,7 @@ def clusters_genes_OGs(B, OGs, Map, MapSpecies, delim='; '):
         Nsp = len(MapSpecies)  # Number of species
     K = B.shape[1]  # Number of clusters
     if K == 0:
-        return pd.DataFrame(data=np.array(np.empty([1, 1]), dtype=object), index=None, columns=None, dtype=str)
+        return pd.DataFrame(data=np.array(np.empty([0, 0]), dtype=object), index=None, columns=None, dtype=str)
     Csizes = np.sum(B, axis=0)  # Clusters' sizes
     maxCsize = np.max(Csizes)  # Largest cluster size
     res = np.array(np.empty([maxCsize, (Nsp + 1) * K], dtype=str), dtype=object)
@@ -326,6 +330,13 @@ def clusters_genes_OGs(B, OGs, Map, MapSpecies, delim='; '):
 def clusters_genes_Species(B, OGs, Map, MapSpecies):
     Nsp = len(MapSpecies)  # Number of species
     K = B.shape[1]  # Number of clusters
+
+    # If no clusters, return a trivial output
+    if K == 0:
+        resFrames = np.array([None] * Nsp, dtype=object)
+        for sp in range(Nsp):
+            resFrames[sp] = pd.DataFrame(data=np.empty([0, 0]), columns=None, index=None, dtype=str)
+        return resFrames
 
     # Find flattened genes in species
     flatGenesInSpecies = [[ds.flattenAList(Map[B[:, k], sp]) for k in range(K)] for sp in range(Nsp)]  # Nsp x K lists

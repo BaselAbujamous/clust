@@ -22,12 +22,20 @@ def reorderClusters(B, X, GDM, returnOrderIndices = False):
 
     # Find Cmeans and distances between clusters
     Cmeans = np.array([None] * L, dtype=object)
-    D = np.zeros([K, K, L])  # KxKxL
+    D = np.full([K, K, L], np.inf)  # KxKxL  (initialised with inf values)
     for l in range(L):
         Cmeans[l] = np.zeros([K, Xloc[l].shape[1]], dtype=float)  # (K) x (X[l] samples)
         for k in range(K):
             Cmeans[l][k] = np.mean(Xloc[l][Bloc[GDM[:, l], k], :], axis=0)
-        D[:, :, l] = skdists.euclidean_distances(Cmeans[l])  # KxK
+
+        # For empty clusters, the distances are inf (as filled in the initialisation of D),
+        # For non-empty clusters, the distances are calculated by skdists.euclidean_distances between cmeans
+        I_not_empty_c = ~np.array([np.any(np.isnan(cm)) for cm in Cmeans[l]])  # Indices of clusters with nans (empty)
+        I_not_empty_c = np.where(I_not_empty_c)[0]  # From boolean indices to integer indices
+        non_empty_c_dists = skdists.euclidean_distances(Cmeans[l][I_not_empty_c])  # K_not_empty x K_not_empty
+        for nec in range(len(I_not_empty_c)):
+            D[I_not_empty_c[nec], I_not_empty_c, l] = non_empty_c_dists[nec]
+        #D[:, :, l] = skdists.euclidean_distances(Cmeans[l])  # KxK
     D = np.median(D, axis=2)  # KxK
 
     # Set first cluster as first, then find closest by closest

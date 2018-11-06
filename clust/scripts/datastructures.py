@@ -112,6 +112,8 @@ def listofarrays2arrayofarrays(X):
 
 def maxDepthOfArray(X):
     Xloc = deepcopy(X)
+    if numel(Xloc) == 0:
+        return 0
     if isinstance(Xloc, np.ndarray) and Xloc.dtype not in [object, np.ndarray, list, tuple]:
         return len(Xloc.shape)
     elif isinstance(Xloc, (list, tuple, np.ndarray)):

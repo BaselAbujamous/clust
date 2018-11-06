@@ -149,6 +149,25 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
     VMc = np.sum(BB, axis=0)
     NN = len(VMc)  # Total number of clusters
 
+
+    # Return a basic output if there are no input clusters
+    if ds.numel(GDMloc) == 0:
+        params = dict(params, **{
+            'tightnessweight': tightnessweight,
+            'msesummary': msesummary,
+            'percentageofclusterskept': percentageOfClustersKept,
+            'smallestclustersize': smallestClusterSize
+        })
+
+        MNResults = collections.namedtuple('MNResults',
+                                           ['B', 'I', 'allVecs', 'allDists', 'allMSE', 'mseCache', 'Ball', 'params'])
+        B_out = np.empty([0,0])
+        I = np.empty([0,0])
+        allVecs = np.empty([0,0])
+        allDists = np.empty([0,0])
+        return MNResults(B_out, I, allVecs, allDists, allMSE, mseCache, BB, params)
+
+
     # Fill Vmse if not provided
     if mseCache is None and allMSE is None:
         # Cache all mse values

@@ -150,7 +150,7 @@ def isnormal_68_95_99p7_rule(X):
     pv[7] = 1 - 2 * spst.norm.cdf(-abs(md - 0.5000), loc=0, scale=0.3013 / math.sqrt(n))
     diff[7] = abs(md - 0.5000)
 
-    return np.mean(np.log10(pv)), np.mean(diff)
+    return np.mean(np.log10(pv[pv > 0])), np.mean(diff)
 
 
 def filterBimodal(X):
@@ -159,6 +159,9 @@ def filterBimodal(X):
     :param X: Dataset matrix (numpy array)
     :return: Tuple: (Filtered X, Iincluded)
     """
+    if np.shape(X)[0] < 10:  # Does not work on datasets with less than 10 genes
+        return  np.array(X)
+
     xmax = np.max(X, axis=1)
     xmaxsort = xmax[xmax > 0]  # take out zero values
     xmaxsort = xmaxsort[np.all([xmaxsort > np.percentile(xmaxsort, q=1), xmaxsort < np.percentile(xmaxsort, q=99)],
@@ -253,6 +256,8 @@ def normaliseSampleFeatureMat(X, type):
     :return:
     """
     Xout = np.array(X)
+    if ds.numel(Xout) == 0:
+        return Xout, [0]  # If array is empty
     codes = np.array(type)  # stays as input types unless auto-normalisation (type 1000) changes it
 
     if isinstance(type, (list, tuple, np.ndarray)):
@@ -563,6 +568,8 @@ def filterFlat(X, GDM, Iincluded):
     Xloc = np.array(X)
     GDMloc = np.array(GDM)
     Iincludedloc = np.array(Iincluded)
+    if ds.numel(GDMloc) == 0:
+        return Xloc, GDMloc, Iincludedloc  # If input dataset is empty
     L = len(Xloc)
     Ng = GDMloc.shape[0]
     Iincluded2 = np.array([False for i in range(Ng)])

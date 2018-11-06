@@ -128,21 +128,24 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     ppmethod = 'tukey_sqrtSCG'
     if optimisation:
         io.log('5. Cluster optimisation and completion')
-        try:
-            if ppmethod == 'weighted_outliers':
-                B_corrected = ecorr.correcterrors_weighted_outliers(mnres.B, X_summarised_normalised, GDM,
-                                                                    mnres.allDists[mnres.I], stds, smallestClusterSize)
-            elif ppmethod == 'tukey_sqrtSCG':
-                B_corrected = ecorr.optimise_tukey_sqrtSCG(mnres.B, X_summarised_normalised, GDM,
-                                                                    mnres.allDists[mnres.I], smallestClusterSize,
-                                                           tails=1, Q3s=Q3s)
-            else:
-                raise ValueError('Invalid post processing method (ppmethod): {0}.'.format(ppmethod))
-            B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
-        except:
-            io.logerror(sys.exc_info())
-            io.log('\n* Failed to perform cluster optimisation and completion!\n'
-                   '* Skipped cluster optimisation and completion!\n')
+        if len(mnres.I) > 0 and sum(mnres.I) > 0:  # Otherwise, there are no clusters, so nothing to be corrected
+            try:
+                if ppmethod == 'weighted_outliers':
+                    B_corrected = ecorr.correcterrors_weighted_outliers(mnres.B, X_summarised_normalised, GDM,
+                                                                        mnres.allDists[mnres.I], stds, smallestClusterSize)
+                elif ppmethod == 'tukey_sqrtSCG':
+                    B_corrected = ecorr.optimise_tukey_sqrtSCG(mnres.B, X_summarised_normalised, GDM,
+                                                                        mnres.allDists[mnres.I], smallestClusterSize,
+                                                               tails=1, Q3s=Q3s)
+                else:
+                    raise ValueError('Invalid post processing method (ppmethod): {0}.'.format(ppmethod))
+                B_corrected = ecorr.reorderClusters(B_corrected, X_summarised_normalised, GDM)
+            except:
+                io.logerror(sys.exc_info())
+                io.log('\n* Failed to perform cluster optimisation and completion!\n'
+                       '* Skipped cluster optimisation and completion!\n')
+                B_corrected = mnres.B
+        else:
             B_corrected = mnres.B
     else:
         io.log('5. Skipping cluster optimisation and completion')
@@ -174,9 +177,10 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
     # Output: Save figures to a PDF
     try:
-        clusts_fig_file_name = '{0}/Clusters_profiles.pdf'.format(outpath)
-        graph.plotclusters(X_summarised_normalised, B_corrected, clusts_fig_file_name, datafiles_noext, conditions,
-                           GDM, Cs='all', setPageToDefault=True)
+        if np.shape(B_corrected)[1] > 0:
+            clusts_fig_file_name = '{0}/Clusters_profiles.pdf'.format(outpath)
+            graph.plotclusters(X_summarised_normalised, B_corrected, clusts_fig_file_name, datafiles_noext, conditions,
+                               GDM, Cs='all', setPageToDefault=True)
     except:
         io.log('Error: could not save clusters plots in a PDF file.\n'
                'Resuming producing the other results files ...')
@@ -191,4 +195,3 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
     io.log(summarymsg, addextrastick=False)
 
     io.deletetmpfile()
-

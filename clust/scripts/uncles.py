@@ -386,8 +386,45 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
     if L > len(setsPloc):
         setsNloc = [ii for ii in range(len(setsPloc),L)]
 
+    Ks = np.array(Ks)
+    Ks = Ks[Ks <= Ng]  # Remove Ks that are larger than the number of genes Ng
+    Ks = Ks.tolist()
     Ds = [nu.closest_to_square_factors(k) for k in Ks]  # Grid sizes for the SOMs method for each value of K
     NKs = len(Ks)  # Number of K values
+
+    # If the dataset is empty, return basic output
+    if Ng == 0:
+        NPp = len(binarise_paramP)  # Number of P params
+        NNp = len(binarise_paramN)  # Number of N params
+        if type == 'A':
+            B = np.zeros([CoPaMfinaltrials, NPp, 1, NKs], dtype=object)
+            Mc = np.zeros([CoPaMfinaltrials, NKs], dtype=object)
+        elif type == 'B':
+            B = np.zeros([CoPaMfinaltrials, NPp, NNp, NKs], dtype=object)
+            Mc = np.zeros([CoPaMfinaltrials, NKs], dtype=object)
+
+        params = dict(params, **{
+            'methods': methods,
+            'setsP': setsPloc,
+            'setsN': setsNloc,
+            'dofuzzystretch': dofuzzystretch,
+            'type': type,
+            'Ks': Ks,
+            'NKs': NKs,
+            'wsets': wsets,
+            'wmethods': wmethods,
+            'Ds': Ds,
+            'L': L,
+            'CoPaMs': np.array([None] * (CoPaMfinaltrials * NKs)).reshape([CoPaMfinaltrials, NKs]),
+            'smallestclustersize': smallestClusterSize,
+            'GDM': GDMloc
+        })
+
+        Uloc = np.array([None] * (L * NKs)).reshape([L, NKs])
+
+        UnclesRes = collections.namedtuple('UnclesRes', ['B', 'Mc', 'params', 'X', 'U'])
+        return UnclesRes(B, Mc, params, Xloc, Uloc)
+
 
     # Clustering
     if U is None:
