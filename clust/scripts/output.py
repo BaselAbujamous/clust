@@ -301,7 +301,7 @@ def clusters_genes_OGs(B, OGs, Map, MapSpecies, delim='; '):
         Nsp = len(MapSpecies)  # Number of species
     K = B.shape[1]  # Number of clusters
     if K == 0:
-        return np.array(np.empty([1, 1]), dtype=object)
+        return pd.DataFrame(data=np.array(np.empty([1, 1]), dtype=object), index=None, columns=None, dtype=str)
     Csizes = np.sum(B, axis=0)  # Clusters' sizes
     maxCsize = np.max(Csizes)  # Largest cluster size
     res = np.array(np.empty([maxCsize, (Nsp + 1) * K], dtype=str), dtype=object)
