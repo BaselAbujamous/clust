@@ -92,7 +92,8 @@ First, make sure you have all of the following Python packages installed:
 * numpy
 * scipy
 * matplotlib
-* sklearn
+* scikit-learn
+* pandas
 * sompy
 * joblib
 * portalocker

@@ -138,7 +138,7 @@ def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', 
                 localX = X[l][B[:, Cs[k]], :]
             else:
                 localX = X[l][B[GDM[:, l], Cs[k]], :]
-            plt.plot(np.arange(localX.shape[1]), np.transpose(localX), 'k-')
+            plt.plot(np.arange(localX.shape[1]), np.transpose(localX), 'k-', alpha=0.15)
             plt.xticks(np.arange(localX.shape[1]), conditions[l], rotation=xticksrotation)
 
 
