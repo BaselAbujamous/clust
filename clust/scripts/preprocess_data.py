@@ -15,6 +15,11 @@ import clust.scripts.io as io
 import collections as collec
 
 
+def arelogs_function(X):
+    I = np.bitwise_and(~isnan(X), X>0)
+    return np.nansum(abs(X[I]) < 30) > 0.98 * ds.numel(X[I])  # More than 98% of values are below 30.0
+
+
 def isnan(X):
     if ds.numel(X) == 1:
         return math.isnan(X)
@@ -189,7 +194,8 @@ def autoNormalise(X):
     Xloc = np.array(X)
 
     twosided = np.sum(Xloc < 0) > 0.2 * np.sum(Xloc > 0)  # negative values are at least 20% of positive values
-    alreadylogs = np.sum(abs(Xloc) < 30) > 0.98 * ds.numel(Xloc)  # More than 98% of values are below 30.0
+    arelogs = arelogs_function(Xloc)
+    #arelogs = np.sum(abs(Xloc) < 30) > 0.98 * ds.numel(Xloc)  # More than 98% of values are below 30.0
 
     if twosided:
         return np.array([4])
@@ -197,7 +203,7 @@ def autoNormalise(X):
     else:
         Xloc[isnan(Xloc)] = 0.0
         Xloc[Xloc < 0] = 0.0
-        if alreadylogs:
+        if arelogs:
             Xf = normaliseSampleFeatureMat(Xloc, [13])[0]
             if isnormal_68_95_99p7_rule(Xf)[1] < isnormal_68_95_99p7_rule(Xloc)[1]:
                 return np.array([13, 4])
@@ -446,7 +452,8 @@ def calculateGDMandUpdateDatasets(X, Genes, Map=None, mapheader=True, OGsFirstCo
     Xnew = np.array([None] * L, dtype=object)
     GenesDatasets = np.array([None] * L, dtype=object)
     for l in range(L):
-        arelogs = np.nansum(abs(Xloc[l][~isnan(Xloc[l])]) < 30) > 0.98 * ds.numel(Xloc[l][~isnan(Xloc[l])])  # More than 98% of values are below 30.0
+        arelogs = arelogs_function(Xloc[l])
+        #arelogs = np.nansum(abs(Xloc[l][~isnan(Xloc[l])]) < 30) > 0.98 * ds.numel(Xloc[l][~isnan(Xloc[l])])  # More than 98% of values are below 30.0
         d = Xloc[l].shape[1]  # Number of dimensions (samples) in this dataset
         Xnew[l] = np.zeros([Ngs[l], d], dtype=float)
         GenesDatasets[l] = np.empty(Ngs[l], dtype=object)

@@ -100,7 +100,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                       expressionValueThreshold=expressionValueThreshold, replacementVal=0.0,
                       atleastinconditions=atleastinconditions, atleastindatasets=atleastindatasets, absvalue=absvalue,
                       filteringtype=filteringtype, filterflat=filflat, params=None, datafiles=datafiles)
-    io.writedic('{0}/Normalisation_actual'.format(outpath), applied_norms, delim='\t')
+    io.writedic('{0}/Normalisation_actual.txt'.format(outpath), applied_norms, delim='\t')
     OGs = OGs[Iincluded]
     if MapNew is not None:
         MapNew = MapNew[Iincluded]
