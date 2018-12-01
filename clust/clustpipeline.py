@@ -193,6 +193,8 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                 eigengene_matrix = eig.eigengenes_dataframe(X_summarised_normalised, B_corrected, conditions)
                 eigengene_matrix.to_csv('{0}/Eigengenes.tsv'.format(outpath), sep='\t',
                                     encoding='utf-8')
+            else:
+                io.log('Eigengene computation is currently not supported for multiple datasets.')
     except:
         io.log('Error: could not save eigengenes into a file.\n'
                'Resuming producing the other results files ...')
