@@ -216,6 +216,8 @@ application of normalisation techniques.
 * Two-colour microarray gene expression data: **3 6**
 * Log2 two-colour microarray gene expression data: **6**
 
+Based on these, if your data is recommended to use one of the codes which include the code **3**, but the dataset has too many zeros or some negative values, it is recommended to use **31** in the place of **3**. For example, if you have a one-colour microarray data with too many zeros or few negative values, use **101 31 4** instead of **101 3 4**.
+
 #### All normalisation codes
 
 Code | Definition
