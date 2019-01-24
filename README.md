@@ -215,6 +215,7 @@ application of normalisation techniques.
 * Log2 one-colour microarray gene expression data: **101 4**
 * Two-colour microarray gene expression data: **3 6**
 * Log2 two-colour microarray gene expression data: **6**
+* Log2 fold-changes **4**
 
 Based on these, if your data is recommended to use one of the codes which include the code **3**, but the dataset has too many zeros or some negative values, it is recommended to use **31** in the place of **3**. For example, if you have a one-colour microarray data with too many zeros or few negative values, use **101 31 4** instead of **101 3 4**.
 
@@ -227,7 +228,7 @@ Code | Definition
 2|Divide by the first value of the row
 3|Log2
 31|Set all values that are less than 1.0 to 1.0, then log2 (v1.7.0+)
-4|Subtract the mean of the row and then divide by its standard deviation
+4|Z-score: subtract the mean of the row and then divide by its standard deviation
 5|Divide by the total (sum) of the row
 6|Subtract the mean value of the row
 7|Divide by the maximum value of the row
