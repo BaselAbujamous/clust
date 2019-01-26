@@ -54,7 +54,7 @@ def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skip
 def readMap(mapfile, delimiter='\t'):
     if mapfile is None:
         return None
-    return readDataFromFiles([mapfile], delimiter, dtype=str, skiprows=0, skipcolumns=0, returnSkipped=False)[0]
+    return readDataFromFiles([mapfile], delimiter, dtype=str, skiprows=0, skipcolumns=0, returnSkipped=False, data_na_filter=False)[0]
 
 
 def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
@@ -180,7 +180,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
     return normalise
 
 
-def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skiprows=1, skipcolumns=1, returnSkipped=True, comm='#'):
+def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skiprows=1, data_na_filter=True, skipcolumns=1, returnSkipped=True, comm='#'):
     L = len(datafiles)
     X = [None] * L
     skippedRows = [None] * L
@@ -190,7 +190,7 @@ def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skipro
             ncols = len(re.split(delimiter, f.readline()))
         # This is now using pandas read_csv, if np.loadtxt is re-used, you HAVE TO set ndmin = 2 here
         X[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows,
-                          usecols=range(skipcolumns, ncols), na_filter=True, comments=comm)
+                          usecols=range(skipcolumns, ncols), na_filter=data_na_filter, comments=comm)
 
         if skiprows > 0:
             skippedRows[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=0,

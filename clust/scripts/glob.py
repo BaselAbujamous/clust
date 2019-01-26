@@ -3,8 +3,8 @@ tmpfile = 'tmp'
 object_label_upper = 'Gene'
 object_label_lower = 'gene'
 outputwidth = 73
-version = 'v1.8.10'
-email = 'basel.abujamous@plants.ox.ac.uk'
+version = 'v1.8.11'
+email = 'basel.abu-jamous@sensynehealth.com'
 maxgenesinsetforpdist = 10000
 
 
