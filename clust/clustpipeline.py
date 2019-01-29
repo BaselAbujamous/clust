@@ -86,7 +86,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
     # Read map, replicates, and normalisation files:
     Map = io.readMap(mapfile)
-    (replicatesIDs, conditions) = io.readReplicates(replicatesfile, datafiles, replicates)
+    (replicatesIDs, conditions) = io.readReplicates(replicatesfile, datapath, datafiles, replicates)
     normalise = io.readNormalisation(normalisationfile, datafiles)
 
     # Preprocessing (Mapping then top level preprocessing including summarising replicates, filtering

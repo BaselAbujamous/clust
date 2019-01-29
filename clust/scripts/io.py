@@ -57,7 +57,7 @@ def readMap(mapfile, delimiter='\t'):
     return readDataFromFiles([mapfile], delimiter, dtype=str, skiprows=0, skipcolumns=0, returnSkipped=False, data_na_filter=False)[0]
 
 
-def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
+def readReplicates(replicatesfile, datapath, datafiles, replicates, delimiter='\t| |,|;'):
     if replicatesfile is None:
         if isinstance(replicates[0], list):
             return None, replicates
@@ -113,7 +113,19 @@ def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
                     raise ValueError('Unrecognised replicate name ({0}) in line {1} in {2}.'.
                                      format(r, lineNumber, replicatesfile))
 
-    return (replicatesIDs, conditions)
+    # Write the conditions of the data files with no entries in the replicates file
+    for c in range(len(conditions)):
+        if conditions[c] is None:
+            with open('{0}/{1}'.format(datapath, datafiles[c])) as f:
+                line = f.readline()
+                while (line[0] == '#'):
+                    line = f.readline()
+                line = line.rstrip()
+                line = filter(None, re.split(delimiter, line))
+                conditions[c] = line[1:]
+            replicatesIDs[c] = list(range(len(conditions[c])))
+
+    return replicatesIDs, conditions
 
 
 def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnormalisation=1000):
