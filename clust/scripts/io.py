@@ -21,11 +21,11 @@ else:
 def getFilesInDirectory(path, extension=None):
     for (dirpath, dirnames, filenames) in os.walk(path):
         if extension is None or extension == '':
-            return [fn for fn in filenames]
+            return [fn for fn in filenames if fn != '.DS_Store']
         else:
             if len(extension) > 1 and extension[0] == '.' and extension[1] != '*':
                 extension = extension[1:]
-            return [fn for fn in filenames if re.match('(.*\.' + extension + '$)', fn) is not None]
+            return [fn for fn in filenames if re.match('(.*\.' + extension + '$)', fn) is not None and fn != '.DS_Store']
 
 
 def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1, returnSkipped=False):
@@ -264,13 +264,14 @@ def writedic(filepath, dic, header=None, delim='\t'):
 def log(msg=None, addextrastick=True):
     if addextrastick:
         msg = op.msgformated(msg, withnewline=False)
-    printOnConsole = True
-    with open(glob.logfile, mode='a+') as f:
-        if msg is not None:
-            f.write(msg)
-        f.write('\n')
 
-    if printOnConsole:
+    if glob.print_to_log_file:
+        with open(glob.logfile, mode='a+') as f:
+            if msg is not None:
+                f.write(msg)
+            f.write('\n')
+
+    if glob.print_to_console:
         print(msg)
 
 

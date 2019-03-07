@@ -361,6 +361,46 @@ def clusters_genes_Species(B, OGs, Map, MapSpecies):
     return resFrames
 
 
+'''
+B: Ng x K
+OGs: Ng x 1
+Map: Ng x Nspecies
+MapSpecies: array of names of species in the Map (header of Map)
+'''
+def clusters_B_as_dataframes(B, OGs, Map):
+    Nsp = np.shape(Map)[1]
+    clusterslabels = ['C{0}'.format(c) for c in range(np.shape(B)[1])]
+    B = pd.DataFrame(B, OGs, clusterslabels, dtype=bool)
+
+    if Map is None:
+        return B
+    else:
+        PerSpecies_B = [None] * Nsp
+        for sp in range(Nsp):
+            RowNames = [ds.concatenateStrings(gs, ',') for gs in Map[:, sp]]  # Groups of genes
+            PerSpecies_B[sp] = pd.DataFrame(B, RowNames, clusterslabels, dtype=bool)
+
+        return B, PerSpecies_B
+
+
+'''
+B: Ng x K
+OGs: Ng x 1
+Map: Ng x Nspecies
+MapSpecies: array of names of species in the Map (header of Map)
+'''
+def processed_X_as_dataframes(X_processed, OGs, conditions):
+    L = len(X_processed)
+
+    Xout = [None] * L
+
+    for l in range(L):
+        Xout[l] = pd.DataFrame(X_processed[l], OGs, conditions[l])
+
+    return Xout
+
+
+
 def processed_X(Xprocessed, conditions, GDM, OGs, Map, MapSpecies):
     L = len(Xprocessed)
     res = np.array([None] * L, dtype=object)
