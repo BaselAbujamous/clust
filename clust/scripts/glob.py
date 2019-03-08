@@ -3,9 +3,11 @@ tmpfile = 'tmp'
 object_label_upper = 'Gene'
 object_label_lower = 'gene'
 outputwidth = 73
-version = 'v1.8.12'
+version = 'v1.9.0'
 email = 'basel.abu-jamous@sensynehealth.com'
 maxgenesinsetforpdist = 10000
+print_to_log_file = True
+print_to_console = True
 
 
 def set_logfile(val):
@@ -36,3 +38,13 @@ def set_outputwith(val):
 def set_version(val):
     global version
     version = val
+
+
+def set_print_to_log_file(val):
+    global print_to_log_file
+    print_to_log_file = val
+
+
+def set_print_to_console(val):
+    global print_to_console
+    print_to_console = val

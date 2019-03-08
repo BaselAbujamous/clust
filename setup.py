@@ -34,7 +34,7 @@ def setupmain(args=None):
 
         # Author details
         author='Basel Abu-Jamous',
-        author_email='basel.abujamous@plants.ox.ac.uk',
+        author_email='basel.abu-jamous@sensynehealth.com',
 
         # Choose your license
         license='University of Oxford Academic Use Licence',

@@ -111,7 +111,7 @@ def position_of_subplot(L, K, l, k):
     return (page, pos, row, col)
 
 
-def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', setPageToDefault=True):
+def plotclusters(X, B, DatasetsNames, conditions, filename=None, GDM=None, Cs='all', setPageToDefault=True, showPlots=False, printToPDF=True):
     plt.ioff()  # Turn iteractive mode off so the figures do not show up without calling .show()
     if isinstance(Cs, basestring) and Cs == 'all':
         K = B.shape[1]  # Number of clusters to be plotted
@@ -186,13 +186,17 @@ def plotclusters(X, B, filename, DatasetsNames, conditions, GDM=None, Cs='all', 
             plt.subplots_adjust(wspace=0.35, hspace=0.35)
 
     # Save plots
-    with PdfPages(filename) as pdf:
-        for p in range(Np):
-            #plt.figure(p)
-            #plt.clf()
-            pdf.savefig(figure=p)
-            pdf.attach_note('Page {0}'.format(p + 1))
-        info = pdf.infodict()
-        info['Author'] = 'Clust python package'
-    plt.close('all')
+    if printToPDF:
+        with PdfPages(filename) as pdf:
+            for p in range(Np):
+                #plt.figure(p)
+                #plt.clf()
+                pdf.savefig(figure=p)
+                pdf.attach_note('Page {0}'.format(p + 1))
+            info = pdf.infodict()
+            info['Author'] = 'Clust python package'
+        plt.close('all')
+
+    if showPlots:
+        plt.show('all')
 
