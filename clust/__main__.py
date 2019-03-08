@@ -58,7 +58,7 @@ def main(args=None):
                         help='Filtering: number of conditions (default: 0)',
                         default=0)
     parser.add_argument('-fil-d', metavar='<integer>', dest='fild', type=int,
-                        help='Filtering: number of datasets (default: 1)', default=0)
+                        help='Filtering: number of datasets (default: 0)', default=0)
     parser.add_argument('--fil-abs', dest='absval', action='store_true',
                         help='Filter using absolute values of expression')
     parser.add_argument('--fil-perc', dest='filperc', action='store_true',

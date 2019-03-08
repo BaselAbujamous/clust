@@ -10,6 +10,7 @@ import clust.scripts.graphics as graph
 import clust.scripts.glob as glob
 import clust.scripts.numeric as nu
 import clust.scripts.validation as val
+import clust.scripts.datastructures as ds
 import numpy as np
 import os
 import datetime as dt
@@ -19,12 +20,11 @@ import pandas as pd
 import math
 
 
-
 # Define the clust function (and below it towards the end of this file it is called).
 def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile=['1000'], outpath=None,
-                  Ks=[n for n in range(4, 21, 4)], tightnessweight=5, stds=0.01,
-                  OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0, atleastinconditions=1,
-                  atleastindatasets=1, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
+                  Ks=[n for n in range(4, 21, 4)], tightnessweight=1, stds=3.0,
+                  OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=-float("inf"), atleastinconditions=0,
+                  atleastindatasets=0, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
                   ncores=1, optimisation=True, Q3s=2, methods=None, deterministic=False):
     # Set the global objects label
     if mapfile is None:
@@ -198,14 +198,16 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
 
     io.deletetmpfile()
 
+def runclust(X, Map=None, replicatesIDs=None, normalise=1000,
+             Ks=[n for n in range(4, 21, 4)], tightnessweight=1, stds=3.0,
+             OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=-float("inf"), atleastinconditions=0,
+             atleastindatasets=0, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
+             ncores=1, optimisation=True, Q3s=2, methods=None, deterministic=False, showPlots=True,
+             printToConsole=True):
 
-def runclust(X, Map=None, replicatesIDs=None, normalise=['1000'],
-                  Ks=[n for n in range(4, 21, 4)], tightnessweight=1, stds=0.01, outpath=None,
-                  OGsIncludedIfAtLeastInDatasets=1, expressionValueThreshold=10.0, atleastinconditions=1,
-                  atleastindatasets=1, absvalue=False, filteringtype='raw', filflat=True, smallestClusterSize=11,
-                  ncores=1, optimisation=True, Q3s=2, methods=None, deterministic=False, showPlots=True):
     # Set the global objects label
     glob.set_print_to_log_file(False)
+    glob.set_print_to_console(printToConsole)
     if Map is None:
         glob.set_object_label_upper('Gene')
         glob.set_object_label_lower('gene')
@@ -215,37 +217,44 @@ def runclust(X, Map=None, replicatesIDs=None, normalise=['1000'],
 
     glob.set_tmpfile('clust_tmp.txt')
 
-    # Output: Copy input files to the output
-    in2out_path = outpath + '/Input_files_and_params'
-    if not os.path.exists(in2out_path):
-        os.makedirs(in2out_path)
-
 
     # Output: Print initial message, and record the starting time:
     initialmsg, starttime = op.generateinitialmessage()
     io.log(initialmsg, addextrastick=False)
 
-    # Consider X as an array of arrays or data frames. Otherwise, make it as such fist TODO
-    # Read data
+    # Consider X as a list of arrays or of data frames. Otherwise, make it as such first
+    # If the user entered a single dataset as an input (not as a list of arrays), save this fact in a flag, ...
+    # so the result is returned as a single output
+    input_is_one_dataset = False
+    if isinstance(X, pd.DataFrame):
+        input_is_one_dataset = True
+        X = [X]
+    elif isinstance(X, np.ndarray) and ds.maxDepthOfArray(X) == 2:
+        input_is_one_dataset = True
+        X = [X]
+
+    # Format data (X: list of arrays, Genes: list of arrays of strings, replicates: list of arrays of strings)
     L = len(X)  # Number of datasets
     replicates = [None] * L
     Genes = [None] * L
     io.log('1. Reading dataset(s)')
     for l in range(L):
         if type(X[l]) == pd.DataFrame:
-            Genes[l] = list(X[l].index)
-            replicates[l] = X[l].columns
+            Genes[l] = np.array(X[l].index, dtype=str, ndmin=2).transpose()
+            Genes[l] = np.array(Genes[l], dtype=object)
+            replicates[l] = np.array(X[l].columns, dtype=str)
             X[l] = X[l].values
         else:
             X[l] = np.array(X[l])
 
             ngenes_digits = int(math.ceil(math.log10(X[l].shape[0])))
             nreps_digits = int(math.ceil(math.log10(X[l].shape[1])))
-            Genes[l] = np.array(['G{0}'.format(str(g).zfill(ngenes_digits)) for g in range(X[l].shape[0])])
+            Genes[l] = np.array([['G{0}'.format(str(g).zfill(ngenes_digits))] for g in range(X[l].shape[0])])
+            Genes[l] = np.array(Genes[l], dtype=object)
             replicates[l] = np.array(['R{0}'.format(str(r).zfill(nreps_digits)) for r in range(X[l].shape[1])])
 
     ndatasets_digits = int(math.ceil(math.log10(L)))
-    datafiles = np.array(['R{0}'.format(str(r).zfill(ndatasets_digits)) for r in range(L)])
+    datafiles = np.array(['D{0}'.format(str(r).zfill(ndatasets_digits)) for r in range(L)])
     datafiles_noext = datafiles
 
     # Sort out conditions based on replicates structure if given
@@ -259,7 +268,7 @@ def runclust(X, Map=None, replicatesIDs=None, normalise=['1000'],
                 if replicatesIDs[l] is None:
                     conditions[l] = np.array(replicates[l])
                 else:
-                    uniq_reps, cond_indices = np.unique(replicatesIDs[l])
+                    uniq_reps, cond_indices = np.unique(replicatesIDs[l], return_index=True)
                     if -1 in uniq_reps:
                         cond_indices = cond_indices[1:]
                     conditions[l] = replicates[l][cond_indices]
@@ -334,6 +343,8 @@ def runclust(X, Map=None, replicatesIDs=None, normalise=['1000'],
     else:
         Bout, B_species = op.clusters_B_as_dataframes(B_corrected, OGs, MapNew)
     Xout = op.processed_X_as_dataframes(X_summarised_normalised, OGs, conditions)
+    if input_is_one_dataset:
+        Xout = Xout[0]
 
     # Output: Plot figures
     if showPlots:
@@ -349,5 +360,7 @@ def runclust(X, Map=None, replicatesIDs=None, normalise=['1000'],
         op.generateoutputsummaryparag(X, X_summarised_normalised, MapNew, GDMall, GDM,
                                       ures, mnres, B_corrected, starttime)
     io.log(summarymsg, addextrastick=False)
+
+    io.deletetmpfile()
 
     return Bout, Xout, GDM

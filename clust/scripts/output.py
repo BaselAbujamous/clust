@@ -158,8 +158,8 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
 
     tmptxt = 'For enquiries contact:\n' \
              'Basel Abu-Jamous\n' \
-             'Department of Plant Sciences, University of Oxford\n' \
-             'basel.abujamous@plants.ox.ac.uk\n' \
+             'Sensyne Health, Oxford, UK\n' \
+             'basel.abu-jamous@sensynehealth.com\n' \
              'baselabujamous@gmail.com'
     res += msgformated(tmptxt)
     res += bottomline(withnewline=False)
@@ -368,13 +368,13 @@ Map: Ng x Nspecies
 MapSpecies: array of names of species in the Map (header of Map)
 '''
 def clusters_B_as_dataframes(B, OGs, Map):
-    Nsp = np.shape(Map)[1]
     clusterslabels = ['C{0}'.format(c) for c in range(np.shape(B)[1])]
     B = pd.DataFrame(B, OGs, clusterslabels, dtype=bool)
 
     if Map is None:
         return B
     else:
+        Nsp = np.shape(Map)[1]
         PerSpecies_B = [None] * Nsp
         for sp in range(Nsp):
             RowNames = [ds.concatenateStrings(gs, ',') for gs in Map[:, sp]]  # Groups of genes

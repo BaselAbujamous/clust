@@ -1,1 +1,1 @@
-from .clustpipeline import clustpipeline
+from .clustpipeline import runclust
