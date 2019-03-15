@@ -94,8 +94,8 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     endtime = dt.datetime.now()
     t = endtime - starttime
     d = t.days
-    h = t.seconds / 3600
-    m = (t.seconds % 3600) / 60
+    h = int(t.seconds / 3600)
+    m = int((t.seconds % 3600) / 60)
     s = t.seconds % 60
     if t.total_seconds() < 1:
         mil = t.microseconds / 1000
@@ -134,7 +134,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
                  'is {10} {1}s.' \
                  ''.format(label0, label1, L, dataset_datasets, Ng_original, Ng_to_clustering, K, Ng_in_clusters,
                            np.min(np.sum(B_corrected, axis=0)), np.max(np.sum(B_corrected, axis=0)),
-                           np.mean(np.sum(B_corrected, axis=0)))
+                           int(round(np.mean(np.sum(B_corrected, axis=0)))))
     else:
         tmptxt = 'Clust received {2} {3} with {4} unique {0}. After filtering, {5} {1}s made it to the clustering ' \
                  'step. Clust generated {6} clusters of {1}s.' \

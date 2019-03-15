@@ -40,9 +40,9 @@ def matlablike_index2D(X, I0, I1):
     :return: numpy.ndarray of indexed values
     """
     Y = np.array(X)
-    if isinstance(I0, basestring) and I0 in ['all', 'a']:
+    if isinstance(I0, str) and I0 in ['all', 'a']:
         I0 = [n for n in range(Y.shape[0])]
-    if isinstance(I1, basestring) and I1 in ['all', 'a']:
+    if isinstance(I1, str) and I1 in ['all', 'a']:
         I1 = [n for n in range(Y.shape[1])]
     if numel(I0) > 1 and all(isinstance(n, bool) for n in I0):
         Y = Y[np.nonzero(I0)[0]]
@@ -151,7 +151,7 @@ def flattenAList(l):
 
 
 def concatenateStrings(listofstrings, delim=', '):
-    if isinstance(listofstrings, basestring):
+    if isinstance(listofstrings, str):
         return listofstrings + ''
     elif len(listofstrings) == 1:
         return listofstrings[0] + ''
