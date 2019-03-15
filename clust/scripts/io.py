@@ -76,7 +76,7 @@ def readReplicates(replicatesfile, datapath, datafiles, replicates, delimiter='\
             lineNumber += 1
             line = line.partition('#')[0]
             line = line.rstrip()
-            line = filter(None, re.split(delimiter, line))
+            line = list(filter(None, re.split(delimiter, line)))
 
             # Skip to next line if it is an empty line
             if len(line) < 1:
@@ -161,7 +161,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
             lineNumber += 1
             line = line.partition('#')[0]
             line = line.rstrip()
-            line = filter(None, re.split(delimiter, line))
+            line = list(filter(None, re.split(delimiter, line)))
 
             # Skip to next line if it is an empty line
             if len(line) < 1:
@@ -228,7 +228,7 @@ def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skipro
 #### OBSOLETE, USE THE PANDAS READ_CSV VERSION BELOW INSTEAD
 def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, ndmin=0, comments='#'):
     with open(file) as f:
-        result = np.loadtxt((re.sub(delimiter, b'\t', x) for x in f),
+        result = np.loadtxt((re.sub(delimiter, '\t', str(x)) for x in f),
                             delimiter='\t', dtype=dtype, skiprows=skiprows, usecols=usecols, ndmin=ndmin, comments=comments)
     return result
 
@@ -236,7 +236,7 @@ def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows
 # Does the same job as pandas.read_csv but regex delimiter
 def pdreadcsv_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, na_filter=True, comments='#'):
     with open(file) as f:
-        result = pd.read_csv(StringIO('\n'.join(re.sub(delimiter, b'\t', x) for x in f)),
+        result = pd.read_csv(StringIO('\n'.join(re.sub(delimiter, '\t', str(x)) for x in f)),
                             delimiter='\t', dtype=dtype, header=-1, skiprows=skiprows, usecols=usecols, na_filter=na_filter, comment=comments).values
     return result
 

@@ -11,7 +11,6 @@ import clust.scripts.mnplots as mn
 import clust.scripts.numeric as nu
 
 from joblib import Parallel, delayed
-import joblib
 import warnings
 import gc
 from clust.scripts.glob import maxgenesinsetforpdist
@@ -309,10 +308,10 @@ def sortclusters(CoPaM, Mc, minGenesinClust = 11):
 
 
 # Clustering helping function for parallel loop
-def clustDataset(X, K, D, methods, GDMcolumn, Ng, datasetID):
-    #X, K, D, methods, GDMcolumn, Ng = args
+def clustDataset(X, K, methods, GDMcolumn, Ng, datasetID):
+    #X, K, methods, GDMcolumn, Ng = args
     Uloc = [np.zeros([Ng, K], dtype=bool)] * len(methods)  # Prepare the U output
-    tmpU = cl.clusterdataset(X, K, D, methods, datasetID)  # Obtain U's
+    tmpU = cl.clusterdataset(X, K, methods, datasetID)  # Obtain U's
     for cc in range(len(methods)):  # Set U's as per the GDM values
         Uloc[cc][GDMcolumn] = tmpU[cc]
     return Uloc
@@ -351,15 +350,9 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
         methods = [['k-means']]
         # largest_DS = np.max([x.shape[0] for x in Xloc])
         # if (largest_DS <= maxgenesinsetforpdist):
-        #     if (deterministic):
-        #         methods = [['k-means'], ['HC']]
-        #     else:
-        #         methods = [['k-means'], ['SOMs'], ['HC']]
+        #    methods = [['k-means'], ['HC']]
         # else:
-        #     if (deterministic):
-        #         methods = [['k-means']]
-        #     else:
-        #         methods = [['k-means'], ['SOMs']]
+        #    methods = [['k-means']]
     else:
         largest_DS = np.max([x.shape[0] for x in Xloc])
         if (largest_DS > maxgenesinsetforpdist):
@@ -389,7 +382,6 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
     Ks = np.array(Ks)
     Ks = Ks[Ks <= Ng]  # Remove Ks that are larger than the number of genes Ng
     Ks = Ks.tolist()
-    Ds = [nu.closest_to_square_factors(k) for k in Ks]  # Grid sizes for the SOMs method for each value of K
     NKs = len(Ks)  # Number of K values
 
     # If the dataset is empty, return basic output
@@ -447,7 +439,7 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
                 warnings.simplefilter("ignore")
                 Utmp = Parallel(n_jobs=ncores)\
                     (delayed(clustDataset)
-                     (Xloc[l], Ks[ki], Ds[ki], methodsDetailedloc[l], GDMloc[:, l], Ng, l) for ki in range(NKs))
+                     (Xloc[l], Ks[ki], methodsDetailedloc[l], GDMloc[:, l], Ng, l) for ki in range(NKs))
 
                 Utmp = [u for u in Utmp]
                 for ki in range(NKs):
@@ -581,7 +573,6 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
         'NKs': NKs,
         'wsets': wsets,
         'wmethods': wmethods,
-        'Ds': Ds,
         'L': L,
         'CoPaMs': CoPaMs,
         'smallestclustersize': smallestClusterSize,
