@@ -68,8 +68,6 @@ each dataset.*
 
 # Install *Clust*
 
-*Clust* is a Python package that requires Python 2.7 but is not compatible with Python 3 yet.
-
 ### Way 1
 
 * `sudo pip install clust`
@@ -94,7 +92,6 @@ First, make sure you have all of the following Python packages installed:
 * matplotlib
 * scikit-learn
 * pandas
-* sompy
 * joblib
 * portalocker
 
