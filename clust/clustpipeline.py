@@ -178,6 +178,7 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
             #np.savetxt('{0}/Clusters_{1}.tsv'.format(outpath, MapSpecies[sp]), res_sp[sp], fmt='%s', delimiter='\t')
 
     # Output: Save figures to a PDF
+
     try:
         if np.shape(B_corrected)[1] > 0:
             clusts_fig_file_name = '{0}/Clusters_profiles.pdf'.format(outpath)
@@ -249,9 +250,9 @@ def runclust(X, Map=None, replicatesIDs=None, normalise=1000,
 
             ngenes_digits = int(math.ceil(math.log10(X[l].shape[0])))
             nreps_digits = int(math.ceil(math.log10(X[l].shape[1])))
-            Genes[l] = np.array([['G{0}'.format(str(g).zfill(ngenes_digits))] for g in range(X[l].shape[0])])
+            Genes[l] = np.array([['{0}'.format(str(g).zfill(ngenes_digits))] for g in range(X[l].shape[0])])
             Genes[l] = np.array(Genes[l], dtype=object)
-            replicates[l] = np.array(['R{0}'.format(str(r).zfill(nreps_digits)) for r in range(X[l].shape[1])])
+            replicates[l] = np.array(['X{0}'.format(str(r).zfill(nreps_digits)) for r in range(X[l].shape[1])])
 
     ndatasets_digits = int(math.ceil(math.log10(L)))
     datafiles = np.array(['D{0}'.format(str(r).zfill(ndatasets_digits)) for r in range(L)])

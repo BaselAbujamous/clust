@@ -3,8 +3,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
+import clust.scripts.glob as glob
 
-import glob
 
 maxrows_per_page = 8
 maxcols_per_page = 6
@@ -93,10 +93,10 @@ def set_best_fit_page_parameters(L, K):
 
 
 def position_of_subplot(L, K, l, k):
-    band = k / maxcols_per_page  # Number of band relative to the beginning of the plots (0, 1, 2, 3, ...)
+    band = int(k / maxcols_per_page)  # Number of band relative to the beginning of the plots (0, 1, 2, 3, ...)
     page = int(band / bands_per_page)  # Page 0, 1, 2, 3, ...
     if bands_per_page < 1:
-        page += l / maxrows_per_page
+        page += int(l / maxrows_per_page)
     band_in_page = band - int(page * bands_per_page)  # Band within page 0, 1, 2, ... (bands_per_page - 1)
 
     col = k % maxcols_per_page
@@ -113,7 +113,7 @@ def position_of_subplot(L, K, l, k):
 
 def plotclusters(X, B, DatasetsNames, conditions, filename=None, GDM=None, Cs='all', setPageToDefault=True, showPlots=False, printToPDF=True):
     plt.ioff()  # Turn iteractive mode off so the figures do not show up without calling .show()
-    if isinstance(Cs, basestring) and Cs == 'all':
+    if isinstance(Cs, str) and Cs == 'all':
         K = B.shape[1]  # Number of clusters to be plotted
         Cs = [c for c in range(K)]  # Clusters to be plotted
     else:
