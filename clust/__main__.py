@@ -74,8 +74,9 @@ def main(args=None):
                         help='Skip cluster optimsation & completion')
     parser.add_argument('--deterministic', dest='deterministic', action='store_true',
                         help='Obsolete. All steps are already deterministic (v1.7.4+)')
-    parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
-                        default=1)
+    #parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
+    #                    default=1)
+    args.np = 1  # currently np > 1 causes issues
     parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
