@@ -37,7 +37,7 @@ def setupmain(args=None):
         author_email='basel.abu-jamous@sensynehealth.com',
 
         # Choose your license
-        license='University of Oxford Academic Use Licence',
+        license='OSI Approved :: GNU General Public License v3 (GPLv3)',
 
         classifiers=[
             # How mature is this project? Common values are
@@ -51,7 +51,7 @@ def setupmain(args=None):
             'Topic :: Software Development :: Build Tools',
 
             # Pick your license as you wish (should match "license" above)
-            'License :: Other/Proprietary License',
+            'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 
             # Specify the Python versions you support here.
             'Programming Language :: Python :: 3',
