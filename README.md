@@ -392,8 +392,7 @@ data_directory | The path of the directory including all data files
 -|-
 --no-optimisation | Skip the cluster optimisation step. Not recommended except to compare results before and after optimisation (default: optimisation is performed).
 -basemethods \<string> [\<string> ...] | One or more base clustering methods (default (V1.8.0+): k-means)
--|-
--np \<integer> | Number of parallel processes (default: 1) 
+-|- 
 -h, --help | show the help message and exit
 
 # Example datasets
