@@ -76,7 +76,7 @@ def main(args=None):
                         help='Obsolete. All steps are already deterministic (v1.7.4+)')
     #parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
     #                    default=1)
-    args.np = 1  # currently np > 1 causes issues
+    np = 1  # np > 1 causes problems in the current version
     parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
@@ -96,7 +96,7 @@ def main(args=None):
     # Call the clust function
     clustpipeline.clustpipeline(args.datapath, args.m, args.r, args.n, args.o, args.K, args.t,
                                 args.s, args.d, args.filv, args.filc, args.fild, args.absval, filtype, args.filflat,
-                                args.cs, args.np, args.optimisation, args.q3s, args.basemethods, args.deterministic)
+                                args.cs, np, args.optimisation, args.q3s, args.basemethods, args.deterministic)
 
 
 if __name__ == "__main__":
