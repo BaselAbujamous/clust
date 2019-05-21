@@ -3,7 +3,6 @@ import clust.scripts.datastructures as ds
 import sklearn.cluster as skcl
 import scipy.cluster.hierarchy as sphc
 import scipy.spatial.distance as spdist
-import sompy
 import clust.scripts.io as io
 from clust.scripts.glob import maxgenesinsetforpdist
 
@@ -12,18 +11,15 @@ kmeans_init = {}  # This is to cache the centres of the k-means and reuse them
 
 
 # Main function
-def clusterdataset(X, K, D, methods=None, datasetID=-1):
-    if methods is None: methods = [['k-means'],['SOMs'],['HC','linkage_method','ward']]
+def clusterdataset(X, K, methods=None, datasetID=-1):
+    if methods is None: methods = [['k-means']]
     methodsloc = [n if isinstance(n,(list,tuple,np.ndarray)) else [n] for n in methods]
-    #io.log('clusterdataset')
     # Clustering loop
     C = len(methodsloc) # Number of methods
     U = [None] * C
     for ms in range(C):
         if methodsloc[ms][0].lower() in ['k-means', 'kmeans']:
             U[ms] = ckmeans(X, K, datasetID, methodsloc[ms][1:])
-        elif methodsloc[ms][0].lower() in ['soms', 'soms-bubble']:
-            U[ms] = csoms(X, D, methodsloc[ms][1:])
         elif methodsloc[ms][0].lower() in ['hc', 'hierarchical']:
             U[ms] = chc(X, K, methodsloc[ms][1:])
 
@@ -54,30 +50,6 @@ def ckmeans(X, K, datasetID=-1, params=()):
             init = initclusterKA_memorysaver(X, K, distance)
 
     C = skcl.KMeans(K, init=init, max_iter=max_iter, n_jobs=n_jobs).fit(X).labels_
-    return clustVec2partMat(C, K)
-
-
-def csoms(X, D, params=()):
-    pnames = ['neighbour', 'learning_rate', 'input_length_ratio']
-    dflts  = [        0.1,             0.2,                   -1]
-    if isinstance(params, np.ndarray):
-        paramsloc = params.tolist()
-    else:
-        paramsloc = params
-    (neighbour, learning_rate, input_length_ratio) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
-
-    Xloc = np.array(X)
-
-    K = D[0] * D[1] # Number of clusters
-    N = Xloc.shape[0] # Number of genes
-    Ndim = Xloc.shape[1] # Number of dimensions in X
-
-    som = sompy.SOM(D, Xloc)
-    som.set_parameter(neighbor=neighbour, learning_rate=learning_rate, input_length_ratio=input_length_ratio)
-
-    centres = som.train(N).reshape(K, Ndim)
-    dists = [[spdist.euclidean(c, x) for c in centres] for x in Xloc]
-    C = [np.argmin(d) for d in dists]
     return clustVec2partMat(C, K)
 
 

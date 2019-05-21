@@ -21,11 +21,11 @@ else:
 def getFilesInDirectory(path, extension=None):
     for (dirpath, dirnames, filenames) in os.walk(path):
         if extension is None or extension == '':
-            return [fn for fn in filenames]
+            return [fn for fn in filenames if fn != '.DS_Store']
         else:
             if len(extension) > 1 and extension[0] == '.' and extension[1] != '*':
                 extension = extension[1:]
-            return [fn for fn in filenames if re.match('(.*\.' + extension + '$)', fn) is not None]
+            return [fn for fn in filenames if re.match('(.*\.' + extension + '$)', fn) is not None and fn != '.DS_Store']
 
 
 def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skipcolumns=1, returnSkipped=False):
@@ -54,10 +54,10 @@ def readDatasetsFromDirectory(path, delimiter='\t| |, |; |,|;', skiprows=1, skip
 def readMap(mapfile, delimiter='\t'):
     if mapfile is None:
         return None
-    return readDataFromFiles([mapfile], delimiter, dtype=str, skiprows=0, skipcolumns=0, returnSkipped=False)[0]
+    return readDataFromFiles([mapfile], delimiter, dtype=str, skiprows=0, skipcolumns=0, returnSkipped=False, data_na_filter=False)[0]
 
 
-def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
+def readReplicates(replicatesfile, datapath, datafiles, replicates, delimiter='\t| |,|;'):
     if replicatesfile is None:
         if isinstance(replicates[0], list):
             return None, replicates
@@ -76,7 +76,7 @@ def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
             lineNumber += 1
             line = line.partition('#')[0]
             line = line.rstrip()
-            line = filter(None, re.split(delimiter, line))
+            line = list(filter(None, re.split(delimiter, line)))
 
             # Skip to next line if it is an empty line
             if len(line) < 1:
@@ -113,7 +113,19 @@ def readReplicates(replicatesfile, datafiles, replicates, delimiter='\t| |,|;'):
                     raise ValueError('Unrecognised replicate name ({0}) in line {1} in {2}.'.
                                      format(r, lineNumber, replicatesfile))
 
-    return (replicatesIDs, conditions)
+    # Write the conditions of the data files with no entries in the replicates file
+    for c in range(len(conditions)):
+        if conditions[c] is None:
+            with open('{0}/{1}'.format(datapath, datafiles[c])) as f:
+                line = f.readline()
+                while (line[0] == '#'):
+                    line = f.readline()
+                line = line.rstrip()
+                line = filter(None, re.split(delimiter, line))
+                conditions[c] = line[1:]
+            replicatesIDs[c] = list(range(len(conditions[c])))
+
+    return replicatesIDs, conditions
 
 
 def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnormalisation=1000):
@@ -149,7 +161,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
             lineNumber += 1
             line = line.partition('#')[0]
             line = line.rstrip()
-            line = filter(None, re.split(delimiter, line))
+            line = list(filter(None, re.split(delimiter, line)))
 
             # Skip to next line if it is an empty line
             if len(line) < 1:
@@ -180,7 +192,7 @@ def readNormalisation(normalisefile, datafiles, delimiter='\t| |,|;', defaultnor
     return normalise
 
 
-def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skiprows=1, skipcolumns=1, returnSkipped=True, comm='#'):
+def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skiprows=1, data_na_filter=True, skipcolumns=1, returnSkipped=True, comm='#'):
     L = len(datafiles)
     X = [None] * L
     skippedRows = [None] * L
@@ -190,7 +202,7 @@ def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skipro
             ncols = len(re.split(delimiter, f.readline()))
         # This is now using pandas read_csv, if np.loadtxt is re-used, you HAVE TO set ndmin = 2 here
         X[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=dtype, skiprows=skiprows,
-                          usecols=range(skipcolumns, ncols), na_filter=True, comments=comm)
+                          usecols=range(skipcolumns, ncols), na_filter=data_na_filter, comments=comm)
 
         if skiprows > 0:
             skippedRows[l] = pdreadcsv_regexdelim(datafiles[l], delimiter=delimiter, dtype=str, skiprows=0,
@@ -216,7 +228,7 @@ def readDataFromFiles(datafiles, delimiter='\t| |, |; |,|;', dtype=float, skipro
 #### OBSOLETE, USE THE PANDAS READ_CSV VERSION BELOW INSTEAD
 def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, ndmin=0, comments='#'):
     with open(file) as f:
-        result = np.loadtxt((re.sub(delimiter, b'\t', x) for x in f),
+        result = np.loadtxt((re.sub(delimiter, '\t', str(x)) for x in f),
                             delimiter='\t', dtype=dtype, skiprows=skiprows, usecols=usecols, ndmin=ndmin, comments=comments)
     return result
 
@@ -224,7 +236,7 @@ def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows
 # Does the same job as pandas.read_csv but regex delimiter
 def pdreadcsv_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, na_filter=True, comments='#'):
     with open(file) as f:
-        result = pd.read_csv(StringIO('\n'.join(re.sub(delimiter, b'\t', x) for x in f)),
+        result = pd.read_csv(StringIO('\n'.join(re.sub(delimiter, '\t', str(x)) for x in f)),
                             delimiter='\t', dtype=dtype, header=-1, skiprows=skiprows, usecols=usecols, na_filter=na_filter, comment=comments).values
     return result
 
@@ -252,13 +264,14 @@ def writedic(filepath, dic, header=None, delim='\t'):
 def log(msg=None, addextrastick=True):
     if addextrastick:
         msg = op.msgformated(msg, withnewline=False)
-    printOnConsole = True
-    with open(glob.logfile, mode='a+') as f:
-        if msg is not None:
-            f.write(msg)
-        f.write('\n')
 
-    if printOnConsole:
+    if glob.print_to_log_file:
+        with open(glob.logfile, mode='a+') as f:
+            if msg is not None:
+                f.write(msg)
+            f.write('\n')
+
+    if glob.print_to_console:
         print(msg)
 
 
@@ -321,6 +334,6 @@ def getparallelprogress():
 
 
 def deletetmpfile():
-    if os._exists(glob.tmpfile):
+    if os.path.isfile(glob.tmpfile):
         os.remove(glob.tmpfile)
 

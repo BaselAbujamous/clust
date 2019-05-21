@@ -4,6 +4,7 @@ import sys
 import clust.clustpipeline as clustpipeline
 from clust.scripts.glob import version
 import clust.scripts.output as op
+import warnings
 
 
 def main(args=None):
@@ -58,7 +59,7 @@ def main(args=None):
                         help='Filtering: number of conditions (default: 0)',
                         default=0)
     parser.add_argument('-fil-d', metavar='<integer>', dest='fild', type=int,
-                        help='Filtering: number of datasets (default: 1)', default=0)
+                        help='Filtering: number of datasets (default: 0)', default=0)
     parser.add_argument('--fil-abs', dest='absval', action='store_true',
                         help='Filter using absolute values of expression')
     parser.add_argument('--fil-perc', dest='filperc', action='store_true',
@@ -74,8 +75,9 @@ def main(args=None):
                         help='Skip cluster optimsation & completion')
     parser.add_argument('--deterministic', dest='deterministic', action='store_true',
                         help='Obsolete. All steps are already deterministic (v1.7.4+)')
-    parser.add_argument('-np', metavar='<integer>', type=int, help='Number of parallel processes (default: 1)',
+    parser.add_argument('-np', metavar='<integer>', type=int, help='Obsolete. Number of parallel processes (default: 1)',
                         default=1)
+
     parser.set_defaults(optimisation=True, deterministic=False, absval=False, filperc=False, filflat=True)
     # parser.add_argument('-ec', type=int, help='Perform error correction, 1 or 0 (default: 1)', default=1)
 
@@ -84,6 +86,9 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
+    if args.np > 1:
+        warnings.warn('The -np option is obsolete and is forced to be 1 in v1.10.5+. It is set to 1.')
+        args.np = 1
     if args.filperc:
         filtype = 'perc'
     else:

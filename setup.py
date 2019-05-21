@@ -34,10 +34,10 @@ def setupmain(args=None):
 
         # Author details
         author='Basel Abu-Jamous',
-        author_email='basel.abujamous@plants.ox.ac.uk',
+        author_email='basel.abu-jamous@sensynehealth.com',
 
         # Choose your license
-        license='University of Oxford Academic Use Licence',
+        license='OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
 
         classifiers=[
             # How mature is this project? Common values are
@@ -51,7 +51,7 @@ def setupmain(args=None):
             'Topic :: Software Development :: Build Tools',
 
             # Pick your license as you wish (should match "license" above)
-            'License :: Other/Proprietary License',
+            'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
 
             # Specify the Python versions you support here.
             'Programming Language :: Python :: 3',
@@ -72,7 +72,7 @@ def setupmain(args=None):
         # your project is installed. For an analysis of "install_requires" vs pip's
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
-        install_requires=['numpy', 'scipy', 'pandas', 'matplotlib', 'sklearn', 'sompy', 'joblib', 'portalocker'],
+        install_requires=['numpy', 'scipy', 'pandas', 'matplotlib', 'sklearn', 'joblib', 'portalocker'],
 
         # If there are data files included in your packages that need to be
         # installed, specify them here.  If using Python 2.6 or less, then these

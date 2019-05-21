@@ -80,7 +80,7 @@ def generateinitialmessage():
     res = '\n' + topline()
     tmptxt = 'Clust\n' \
              '(Optimised consensus clustering of multiple heterogenous datasets)\n' \
-             'Python package version {0} (2018) Basel Abu-Jamous'.format(version[1:])
+             'Python package version {0} (2019) Basel Abu-Jamous'.format(version[1:])
     res += msgformated(tmptxt, alignment='^')
     res += midline()
 
@@ -94,8 +94,8 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     endtime = dt.datetime.now()
     t = endtime - starttime
     d = t.days
-    h = t.seconds / 3600
-    m = (t.seconds % 3600) / 60
+    h = int(t.seconds / 3600)
+    m = int((t.seconds % 3600) / 60)
     s = t.seconds % 60
     if t.total_seconds() < 1:
         mil = t.microseconds / 1000
@@ -134,7 +134,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
                  'is {10} {1}s.' \
                  ''.format(label0, label1, L, dataset_datasets, Ng_original, Ng_to_clustering, K, Ng_in_clusters,
                            np.min(np.sum(B_corrected, axis=0)), np.max(np.sum(B_corrected, axis=0)),
-                           np.mean(np.sum(B_corrected, axis=0)))
+                           int(round(np.mean(np.sum(B_corrected, axis=0)))))
     else:
         tmptxt = 'Clust received {2} {3} with {4} unique {0}. After filtering, {5} {1}s made it to the clustering ' \
                  'step. Clust generated {6} clusters of {1}s.' \
@@ -158,8 +158,8 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
 
     tmptxt = 'For enquiries contact:\n' \
              'Basel Abu-Jamous\n' \
-             'Department of Plant Sciences, University of Oxford\n' \
-             'basel.abujamous@plants.ox.ac.uk\n' \
+             'Sensyne Health, Oxford, UK\n' \
+             'basel.abu-jamous@sensynehealth.com\n' \
              'baselabujamous@gmail.com'
     res += msgformated(tmptxt)
     res += bottomline(withnewline=False)
@@ -359,6 +359,46 @@ def clusters_genes_Species(B, OGs, Map, MapSpecies):
         resFrames[sp] = pd.DataFrame(data=res[sp], columns=None, index=None, dtype=str)
 
     return resFrames
+
+
+'''
+B: Ng x K
+OGs: Ng x 1
+Map: Ng x Nspecies
+MapSpecies: array of names of species in the Map (header of Map)
+'''
+def clusters_B_as_dataframes(B, OGs, Map):
+    clusterslabels = ['C{0}'.format(c) for c in range(np.shape(B)[1])]
+    B = pd.DataFrame(B, OGs, clusterslabels, dtype=bool)
+
+    if Map is None:
+        return B
+    else:
+        Nsp = np.shape(Map)[1]
+        PerSpecies_B = [None] * Nsp
+        for sp in range(Nsp):
+            RowNames = [ds.concatenateStrings(gs, ',') for gs in Map[:, sp]]  # Groups of genes
+            PerSpecies_B[sp] = pd.DataFrame(B, RowNames, clusterslabels, dtype=bool)
+
+        return B, PerSpecies_B
+
+
+'''
+B: Ng x K
+OGs: Ng x 1
+Map: Ng x Nspecies
+MapSpecies: array of names of species in the Map (header of Map)
+'''
+def processed_X_as_dataframes(X_processed, OGs, conditions):
+    L = len(X_processed)
+
+    Xout = [None] * L
+
+    for l in range(L):
+        Xout[l] = pd.DataFrame(X_processed[l], OGs, conditions[l])
+
+    return Xout
+
 
 
 def processed_X(Xprocessed, conditions, GDM, OGs, Map, MapSpecies):

@@ -68,8 +68,6 @@ each dataset.*
 
 # Install *Clust*
 
-*Clust* is a Python package that requires Python 2.7 but is not compatible with Python 3 yet.
-
 ### Way 1
 
 * `sudo pip install clust`
@@ -86,7 +84,17 @@ Then run it from any directory as:
 
 * `clust ...`
 
-### Way 3 (less recommended)
+### Way 3
+
+Clust is available on Bioconda as well!
+
+* `conda install -c bioconda clust`
+
+Then run it from any directory as:
+
+* `clust ...`
+
+### Way 4 (less recommended)
 
 First, make sure you have all of the following Python packages installed:
 * numpy
@@ -94,7 +102,6 @@ First, make sure you have all of the following Python packages installed:
 * matplotlib
 * scikit-learn
 * pandas
-* sompy
 * joblib
 * portalocker
 
@@ -118,7 +125,9 @@ way you used to install *clust* (from the ways above), upgrade it by:
 
 - Way 2. `pip install --user clust --upgrade`
 
-- Way 3. Download the newer release file (clust-*.*.*.tar.gz) and use it
+- Way 3. `conda update -c bioconda clust`
+
+- Way 4. Download the newer release file (clust-*.*.*.tar.gz) and use it
 to run clust instead of the older one
 
 
@@ -215,6 +224,9 @@ application of normalisation techniques.
 * Log2 one-colour microarray gene expression data: **101 4**
 * Two-colour microarray gene expression data: **3 6**
 * Log2 two-colour microarray gene expression data: **6**
+* Log2 fold-changes **4**
+
+Based on these, if your data is recommended to use one of the codes which include the code **3**, but the dataset has too many zeros or some negative values, it is recommended to use **31** in the place of **3**. For example, if you have a one-colour microarray data with too many zeros or few negative values, use **101 31 4** instead of **101 3 4**.
 
 #### All normalisation codes
 
@@ -225,7 +237,7 @@ Code | Definition
 2|Divide by the first value of the row
 3|Log2
 31|Set all values that are less than 1.0 to 1.0, then log2 (v1.7.0+)
-4|Subtract the mean of the row and then divide by its standard deviation
+4|Z-score: subtract the mean of the row and then divide by its standard deviation
 5|Divide by the total (sum) of the row
 6|Subtract the mean value of the row
 7|Divide by the maximum value of the row
@@ -392,8 +404,7 @@ data_directory | The path of the directory including all data files
 -|-
 --no-optimisation | Skip the cluster optimisation step. Not recommended except to compare results before and after optimisation (default: optimisation is performed).
 -basemethods \<string> [\<string> ...] | One or more base clustering methods (default (V1.8.0+): k-means)
--|-
--np \<integer> | Number of parallel processes (default: 1) 
+-|- 
 -h, --help | show the help message and exit
 
 # Example datasets
