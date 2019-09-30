@@ -84,7 +84,17 @@ Then run it from any directory as:
 
 * `clust ...`
 
-### Way 3 (less recommended)
+### Way 3
+
+Clust is available on Bioconda as well!
+
+* `conda install -c bioconda clust`
+
+Then run it from any directory as:
+
+* `clust ...`
+
+### Way 4 (less recommended)
 
 First, make sure you have all of the following Python packages installed:
 * numpy
@@ -115,7 +125,9 @@ way you used to install *clust* (from the ways above), upgrade it by:
 
 - Way 2. `pip install --user clust --upgrade`
 
-- Way 3. Download the newer release file (clust-*.*.*.tar.gz) and use it
+- Way 3. `conda update -c bioconda clust`
+
+- Way 4. Download the newer release file (clust-*.*.*.tar.gz) and use it
 to run clust instead of the older one
 
 
