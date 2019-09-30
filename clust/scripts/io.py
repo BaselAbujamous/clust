@@ -237,7 +237,7 @@ def nploadtxt_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows
 def pdreadcsv_regexdelim(file, delimiter='\t| |, |; |,|;', dtype=float, skiprows=0, usecols=None, na_filter=True, comments='#'):
     with open(file) as f:
         result = pd.read_csv(StringIO('\n'.join(re.sub(delimiter, '\t', str(x)) for x in f)),
-                            delimiter='\t', dtype=dtype, header=-1, skiprows=skiprows, usecols=usecols, na_filter=na_filter, comment=comments).values
+                            delimiter='\t', dtype=dtype, header=None, skiprows=skiprows, usecols=usecols, na_filter=na_filter, comment=comments).values
     return result
 
 
