@@ -70,7 +70,7 @@ def set_best_fit_page_parameters(L, K):
     if maxrows_per_page == L:
         set_bands_per_page(1)
     elif maxrows_per_page > L:
-        set_bands_per_page((maxrows_per_page + 1)/ (L + 1))  # 1, 2, 3, 4, etc (int)
+        set_bands_per_page(int((maxrows_per_page + 1)/ (L + 1)))  # 1, 2, 3, 4, etc (int)
     else:
         set_bands_per_page(1.0 / math.ceil(float(L) / maxrows_per_page))  # 0.5, 0.33, 0.25, 0.2, etc (float)
 
