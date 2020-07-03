@@ -3,10 +3,21 @@
 # sudo rm -r dist/
 # sudo rm -r build/
 # Create the bdist_wheel file:
-# sudo python setup.py sdist bdist_wheel
+# sudo python3 setup.py sdist bdist_wheel
 # Upload to pypi:
 # twine upload dist/*
 # You will be asked for username (basel) and pword
+#
+# Updating bioconda:
+# Edit this GitHub file:
+# https://github.com/bioconda/bioconda-recipes/edit/master/recipes/clust/meta.yaml
+# Namely edit the version number and the sha256 number.
+#
+# Get the sha256 number by this in the command line:
+# wget -O- $URL | shasum -a 256
+# Where the URL is this (with {{ version }} filled:
+# https://pypi.io/packages/source/c/clust/clust-{{ version }}.tar.gz
+#
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
