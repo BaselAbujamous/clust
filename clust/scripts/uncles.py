@@ -434,14 +434,17 @@ def uncles(X, type='A', Ks=[n for n in range(4, 21, 4)], params=None, methods=No
             # Cache kmeans initialisations for the dataset once to save time:
             cl.cache_kmeans_init(Xloc[l], Ks, methodsDetailedloc[l], datasetID=l)
 
-            # Now go to parallel clustering
+            # Now go to parallel clustering (if parallelisation is needed)
             with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                Utmp = Parallel(n_jobs=ncores)\
-                    (delayed(clustDataset)
-                     (Xloc[l], Ks[ki], methodsDetailedloc[l], GDMloc[:, l], Ng, l) for ki in range(NKs))
+                if ncores == 1:
+                    Utmp = [clustDataset(Xloc[l], Ks[ki], methodsDetailedloc[l], GDMloc[:, l], Ng, l) for ki in range(NKs)]
+                else:
+                    warnings.simplefilter("ignore")
+                    Utmp = Parallel(n_jobs=ncores)\
+                        (delayed(clustDataset)
+                        (Xloc[l], Ks[ki], methodsDetailedloc[l], GDMloc[:, l], Ng, l) for ki in range(NKs))
 
-                Utmp = [u for u in Utmp]
+                    Utmp = [u for u in Utmp]
                 for ki in range(NKs):
                     Uloc[l, ki] = Utmp[ki]
 

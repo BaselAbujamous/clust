@@ -421,12 +421,15 @@ def optimise_tukey_sqrtSCG(B, X, GDM, clustdists=None, smallestClusterSize=11, t
 
         gi = 0
         for k in range(K):
-            Cmeans[l][k] = np.median(Xloc[l][Bloc[GDM[:, l], k], :], axis=0)
             if k in Cgood:
+                Cmeans[l][k] = np.median(Xloc[l][Bloc[GDM[:, l], k], :], axis=0)
                 csize = np.sum(Bloc[GDM[:, l], k])
                 tmpSCG = nu.subtractaxis(Xloc[l][Bloc[GDM[:, l], k], :], Cmeans[l][k], axis=0)
                 SCG[l][gi:(gi + csize), :] = np.abs(tmpSCG)
                 gi += csize
+            else:
+                Cmeans[l][k] = np.empty(Xloc[l].shape[1])
+                Cmeans[l][k][:] = np.nan
         SCG[l] = SCG[l][np.any(SCG[l], axis=1)]  # Remove all zeros genes (rows of SCG[l])
 
         if ds.numel(SCG[l] > 0):
