@@ -9,6 +9,7 @@ import clust.scripts.output as op
 import clust.scripts.graphics as graph
 import clust.scripts.glob as glob
 import clust.scripts.numeric as nu
+import clust.scripts.eigengene as eig
 import clust.scripts.validation as val
 import clust.scripts.datastructures as ds
 import numpy as np
@@ -186,6 +187,19 @@ def clustpipeline(datapath, mapfile=None, replicatesfile=None, normalisationfile
                                GDM=GDM, Cs='all', setPageToDefault=True, printToPDF=True, showPlots=False)
     except:
         io.log('Error: could not save clusters plots in a PDF file.\n'
+               'Resuming producing the other results files ...')
+
+    # Output: Generating and writing eigengenes
+    try:
+        if np.shape(B_corrected)[1] > 0:
+            if len(X_summarised_normalised) == 1:
+                eigengene_matrix = eig.eigengenes_dataframe(X_summarised_normalised, B_corrected, conditions)
+                eigengene_matrix.to_csv('{0}/Eigengenes.tsv'.format(outpath), sep='\t',
+                                    encoding='utf-8')
+            else:
+                io.log('Eigengene computation is currently not supported for multiple datasets.')
+    except:
+        io.log('Error: could not save eigengenes into a file.\n'
                'Resuming producing the other results files ...')
 
     # Output: Prepare message to standard output and the summary then save the summary to a file and print the message
