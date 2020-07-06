@@ -118,7 +118,7 @@ that is in the top level directory of the source code by:
 
 ### Upgrade clust to a newer version
 
-If you already have *clust* and you want to upgdare it, then based on the
+If you already have *clust* and you want to upgrade it, then based on the
 way you used to install *clust* (from the ways above), upgrade it by:
 
 - Way 1. `sudo pip install clust --upgrade`
