@@ -18,7 +18,7 @@ def main(args=None):
                                 'Version {0}\n'
                                 '\n'
                                 'By Dr Basel Abu-Jamous\n'
-                                'while at'
+                                'while at\n'
                                 'Department of Plant Sciences\n'
                                 'The University of Oxford\n'
                                 'baselabujamous@gmail.com'.format(version), '^')
