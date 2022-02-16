@@ -17,10 +17,11 @@ def main(args=None):
                                 'Optimised consensus clustering of multiple heterogeneous datasets\n'
                                 'Version {0}\n'
                                 '\n'
-                                'By Basel Abu-Jamous\n'
+                                'By Dr Basel Abu-Jamous\n'
+                                'while at'
                                 'Department of Plant Sciences\n'
                                 'The University of Oxford\n'
-                                'basel.abujamous@plants.ox.ac.uk'.format(version), '^')
+                                'baselabujamous@gmail.com'.format(version), '^')
     headertxt += op.midline()
     headertxt += op.msgformated('Citation\n'
                                 '~~~~~~~~', '^')
