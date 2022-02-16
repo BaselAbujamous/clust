@@ -80,7 +80,7 @@ def generateinitialmessage():
     res = '\n' + topline()
     tmptxt = 'Clust\n' \
              '(Optimised consensus clustering of multiple heterogenous datasets)\n' \
-             'Python package version {0} (2019) Basel Abu-Jamous'.format(version[1:])
+             'Python package version {0} (2022) Basel Abu-Jamous'.format(version[1:])
     res += msgformated(tmptxt, alignment='^')
     res += midline()
 
@@ -157,9 +157,7 @@ def generateoutputsummaryparag(X, Xprocessed, Map, GDMall, GDM, uncle_res, mn_re
     res += midline()
 
     tmptxt = 'For enquiries contact:\n' \
-             'Basel Abu-Jamous\n' \
-             'Sensyne Health, Oxford, UK\n' \
-             'basel.abu-jamous@sensynehealth.com\n' \
+             'Dr. Basel Abu-Jamous\n' \
              'baselabujamous@gmail.com'
     res += msgformated(tmptxt)
     res += bottomline(withnewline=False)

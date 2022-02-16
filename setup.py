@@ -45,7 +45,7 @@ def setupmain(args=None):
 
         # Author details
         author='Basel Abu-Jamous',
-        author_email='basel.abu-jamous@sensynehealth.com',
+        author_email='baselabujamous@gmail.com',
 
         # Choose your license
         license='OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',

@@ -32,14 +32,14 @@ def clusterdataset(X, K, methods=None, datasetID=-1):
 def ckmeans(X, K, datasetID=-1, params=()):
     global kmeans_init
 
-    pnames  = [     'init', 'max_iter', 'n_jobs',  'distance', 'n_init']
-    #dflts  = ['k-means++',        300,       -1, 'euclidean',       10]
-    dflts   = [       'KA',        300,       -1, 'euclidean',        1]
+    pnames  = [     'init', 'max_iter',  'distance', 'n_init']
+    #dflts  = ['k-means++',        300, 'euclidean',       10]
+    dflts   = [       'KA',        300, 'euclidean',        1]
     if isinstance(params, np.ndarray):
         paramsloc = params.tolist()
     else:
         paramsloc = params
-    (init, max_iter, n_jobs, distance, n_init) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
+    (init, max_iter, distance, n_init) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
 
     if datasetID in kmeans_init:
         init = kmeans_init[datasetID][0:K]
@@ -49,7 +49,7 @@ def ckmeans(X, K, datasetID=-1, params=()):
         else:
             init = initclusterKA_memorysaver(X, K, distance)
 
-    C = skcl.KMeans(K, init=init, max_iter=max_iter, n_init=n_init, n_jobs=n_jobs).fit(X).labels_
+    C = skcl.KMeans(K, init=init, max_iter=max_iter, n_init=n_init).fit(X).labels_
     return clustVec2partMat(C, K)
 
 
@@ -143,13 +143,13 @@ def cache_kmeans_init(X, K, methods, datasetID):
     for ms in range(len(methodsloc)):
         if methodsloc[ms][0].lower() in ['k-means', 'kmeans']:
             params = methodsloc[ms][1:]
-            pnames = ['init', 'max_iter', 'n_jobs',  'distance']
-            dflts  = [  'KA',        300,       -1, 'euclidean']
+            pnames = ['init', 'max_iter', 'distance']
+            dflts  = [  'KA',        300, 'euclidean']
             if isinstance(params, np.ndarray):
                 paramsloc = params.tolist()
             else:
                 paramsloc = params
-            (init, max_iter, n_jobs, distance) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
+            (init, max_iter, distance) = ds.resolveargumentpairs(pnames, dflts, paramsloc)
             kmeansFound = True
 
     # Perform initialisation over the largest K value and cache it, if k-means was found and init is some 'KA'
