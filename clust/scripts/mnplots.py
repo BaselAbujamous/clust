@@ -245,7 +245,7 @@ def mnplotsgreedy(X, B, type='A', params=None, allMSE=None, tightnessweight=1, s
     while len(uVdsI) != len(allDists):
         for n in range(len(allDists)):
             if n not in uVdsI:
-                allDists[n] += alpha * sp.random.normal()
+                allDists[n] += alpha * np.random.normal()
         tmp, uVdsI = np.unique(allDists, return_index=True)
 
     # Helper function for greedy solution below
