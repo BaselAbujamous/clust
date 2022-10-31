@@ -84,13 +84,13 @@ def setupmain(args=None):
         # requirements files see:
         # https://packaging.python.org/en/latest/requirements.html
         install_requires=[
-            'joblib', 
-            'portalocker',
-            'numpy', 
-            'scipy', 
+            'joblib>=1.2.0', 
+            'portalocker>=2.6.0',
+            'numpy>=1.23.4', 
+            'scipy>=1.9.3', 
             'pandas>=1.5.0', 
-            'matplotlib', 
-            'scikit-learn>=1.1.2',
+            'matplotlib>=3.6.1', 
+            'scikit-learn>=1.1.3',
         ],
 
         # If there are data files included in your packages that need to be
