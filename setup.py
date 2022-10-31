@@ -88,9 +88,9 @@ def setupmain(args=None):
             'portalocker',
             'numpy', 
             'scipy', 
-            'pandas', 
+            'pandas>=1.5.0', 
             'matplotlib', 
-            'scikit-learn',
+            'scikit-learn>=1.1.2',
         ],
 
         # If there are data files included in your packages that need to be

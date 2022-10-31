@@ -1,1 +1,4 @@
-from .clustpipeline import runclust
+try:
+    from .clustpipeline import runclust
+except ModuleNotFoundError:
+    pass
